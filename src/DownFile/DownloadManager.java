@@ -30,7 +30,7 @@ public class DownloadManager {
 //	}
 
 	public DownloadTask addTask(String url, String saveDirectory, String saveName) throws IOException {
-		DownloadTask downloadTask = new DownloadTask(url, saveDirectory, saveName);
+		DownloadTask downloadTask = new DownloadTask(url, saveDirectory, saveName, DEFAULT_TASK_THREAD_COUNT);
 		addTask(downloadTask);
 		return downloadTask;
 	}

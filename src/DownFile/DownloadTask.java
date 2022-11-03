@@ -14,7 +14,7 @@ public class DownloadTask {
 	public static final int PAUSED = 3;
 	public static final int FINISHED = 4;
 
-	public static int DEFAULT_THREAD_COUNT = 8;
+	public static int DEFAULT_THREAD_COUNT = 8;  //Number thread default
 	private static int Task_ID_COUNTER = 0;
 	
 	protected String mUrl;
@@ -126,10 +126,11 @@ public class DownloadTask {
 //		}
 //	}
 
-	public DownloadTask(String url, String saveDirectory, String saveName) throws IOException {
+	public DownloadTask(String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
 		this.mUrl = url;
 		setTargetFile(saveDirectory, saveName);
 		System.out.println("TaskID: " + mTaskID);
+		if(ThreadCount > 0) this.mThreadCount = ThreadCount;
 	}
 
 	public Boolean setTargetFile(String saveDir, String saveName) throws IOException {
@@ -291,6 +292,7 @@ public class DownloadTask {
         System.out.println("*******Task ID " + mTaskID + ": Thread " + Thread_ID + " download complete *********");
         completedThread++;
         if(completedThread == mThreadCount) System.out.println("\n--------Complete file " + mSaveName + " download--------\n");
+        DownloadManager.getInstance().cancelTask(mTaskID);
 	}
 
 	public void addPartedTask(DownloadRunnable runnable) {
