@@ -218,7 +218,7 @@ public class DownloadTask {
 		return runnables;
 	}
 
-//	private void resumeTask() throws IOException {   //KhÃ´i phá»¥c cÃ´ng viá»‡c dang dá»Ÿ
+//	private void resumeTask() throws IOException {   //Khôi phục công việc trước còn dang dở
 //		try {
 //			File progressFile = new File(FileUtils.getSafeDirPath(mProgressDir)
 //					+ File.separator + mProgressFileName);
@@ -257,7 +257,7 @@ public class DownloadTask {
 
 	public void startTask() {
 		setDownloadStatus(DOWNLOADING);
-		//resumeTask();	//KhÃ´i phá»¥c cÃ´ng viá»‡c trÆ°á»›c (Ä‘á»�c tá»« file history)
+		//resumeTask();	//Khôi phục công việc trước (đọc từ file history)
 		
 		if (mRecoveryInfos.size() != 0) {
 //			for (RecoveryInfo runnableInfo : mRecoveryInfos) {
@@ -321,7 +321,7 @@ public class DownloadTask {
 //	return new File(mHistoryDirectory + File.separator + mHistoryName);
 //}
 
-	public long getDownloadedSize() { //KÃ­ch thÆ°á»›c Ä‘Ã£ táº£i
+	public long getDownloadedSize() { //Kích thước đã tải
 		long size = 0;
 		for(DownloadRunnable r : listRunnable) {
 			size += r.getCurrentPosition() - r.getStartPosition();
@@ -383,7 +383,7 @@ public class DownloadTask {
 		return mTaskStatus;
 	}
 
-	public void storeProgress() { //LÆ°u tiáº¿n trÃ¬nh lÃ m viá»‡c
+	public void storeProgress() { //Lưu tiến trình làm việc
 //		try {
 //			JAXBContext context = JAXBContext
 //					.newInstance(DownloadTask.class);

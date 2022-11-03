@@ -17,7 +17,7 @@ public class Main {
 			downloadManager.start();
 			int counter = 0;
 			
-			//Láº·p Ä‘á»ƒ in ra tá»‘c Ä‘á»™ truyá»�n vÃ  cÃ¡c thÃ´ng tin khÃ¡c khi táº£i 1 file (thÃ´ng tin task), á»Ÿ Ä‘Ã¢y láº·p 2 láº§n Ä‘á»ƒ minh hoáº¡
+			//Lặp để in ra tốc độ tải và các thông tin khác khi tải 1 file (thông tin Task), ở đây lặp 2 lần để mình hoạ
 			while (counter < 2) {
 				// System.out.println("The task has finished :"
 				// + task.getReadableSize() + "Active Count:"
