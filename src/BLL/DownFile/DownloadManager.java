@@ -1,17 +1,12 @@
-package DownFile;
+package BLL.DownFile;
 
 import java.io.IOException;
 import java.util.Hashtable;
 
+import BLL.Values;
+
 public class DownloadManager {
-
 	private static DownloadManager instance;
-
-	public static final int DEFAULT_TASK_THREAD_COUNT = 8;
-
-	public static final int DEFAULT_KEEP_ALIVE_TIME = 0;
-
-	private static int ID = 0;
 	private Hashtable<Integer, DownloadTask> mTasks = new Hashtable<Integer, DownloadTask>();
 
 	private DownloadManager() {
@@ -28,15 +23,20 @@ public class DownloadManager {
 //		if (MaxCount > 0)
 //			mThreadPool.setCorePoolSize(MaxCount);
 //	}
-
+	
 	public DownloadTask addTask(String url, String saveDirectory, String saveName) throws IOException {
-		DownloadTask downloadTask = new DownloadTask(url, saveDirectory, saveName, DEFAULT_TASK_THREAD_COUNT);
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, Values.DEFAULT_THREAD_COUNT);
 		addTask(downloadTask);
 		return downloadTask;
 	}
 
+	public void addTask(String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount);
+		addTask(downloadTask);
+	}
+
 	public void addTask(DownloadTask downloadTask) {
-		mTasks.put(ID++, downloadTask);
+		mTasks.put(downloadTask.getTaskID(), downloadTask);
 	}
 
 	public DownloadTask getTask(int TaskID) {
@@ -45,7 +45,8 @@ public class DownloadManager {
 
 	public void start() {
 		for (DownloadTask task : mTasks.values()) {
-			task.startTask();
+			if(task.getDownloadStatus() != Values.DOWNLOADING);
+				task.startTask();
 		}
 	}
 

@@ -1,4 +1,4 @@
-package DownFile;
+package BLL.DownFile;
 
 import java.text.DecimalFormat;
 

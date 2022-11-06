@@ -1,4 +1,4 @@
-package DownFile;
+package BLL.DownFile;
 
 import java.io.File;
 import java.io.IOException;

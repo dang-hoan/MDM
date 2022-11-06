@@ -1,4 +1,4 @@
-package DownFile;
+package BLL.DownFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,41 +7,35 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import BLL.Values;
+
 public class DownloadTask {
-
-	public static final int READY = 1;
-	public static final int DOWNLOADING = 2;
-	public static final int PAUSED = 3;
-	public static final int FINISHED = 4;
-
-	public static int DEFAULT_THREAD_COUNT = 8;  //Number thread default
-	private static int Task_ID_COUNTER = 0;
+	private int mTaskID;
+	private int mTaskStatus = Values.READY;
+	private boolean isFinished = false;
 	
-	protected String mUrl;
-	protected String mSaveDirectory;
-	protected String mSaveName;
-	protected int mTaskID = Task_ID_COUNTER++;
+	private String mUrl;
+	private String mSaveDirectory;
+	private String mSaveName;
+	
+	private int mFileSize;	
+	private int mThreadCount = Values.DEFAULT_THREAD_COUNT;
+	private int completedThread = 0;
 	
 	private ArrayList<DownloadRunnable> listRunnable = new ArrayList<DownloadRunnable>();
-	private ArrayList<RecoveryInfo> mRecoveryInfos = new ArrayList<DownloadTask.RecoveryInfo>();
+	private ArrayList<RecoveryInfo> mRecoveryInfos = new ArrayList<DownloadTask.RecoveryInfo>(); //Thông tin khôi phục cho các luồng
 
-	private int mTaskStatus = READY;
+	private SpeedMonitor mSpeedMonitor = new SpeedMonitor(this);
 
-	private int mFileSize;
-	private int mThreadCount = DEFAULT_THREAD_COUNT;
-	private int completedThread = 0;
-	private boolean isFinished = false;
-
-	protected SpeedMonitor mSpeedMonitor = new SpeedMonitor(this);
-
-	protected Timer mSpeedTimer = new Timer();
-	protected Timer mStoreTimer = new Timer();
+	private Timer mSpeedTimer = new Timer();
+//	private Timer mStoreTimer = new Timer();
 
 	static class RecoveryInfo {
 
 		private int mStartPosition;
-		private int mEndPosition;
 		private int mCurrentPosition;
+		private int mEndPosition;
 		private boolean isFinished = false;
 
 		public RecoveryInfo(int start, int current, int end) {
@@ -126,11 +120,12 @@ public class DownloadTask {
 //		}
 //	}
 
-	public DownloadTask(String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
+		this.mTaskID = TaskID;
 		this.mUrl = url;
 		setTargetFile(saveDirectory, saveName);
-		System.out.println("TaskID: " + mTaskID);
 		if(ThreadCount > 0) this.mThreadCount = ThreadCount;
+		System.out.println("TaskID: " + mTaskID);
 	}
 
 	public Boolean setTargetFile(String saveDir, String saveName) throws IOException {
@@ -155,7 +150,7 @@ public class DownloadTask {
 		return true;
 	}
 
-	public int getTaskItD() {
+	public int getTaskID() {
 		return mTaskID;
 	}
 
@@ -191,15 +186,6 @@ public class DownloadTask {
 		return mThreadCount;
 	}
 
-	public void setDefaultThreadCount(int default_thread_count) {
-		if (default_thread_count > 0)
-			DEFAULT_THREAD_COUNT = default_thread_count;
-	}
-
-	public int getDefaultThreadCount() {
-		return DEFAULT_THREAD_COUNT;
-	}
-
 	private ArrayList<DownloadRunnable> splitDownload(int thread_count) { 				//Split thread
 		ArrayList<DownloadRunnable> runnables = new ArrayList<DownloadRunnable>();
 		try {
@@ -219,7 +205,7 @@ public class DownloadTask {
 		return runnables;
 	}
 
-//	private void resumeTask() throws IOException {   //Khôi phục công việc trước còn dang dở
+//	private void resumeProgress() throws IOException {   //Khôi phục công việc trước còn dang dở
 //		try {
 //			File progressFile = new File(FileUtils.getSafeDirPath(mProgressDir)
 //					+ File.separator + mProgressFileName);
@@ -257,8 +243,8 @@ public class DownloadTask {
 //	}
 
 	public void startTask() {
-		setDownloadStatus(DOWNLOADING);
-		//resumeTask();	//Khôi phục công việc trước (đọc từ file history)
+		setDownloadStatus(Values.DOWNLOADING);
+		//resumeProgress();	//Khôi phục công việc của các luồng
 		
 		if (mRecoveryInfos.size() != 0) {
 //			for (RecoveryInfo runnableInfo : mRecoveryInfos) {
@@ -291,8 +277,11 @@ public class DownloadTask {
 	public void notify(int Thread_ID) {
         System.out.println("*******Task ID " + mTaskID + ": Thread " + Thread_ID + " download complete *********");
         completedThread++;
-        if(completedThread == mThreadCount) System.out.println("\n--------Complete file " + mSaveName + " download--------\n");
-        DownloadManager.getInstance().cancelTask(mTaskID);
+        if(completedThread == mThreadCount) {
+        	isFinished = true;
+        	System.out.println("\n--------Complete file " + mSaveName + " download--------\n");
+            DownloadManager.getInstance().cancelTask(mTaskID);
+        }
 	}
 
 	public void addPartedTask(DownloadRunnable runnable) {
@@ -368,33 +357,28 @@ public class DownloadTask {
 	}
 
 	public void pause() {
-		setDownloadStatus(PAUSED);
+		setDownloadStatus(Values.PAUSED);
 		storeProgress();
 //		mThreadPoolRef.pause(mTaskID);
 	}
 
 	private void setDownloadStatus(int status) {
-		if (status == FINISHED) {
+		if (status == Values.FINISHED) {
 			isFinished = true;
 			mSpeedTimer.cancel();
 		}
 		mTaskStatus = status;
 	}
 	
-	private int getDownloadStatus() {
+	public int getDownloadStatus() {
 		return mTaskStatus;
 	}
 
 	public void storeProgress() { //Lưu tiến trình làm việc
-//		try {
-//			JAXBContext context = JAXBContext
-//					.newInstance(DownloadTask.class);
-//			Marshaller m = context.createMarshaller();
-//			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-//			m.marshal(this, getProgressFile());
-//		} catch (JAXBException e) {
-//			e.printStackTrace();
-//		}
+		mRecoveryInfos.clear();
+		for(int i = 0; i < listRunnable.size(); i++) {
+			
+		}
 	}
 
 //	public static DownloadTask recoverTaskFromProgressFile(

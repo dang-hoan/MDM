@@ -1,4 +1,4 @@
-package DownFile;
+package BLL.DownFile;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -46,8 +46,11 @@ public class DownloadRunnable implements Runnable {
 		this.Thread_ID = Thread_ID;
 	}
 
-	public DownloadRunnable(String mFileUrl, String mSaveDirectory, String mSaveFileName, 
-			int mStartPosition,	int mCurrentPosition, int mEndPosition, int Task_ID, int Thread_ID, DownloadTask Task) {
+	public DownloadRunnable(
+			String mFileUrl, String mSaveDirectory, String mSaveFileName, 
+			int mStartPosition,	int mCurrentPosition, int mEndPosition,
+			int Task_ID, int Thread_ID, DownloadTask Task) {
+		
 		this(mFileUrl, mSaveDirectory, mSaveFileName, mStartPosition, mEndPosition, Task_ID, Thread_ID, Task);
 		this.mCurrentPosition = mCurrentPosition;
 	}

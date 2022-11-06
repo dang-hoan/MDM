@@ -1,6 +1,6 @@
 package View;
 
-import DownFile.*;
+import BLL.DownFile.DownloadManager;
 import java.io.IOException;
 
 public class Main {
@@ -8,13 +8,11 @@ public class Main {
 	public static void main(String[] args) {
 		DownloadManager downloadManager = DownloadManager.getInstance();
 		String url = "https://1.bp.blogspot.com/-a71p9zvla98/UkP4-cPfK4I/AAAAAAAAAg8/va9AmdChErg/s1600/anh-dep-hinh-nen-thien-nhien-0.jpg";
-		String saveDirectory = "D:\\Học tập\\Năm 3 kỳ 1\\PBL4";
+		String saveDirectory = "C:\\Users\\DELL\\Downloads";
 		
 		try {
-			DownloadTask task = new DownloadTask(url, saveDirectory, "file110", 8);
-			downloadManager.addTask(task);
-			DownloadTask task2 = new DownloadTask(url, saveDirectory, "file120", 8);
-			downloadManager.addTask(task2);
+			downloadManager.addTask(url, saveDirectory, "file110", 8);
+			downloadManager.addTask(url, saveDirectory, "file120", 8);
 			downloadManager.start();
 			int counter = 0;
 			

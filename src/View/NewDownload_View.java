@@ -1,8 +1,7 @@
 package View;
 
 import javax.swing.JFrame;
-import DownFile.DownloadManager;
-import DownFile.DownloadTask;
+import BLL.DownFile.DownloadManager;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -110,8 +109,7 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						DownloadTask task = new DownloadTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())));
-						downloadManager.addTask(task);
+						downloadManager.addTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())));
 						downloadManager.start();					
 					} catch (MalformedURLException e1) {
 						e1.printStackTrace();
@@ -153,6 +151,7 @@ public class NewDownload_View extends JFrame {
 		for(int i = 1; i <= cbNumber.getMaximumRowCount(); i++)
 			item.add(Integer.toString(i));
 		cbNumber.setModel(new DefaultComboBoxModel(item.toArray()));
+		cbNumber.setSelectedIndex(7);
 		getContentPane().add(cbNumber);
 		
 		bCancel.addActionListener(new ActionListener() {
