@@ -1,6 +1,8 @@
 package View;
 
 import javax.swing.JFrame;
+
+import BLL.Values;
 import BLL.DownFile.DownloadManager;
 
 import javax.swing.JLabel;
@@ -26,8 +28,8 @@ import javax.swing.JTextArea;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 
+@SuppressWarnings("serial")
 public class NewDownload_View extends JFrame {
 	private JButton bCancel;
 	private JButton bDownload;
@@ -39,7 +41,7 @@ public class NewDownload_View extends JFrame {
 	private JButton btnNewButton;
 	private JLabel labSaveAt;
 	private JLabel labNumber;
-	private JComboBox cbNumber;
+	private JComboBox<?> cbNumber;
 	private String folder = new File(System.getProperty("user.home"), "Downloads").getAbsolutePath();
 	DownloadManager downloadManager = DownloadManager.getInstance();
 
@@ -109,8 +111,7 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						downloadManager.addTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())));
-						downloadManager.start();					
+						downloadManager.addTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), true);					
 					} catch (MalformedURLException e1) {
 						e1.printStackTrace();
 					} catch (IOException e1) {
@@ -143,15 +144,14 @@ public class NewDownload_View extends JFrame {
 		labNumber.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		labNumber.setBounds(44, 129, 89, 14);
 		getContentPane().add(labNumber);
-		
-		cbNumber = new JComboBox();
-		cbNumber.setMaximumRowCount(50);
-		cbNumber.setBounds(139, 125, 43, 22);
+
 		List<String> item = new ArrayList<String>();
-		for(int i = 1; i <= cbNumber.getMaximumRowCount(); i++)
+		for(int i = Values.MIN_THREAD_COUNT; i <= Values.MAX_THREAD_COUNT; i++)
 			item.add(Integer.toString(i));
-		cbNumber.setModel(new DefaultComboBoxModel(item.toArray()));
-		cbNumber.setSelectedIndex(7);
+		
+		cbNumber = new JComboBox<>(item.toArray());
+		cbNumber.setBounds(139, 125, 43, 22);
+		cbNumber.setSelectedItem(Integer.toString(Values.DEFAULT_THREAD_COUNT));
 		getContentPane().add(cbNumber);
 		
 		bCancel.addActionListener(new ActionListener() {

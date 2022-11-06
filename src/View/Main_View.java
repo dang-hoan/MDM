@@ -19,6 +19,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+@SuppressWarnings("serial")
 public class Main_View extends JFrame {
 
 	private JPanel contentPane;

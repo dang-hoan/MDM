@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Timer;
+//import java.util.Timer;
 import java.util.TimerTask;
 
 import BLL.Values;
@@ -13,7 +13,6 @@ import BLL.Values;
 public class DownloadTask {
 	private int mTaskID;
 	private int mTaskStatus = Values.READY;
-	private boolean isFinished = false;
 	
 	private String mUrl;
 	private String mSaveDirectory;
@@ -24,21 +23,21 @@ public class DownloadTask {
 	private int completedThread = 0;
 	
 	private ArrayList<DownloadRunnable> listRunnable = new ArrayList<DownloadRunnable>();
-	private ArrayList<RecoveryInfo> mRecoveryInfos = new ArrayList<DownloadTask.RecoveryInfo>(); //Thông tin khôi phục cho các luồng
+	private ArrayList<RunnableRecoveryInfo> mRunnableRecoveryInfos = new ArrayList<RunnableRecoveryInfo>(); //Thông tin khôi phục cho các luồng
 
 	private SpeedMonitor mSpeedMonitor = new SpeedMonitor(this);
 
-	private Timer mSpeedTimer = new Timer();
+//	private Timer mSpeedTimer = new Timer();
 //	private Timer mStoreTimer = new Timer();
 
-	static class RecoveryInfo {
+	static class RunnableRecoveryInfo {
 
 		private int mStartPosition;
 		private int mCurrentPosition;
 		private int mEndPosition;
 		private boolean isFinished = false;
 
-		public RecoveryInfo(int start, int current, int end) {
+		public RunnableRecoveryInfo(int start, int current, int end) {
 			if (end > start && current > start) {
 				mStartPosition = start;
 				mCurrentPosition = current;
@@ -226,7 +225,7 @@ public class DownloadTask {
 //				throw new IOException(
 //						"Try to continue download file , but target file does not exist");
 //			}
-//			ArrayList<RecoveryRunnableInfo> recoveryRunnableInfos = getDownloadProgress();
+//			ArrayList<RunnableRecoveryInfo> mRunnableRecoveryInfos = getDownloadProgress();
 //			recoveryRunnableInfos.clear();
 //			for (DownloadRunnable runnable : task.listRunnable) {
 //				recoveryRunnableInfos.add(new RecoveryRunnableInfo(runnable
@@ -246,7 +245,7 @@ public class DownloadTask {
 		setDownloadStatus(Values.DOWNLOADING);
 		//resumeProgress();	//Khôi phục công việc của các luồng
 		
-		if (mRecoveryInfos.size() != 0) {
+		if (mRunnableRecoveryInfos.size() != 0) {
 //			for (RecoveryInfo runnableInfo : mRecoveryInfos) {
 //				if (runnableInfo.isFinished == false) {
 //					DownloadRunnable runnable = new DownloadRunnable(mMonitor,
@@ -260,6 +259,7 @@ public class DownloadTask {
 //					threadPool.submit(runnable);
 //				}
 //			}
+			System.out.println("recovery");
 		} else {
 			for (DownloadRunnable runnable : splitDownload(mThreadCount)) {
 				Thread t = new Thread(runnable);
@@ -267,18 +267,14 @@ public class DownloadTask {
 				t.start();
 			}
 		}
-		mSpeedTimer.scheduleAtFixedRate(mSpeedMonitor, 0, 1000);
-	}
-
-	public boolean isFinished() {
-		return isFinished;
+//		mSpeedTimer.scheduleAtFixedRate(mSpeedMonitor, 0, 1000);
 	}
 	
 	public void notify(int Thread_ID) {
         System.out.println("*******Task ID " + mTaskID + ": Thread " + Thread_ID + " download complete *********");
         completedThread++;
         if(completedThread == mThreadCount) {
-        	isFinished = true;
+        	mTaskStatus = Values.FINISHED;
         	System.out.println("\n--------Complete file " + mSaveName + " download--------\n");
             DownloadManager.getInstance().cancelTask(mTaskID);
         }
@@ -364,8 +360,7 @@ public class DownloadTask {
 
 	private void setDownloadStatus(int status) {
 		if (status == Values.FINISHED) {
-			isFinished = true;
-			mSpeedTimer.cancel();
+//			mSpeedTimer.cancel();
 		}
 		mTaskStatus = status;
 	}
@@ -375,7 +370,7 @@ public class DownloadTask {
 	}
 
 	public void storeProgress() { //Lưu tiến trình làm việc
-		mRecoveryInfos.clear();
+		mRunnableRecoveryInfos.clear();
 		for(int i = 0; i < listRunnable.size(); i++) {
 			
 		}
@@ -425,14 +420,15 @@ public class DownloadTask {
 //		getHistoryFile().delete();
 	}
 
-	public ArrayList<RecoveryInfo> getDownloadProgress() {
-		return mRecoveryInfos;
+	public ArrayList<RunnableRecoveryInfo> getDownloadProgress() {
+		return mRunnableRecoveryInfos;
 	}
 
 	public void cancel() {
 		deleteHistoryFile();
-		mSpeedTimer.cancel();
+//		mSpeedTimer.cancel();
 		listRunnable.clear();
+		mRunnableRecoveryInfos.clear();
 //		mThreadPoolRef.cancel(mTaskID);
 	}
 }

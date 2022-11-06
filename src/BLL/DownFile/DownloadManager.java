@@ -24,15 +24,13 @@ public class DownloadManager {
 //			mThreadPool.setCorePoolSize(MaxCount);
 //	}
 	
-	public DownloadTask addTask(String url, String saveDirectory, String saveName) throws IOException {
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, Values.DEFAULT_THREAD_COUNT);
-		addTask(downloadTask);
-		return downloadTask;
-	}
-
-	public void addTask(String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
+	public void addTask(String url, String saveDirectory, String saveName, int ThreadCount, Boolean now) throws IOException {
+		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
+			ThreadCount = Values.DEFAULT_THREAD_COUNT;
+		}
 		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount);
 		addTask(downloadTask);
+		if(now == true) downloadTask.startTask();
 	}
 
 	public void addTask(DownloadTask downloadTask) {
@@ -43,13 +41,13 @@ public class DownloadManager {
 		return mTasks.get(TaskID);
 	}
 
-	public void start() {
+	public void startAll() {
 		for (DownloadTask task : mTasks.values()) {
-			if(task.getDownloadStatus() != Values.DOWNLOADING);
+			if(task.getDownloadStatus() == Values.READY);
 				task.startTask();
 		}
 	}
-
+	
 	public Boolean isAllTasksFinished() {
 		for (Integer task_id : mTasks.keySet()) {
 			if (isTaskFinished(task_id) == false) {
@@ -61,7 +59,7 @@ public class DownloadManager {
 
 	public Boolean isTaskFinished(int task_id) {
 		DownloadTask task = mTasks.get(task_id);
-		return task.isFinished();
+		return task.getDownloadStatus() == Values.FINISHED;
 	}
 
 	public void pauseAllTasks() {
@@ -71,7 +69,7 @@ public class DownloadManager {
 	}
 
 	public void pauseTask(int TaskID) {
-		if (mTasks.contains(TaskID)) {
+		if (mTasks.containsKey(TaskID)) {
 			DownloadTask task = mTasks.get(TaskID);
 			task.pause();
 		}
@@ -84,7 +82,7 @@ public class DownloadManager {
 	}
 
 	public void cancelTask(int TaskID) {
-		if (mTasks.contains(TaskID)) {
+		if (mTasks.containsKey(TaskID)) {
 			DownloadTask Task = mTasks.remove(TaskID);
 			Task.cancel();
 		}
