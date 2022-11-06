@@ -6,7 +6,6 @@ import BLL.Values;
 import BLL.DownFile.DownloadManager;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -64,13 +63,14 @@ public class NewDownload_View extends JFrame {
 //				}
 				JFileChooser jfc = new JFileChooser();
 				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+//				jfc.setbu
 				
-				//File dir = new File(folder); //Đặt thư mục cũ
-//				if (file != null) {
-//					jfc.setCurrentDirectory(file);
-//				}
+				File dir = new File(folder); //Đặt thư mục mặc định
+				if (dir != null) {
+					jfc.setCurrentDirectory(dir);
+				}
 				
-				if (jfc.showOpenDialog(new JPanel()) == JFileChooser.APPROVE_OPTION) {
+				if (jfc.showDialog(NewDownload_View.this, "Choose folder") == JFileChooser.APPROVE_OPTION) {
 					folder = jfc.getSelectedFile().getAbsolutePath();
 					labSaveAt.setText("Save at: " + folder);
 				}
@@ -88,7 +88,7 @@ public class NewDownload_View extends JFrame {
 		
 		txtURL = new JTextArea();
 		txtURL.setBounds(118, 37, 281, 22);
-		
+
 		txtURL.setText((String) Toolkit.getDefaultToolkit().getSystemClipboard()
 				.getData(DataFlavor.stringFlavor));
 		getContentPane().add(txtURL);

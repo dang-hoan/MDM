@@ -11,9 +11,7 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 //import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,6 +20,7 @@ import BLL.Values;
 public class DownloadTask {
 	private int TaskID;
 	private int TaskStatus = Values.READY;
+	private long createDate;
 	
 	private String Url;
 	private String SaveDirectory;
@@ -116,9 +115,14 @@ public class DownloadTask {
 		ProgressFile = saveName + ".tmp";
 
 		File file = new File(SaveDirectory, SaveFile);
-		if (file.exists() == false) {
-			file.createNewFile();
+		String f = saveName;
+		int i = 1;
+		while(file.exists() == true) {
+			SaveFile = f + "(" + Integer.toString(i) + ")" + "." + getFileType(Url).split("/")[1];
+			file = new File(SaveDirectory, SaveFile);
+			i += 1;
 		}
+		file.createNewFile();
 		return true;
 	}
 
@@ -217,8 +221,7 @@ public class DownloadTask {
 		}
 		
 		for (DownloadRunnable runnable : ListRunnable) {
-			Thread t = new Thread(runnable);
-			t.start();
+			runnable.start();
 		}
 //		SpeedTimer.scheduleAtFixedRate(SpeedMonitor, 0, 1000);
 	}
@@ -237,6 +240,7 @@ public class DownloadTask {
         ListRunnable.remove(getThreadByID(ThreadID));
         if(completedThread == ThreadCount) {
         	TaskStatus = Values.FINISHED;
+        	createDate = System.currentTimeMillis();
         	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
             DownloadManager.getInstance().cancelTask(TaskID);
         }
@@ -308,8 +312,11 @@ public class DownloadTask {
 
 	public void pause() throws IOException {
 		setDownloadStatus(Values.PAUSED);
+		createDate = System.currentTimeMillis();
 		storeProgress();
-//		mThreadPoolRef.pause(TaskID);
+		for(DownloadRunnable i : ListRunnable) {
+			i.pause();			
+		}
 	}
 
 	private void setDownloadStatus(int status) {
@@ -322,22 +329,26 @@ public class DownloadTask {
 	public int getDownloadStatus() {
 		return TaskStatus;
 	}
-
+	
+	public long getCreateDate() {
+		return createDate;
+	}
+	
 	public void storeProgress() throws IOException { //Lưu tiến trình làm việc
 		File dir = new File(DownloadManager.getInstance().getDataDir());
 		if (dir.exists() == false) {
-			dir.createNewFile();
+			dir.mkdir();
 		}
+
 		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
 		if (file.exists() == false) {
 			file.createNewFile();
 		}
 		BufferedWriter writer = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss z 'on' dd-MM-yyyy");
 		String newLine = System.getProperty("line.separator");
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8")));
-			writer.write(ListRunnable.size());
+			writer.write(Integer.toString(ListRunnable.size()));
 			writer.newLine();
 			for(DownloadRunnable i : ListRunnable) {
 				String s = i.getThreadID() + newLine + 
@@ -346,7 +357,7 @@ public class DownloadTask {
 						   i.getEndPosition() + newLine;
 				writer.write(s);				
 			}
-			writer.write(dateFormat.format(new Date(System.currentTimeMillis())) + newLine);
+			writer.write(createDate + newLine);
 			writer.close();
 		} catch (Exception e) {
 			try {
@@ -355,8 +366,6 @@ public class DownloadTask {
 			} catch (Exception e1) {
 			}
 		}
-//		RunnableRecoveryInfos.clear();
-
 //		ListRunnable.clear();
 	}
 

@@ -8,7 +8,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class DownloadRunnable implements Runnable {
-
+	private Thread t;
 	private static final int BUFFER_SIZE = 1024;
 
 	private String FileUrl;
@@ -54,6 +54,15 @@ public class DownloadRunnable implements Runnable {
 		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID, Task);
 		this.CurrentPosition = CurrentPosition;
 	}
+	
+	public void start() {
+		t = new Thread(this);
+		t.start();
+	}
+	
+	public void pause() {
+		if(t != null) t.interrupt();
+	}
 
 	@Override
 	public void run() {
@@ -98,6 +107,8 @@ public class DownloadRunnable implements Runnable {
 							+ " was interrupted, Start:" + StartPosition
 							+ " Current:" + CurrentPosition + " End:"
 							+ EndPosition);
+					bufferedInputStream.close();
+					randomAccessFile.close();
 					break;
 				}
 				int len = bufferedInputStream.read(buf, 0, BUFFER_SIZE);
