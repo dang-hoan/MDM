@@ -1,13 +1,15 @@
 package BLL.DownFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
 import BLL.Values;
 
 public class DownloadManager {
+	private String DataDir = System.getProperty("user.home") + File.separator + ".mdm";
 	private static DownloadManager instance;
-	private Hashtable<Integer, DownloadTask> mTasks = new Hashtable<Integer, DownloadTask>();
+	private Hashtable<Integer, DownloadTask> Tasks = new Hashtable<Integer, DownloadTask>();
 
 	private DownloadManager() {
 	}
@@ -21,7 +23,7 @@ public class DownloadManager {
 
 //	public void setMaxThreadCount(int MaxCount) {
 //		if (MaxCount > 0)
-//			mThreadPool.setCorePoolSize(MaxCount);
+//			ThreadPool.setCorePoolSize(MaxCount);
 //	}
 	
 	public void addTask(String url, String saveDirectory, String saveName, int ThreadCount, Boolean now) throws IOException {
@@ -34,22 +36,22 @@ public class DownloadManager {
 	}
 
 	public void addTask(DownloadTask downloadTask) {
-		mTasks.put(downloadTask.getTaskID(), downloadTask);
+		Tasks.put(downloadTask.getTaskID(), downloadTask);
 	}
 
 	public DownloadTask getTask(int TaskID) {
-		return mTasks.get(TaskID);
+		return Tasks.get(TaskID);
 	}
 
-	public void startAll() {
-		for (DownloadTask task : mTasks.values()) {
+	public void startAll() throws IOException {
+		for (DownloadTask task : Tasks.values()) {
 			if(task.getDownloadStatus() == Values.READY);
 				task.startTask();
 		}
 	}
 	
 	public Boolean isAllTasksFinished() {
-		for (Integer task_id : mTasks.keySet()) {
+		for (Integer task_id : Tasks.keySet()) {
 			if (isTaskFinished(task_id) == false) {
 				return false;
 			}
@@ -58,46 +60,50 @@ public class DownloadManager {
 	}
 
 	public Boolean isTaskFinished(int task_id) {
-		DownloadTask task = mTasks.get(task_id);
+		DownloadTask task = Tasks.get(task_id);
 		return task.getDownloadStatus() == Values.FINISHED;
 	}
 
-	public void pauseAllTasks() {
-		for (Integer taskID : mTasks.keySet()) {
+	public void pauseAllTasks() throws IOException {
+		for (Integer taskID : Tasks.keySet()) {
 			pauseTask(taskID);
 		}
 	}
 
-	public void pauseTask(int TaskID) {
-		if (mTasks.containsKey(TaskID)) {
-			DownloadTask task = mTasks.get(TaskID);
+	public void pauseTask(int TaskID) throws IOException {
+		if (Tasks.containsKey(TaskID)) {
+			DownloadTask task = Tasks.get(TaskID);
 			task.pause();
 		}
 	}
 
 	public void cancelAllTasks() {
-		for (Integer taskID : mTasks.keySet()) {
+		for (Integer taskID : Tasks.keySet()) {
 			cancelTask(taskID);
 		}
 	}
 
 	public void cancelTask(int TaskID) {
-		if (mTasks.containsKey(TaskID)) {
-			DownloadTask Task = mTasks.remove(TaskID);
+		if (Tasks.containsKey(TaskID)) {
+			DownloadTask Task = Tasks.remove(TaskID);
 			Task.cancel();
 		}
 	}
 
-	public void shutdownSafely() {
-		for (Integer task_id : mTasks.keySet()) {
-			mTasks.get(task_id).pause();
+	public void shutdownSafely() throws IOException {
+		for (Integer task_id : Tasks.keySet()) {
+			Tasks.get(task_id).pause();
 		}
 //		mThreadPool.shutdown();
 	}
 
+	public String getDataDir() {
+		return DataDir;
+	}
+	
 	public int getTotalDownloadedSize() {
 		int size = 0;
-		for (DownloadTask Task : mTasks.values()) {
+		for (DownloadTask Task : Tasks.values()) {
 			size += Task.getDownloadedSize();
 		}
 		return size;
@@ -109,7 +115,7 @@ public class DownloadManager {
 
 	public int getTotalSpeed() {
 		int speed = 0;
-		for (DownloadTask Task : mTasks.values()) {
+		for (DownloadTask Task : Tasks.values()) {
 			speed += Task.getSpeed();
 		}
 		return speed;
@@ -118,7 +124,7 @@ public class DownloadManager {
 	public String getReadableTotalSpeed() {
 		return DownloadUtils.getReadableSpeed(getTotalSpeed());
 	}
-
+		
 	public void shutdDownloadRudely() {
 //		mThreadPool.shutdownNow();
 	}

@@ -11,17 +11,17 @@ public class DownloadRunnable implements Runnable {
 
 	private static final int BUFFER_SIZE = 1024;
 
-	private String mFileUrl;
-	private String mSaveDirectory;
-	private String mSaveFileName;
+	private String FileUrl;
+	private String SaveDirectory;
+	private String SaveFileName;
 	
-	private int mStartPosition;
-	private int mCurrentPosition;
-	private int mEndPosition;
+	private int StartPosition;
+	private int CurrentPosition;
+	private int EndPosition;
 	
 	DownloadTask Task;
-	public final int Task_ID;
-	public final int Thread_ID;
+	public final int TaskID;
+	public final int ThreadID;
 
 //	private DownloadRunnable() {
 //		// just use for annotation
@@ -29,42 +29,42 @@ public class DownloadRunnable implements Runnable {
 //		Task_ID = -1;
 //	}
 
-	public DownloadRunnable(String mFileUrl,
-			String mSaveDirectory, String mSaveFileName, int mStartPosition,
-			int mEndPosition, int Task_ID, int Thread_ID, DownloadTask Task) {
+	public DownloadRunnable(String FileUrl,
+			String SaveDirectory, String SaveFileName, int StartPosition,
+			int EndPosition, int TaskID, int ThreadID, DownloadTask Task) {
 		super();
-		this.mFileUrl = mFileUrl;
-		this.mSaveDirectory = mSaveDirectory;
-		this.mSaveFileName = mSaveFileName;
+		this.FileUrl = FileUrl;
+		this.SaveDirectory = SaveDirectory;
+		this.SaveFileName = SaveFileName;
 		
-		this.mStartPosition = mStartPosition;
-		this.mEndPosition = mEndPosition;
-		this.mCurrentPosition = this.mStartPosition;
+		this.StartPosition = StartPosition;
+		this.EndPosition = EndPosition;
+		this.CurrentPosition = this.StartPosition;
 		
 		this.Task = Task;
-		this.Task_ID = Task_ID;
-		this.Thread_ID = Thread_ID;
+		this.TaskID = TaskID;
+		this.ThreadID = ThreadID;
 	}
 
 	public DownloadRunnable(
-			String mFileUrl, String mSaveDirectory, String mSaveFileName, 
-			int mStartPosition,	int mCurrentPosition, int mEndPosition,
-			int Task_ID, int Thread_ID, DownloadTask Task) {
+			String FileUrl, String SaveDirectory, String SaveFileName, 
+			int StartPosition,	int CurrentPosition, int EndPosition,
+			int TaskID, int ThreadID, DownloadTask Task) {
 		
-		this(mFileUrl, mSaveDirectory, mSaveFileName, mStartPosition, mEndPosition, Task_ID, Thread_ID, Task);
-		this.mCurrentPosition = mCurrentPosition;
+		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID, Task);
+		this.CurrentPosition = CurrentPosition;
 	}
 
 	@Override
 	public void run() {
 		File targetFile;
 		synchronized (this) {
-			File dir = new File(mSaveDirectory);
+			File dir = new File(SaveDirectory);
 			if (dir.exists() == false) {
 				dir.mkdirs();
 			}
 			
-			targetFile = new File(mSaveDirectory + File.separator + mSaveFileName);
+			targetFile = new File(SaveDirectory + File.separator + SaveFileName);
 			if (targetFile.exists() == false) {
 				try {
 					targetFile.createNewFile();
@@ -74,30 +74,30 @@ public class DownloadRunnable implements Runnable {
 			}
 		}
 
-		System.out.println("Download Task ID " + Task_ID + ": Thread " + Thread_ID
-				+ " has been started! Range From " + mCurrentPosition + " To "
-				+ mEndPosition);
+		System.out.println("Download Task ID " + TaskID + ": Thread " + ThreadID
+				+ " has been started! Range From " + CurrentPosition + " To "
+				+ EndPosition);
 		BufferedInputStream bufferedInputStream = null;
 		RandomAccessFile randomAccessFile = null;
 		byte[] buf = new byte[BUFFER_SIZE];
 		URLConnection urlConnection = null;
 		try {
-			URL url = new URL(mFileUrl);
+			URL url = new URL(FileUrl);
 			urlConnection = url.openConnection();
-			urlConnection.setRequestProperty("Range", "bytes=" + mCurrentPosition + "-" + mEndPosition);
+			urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
 			
 			randomAccessFile = new RandomAccessFile(targetFile, "rw");
-			randomAccessFile.seek(mCurrentPosition);
+			randomAccessFile.seek(CurrentPosition);
 			
 			bufferedInputStream = new BufferedInputStream(urlConnection.getInputStream());
 			
-			while (mCurrentPosition < mEndPosition) {
+			while (CurrentPosition < EndPosition) {
 				if (Thread.currentThread().isInterrupted()) {
 					System.out.println("Download TaskID: "
-							+ Task_ID + ": Thread " + Thread_ID
-							+ " was interrupted, Start:" + mStartPosition
-							+ " Current:" + mCurrentPosition + " End:"
-							+ mEndPosition);
+							+ TaskID + ": Thread " + ThreadID
+							+ " was interrupted, Start:" + StartPosition
+							+ " Current:" + CurrentPosition + " End:"
+							+ EndPosition);
 					break;
 				}
 				int len = bufferedInputStream.read(buf, 0, BUFFER_SIZE);
@@ -106,11 +106,11 @@ public class DownloadRunnable implements Runnable {
 					break;
 				else {
 					randomAccessFile.write(buf, 0, len);
-					mCurrentPosition += len;
+					CurrentPosition += len;
 				}
 			}
 			
-			Task.notify(Thread_ID);
+			Task.notify(ThreadID);
 			bufferedInputStream.close();
 			randomAccessFile.close();
 		} catch (IOException e) {
@@ -119,19 +119,19 @@ public class DownloadRunnable implements Runnable {
 	}
 
 //	public DownloadRunnable split() {
-//		int end = mEndPosition;
-//		int remaining = mEndPosition - mCurrentPosition;
+//		int end = EndPosition;
+//		int remaining = EndPosition - CurrentPosition;
 //		int remainingCenter = remaining / 2;
-//		System.out.print("CurrentPosition:" + mCurrentPosition
-//				+ " EndPosition:" + mEndPosition + "Rmaining:" + remaining
+//		System.out.print("CurrentPosition:" + CurrentPosition
+//				+ " EndPosition:" + EndPosition + "Rmaining:" + remaining
 //				+ " ");
 //		if (remainingCenter > 1048576) {
-//			int centerPosition = remainingCenter + mCurrentPosition;
+//			int centerPosition = remainingCenter + CurrentPosition;
 //			System.out.print(" Center position:" + centerPosition);
-//			mEndPosition = centerPosition;
+//			EndPosition = centerPosition;
 //
 //			DownloadRunnable newSplitedRunnable = new DownloadRunnable(
-//					mDownloadMonitor, mFileUrl, mSaveDirectory, mSaveFileName,
+//					DownloadMonitor, FileUrl, SaveDirectory, SaveFileName,
 //					centerPosition + 1, end);
 //			mDownloadMonitor.mHostTask.addPartedTask(newSplitedRunnable);
 //			return newSplitedRunnable;
@@ -142,19 +142,23 @@ public class DownloadRunnable implements Runnable {
 //	}
 
 	public boolean isFinished() {
-		return mCurrentPosition >= mEndPosition;
+		return CurrentPosition >= EndPosition;
 	}
 
+	public int getThreadID() {
+		return ThreadID;
+	}
+	
 	public int getStartPosition() {
-		return mStartPosition;
+		return StartPosition;
 	}
 
 	public int getCurrentPosition() {
-		return mCurrentPosition;
+		return CurrentPosition;
 	}
 
 	public int getEndPosition() {
-		return mEndPosition;
+		return EndPosition;
 	}
 
 }

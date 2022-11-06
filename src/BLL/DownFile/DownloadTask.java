@@ -1,114 +1,86 @@
 package BLL.DownFile;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 //import java.util.Timer;
 import java.util.TimerTask;
 
 import BLL.Values;
 
 public class DownloadTask {
-	private int mTaskID;
-	private int mTaskStatus = Values.READY;
+	private int TaskID;
+	private int TaskStatus = Values.READY;
 	
-	private String mUrl;
-	private String mSaveDirectory;
-	private String mSaveName;
+	private String Url;
+	private String SaveDirectory;
+	private String SaveFile;
+	private String ProgressFile;			//Lưu tiến trình tải
 	
-	private int mFileSize;	
-	private int mThreadCount = Values.DEFAULT_THREAD_COUNT;
+	private int FileSize;	
+	private int ThreadCount = Values.DEFAULT_THREAD_COUNT;
 	private int completedThread = 0;
 	
-	private ArrayList<DownloadRunnable> listRunnable = new ArrayList<DownloadRunnable>();
-	private ArrayList<RunnableRecoveryInfo> mRunnableRecoveryInfos = new ArrayList<RunnableRecoveryInfo>(); //Thông tin khôi phục cho các luồng
+	private ArrayList<DownloadRunnable> ListRunnable = new ArrayList<DownloadRunnable>();
 
-	private SpeedMonitor mSpeedMonitor = new SpeedMonitor(this);
+	private SpeedMonitor SpeedMonitor = new SpeedMonitor(this);
 
-//	private Timer mSpeedTimer = new Timer();
+//	private Timer SpeedTimer = new Timer();
 //	private Timer mStoreTimer = new Timer();
-
-	static class RunnableRecoveryInfo {
-
-		private int mStartPosition;
-		private int mCurrentPosition;
-		private int mEndPosition;
-		private boolean isFinished = false;
-
-		public RunnableRecoveryInfo(int start, int current, int end) {
-			if (end > start && current > start) {
-				mStartPosition = start;
-				mCurrentPosition = current;
-				mEndPosition = end;
-			} else {
-				throw new RuntimeException("position logical error");
-			}
-			if (mCurrentPosition >= mEndPosition) {
-				isFinished = true;
-			}
-		}
-
-		public int getStartPosition() {
-			return mStartPosition;
-		}
-
-		public int getCurrentPosition() {
-			return mCurrentPosition;
-		}
-
-		public int getEndPosition() {
-			return mEndPosition;
-		}
-
-		public boolean isFinished() {
-			return isFinished;
-		}
-	}
 
 
 	private static class SpeedMonitor extends TimerTask {
-		private long  mLastSecondSize = 0;	
-		private long  mCurrentSecondSize = 0;		
-		private long mSpeed;		
-		private long mMaxSpeed;	
-		private long mAverageSpeed;
-		private long mCounter;
+		private long LastSecondSize = 0;	
+		private long CurrentSecondSize = 0;		
+		private long Speed;		
+		private long MaxSpeed;	
+		private long AverageSpeed;
+		private long Counter;
 
-		private DownloadTask mHostTask;
+		private DownloadTask HostTask;
 
 		public long getMaxSpeed() {
-			return mMaxSpeed;
+			return MaxSpeed;
 		}
 
 		public SpeedMonitor(DownloadTask TaskBelongTo) {
-			mHostTask = TaskBelongTo;
+			HostTask = TaskBelongTo;
 		}
 
 		@Override
 		public void run() {
-			mCounter++;
-			mCurrentSecondSize = mHostTask.getDownloadedSize();
-			mSpeed = mCurrentSecondSize - mLastSecondSize;
-			mLastSecondSize = mCurrentSecondSize;
-			if (mSpeed > mMaxSpeed) {
-				mMaxSpeed = mSpeed;
+			Counter++;
+			CurrentSecondSize = HostTask.getDownloadedSize();
+			Speed = CurrentSecondSize - LastSecondSize;
+			LastSecondSize = CurrentSecondSize;
+			if (Speed > MaxSpeed) {
+				MaxSpeed = Speed;
 			}
 
-			mAverageSpeed = mCurrentSecondSize / mCounter;
+			AverageSpeed = CurrentSecondSize / Counter;
 		}
 
 		public long getDownloadedTime() {
-			return mCounter;
+			return Counter;
 		}
 
 		public long getSpeed() {
-			return mSpeed;
+			return Speed;
 		}
 
 		public long getAverageSpeed() {
-			return mAverageSpeed;
+			return AverageSpeed;
 		}
 	}
 
@@ -120,18 +92,18 @@ public class DownloadTask {
 //	}
 
 	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
-		this.mTaskID = TaskID;
-		this.mUrl = url;
+		this.TaskID = TaskID;
+		this.Url = url;
 		setTargetFile(saveDirectory, saveName);
-		if(ThreadCount > 0) this.mThreadCount = ThreadCount;
-		System.out.println("TaskID: " + mTaskID);
+		if(ThreadCount > 0) this.ThreadCount = ThreadCount;
+		System.out.println("TaskID: " + TaskID);
 	}
 
 	public Boolean setTargetFile(String saveDir, String saveName) throws IOException {
 		if (saveDir.lastIndexOf(File.separator) == saveDir.length() - 1) {
 			saveDir = saveDir.substring(0, saveDir.length() - 1);
 		}
-		mSaveDirectory = saveDir;
+		SaveDirectory = saveDir;
 		
 		File dirFile = new File(saveDir);
 		if (dirFile.exists() == false) {
@@ -140,9 +112,10 @@ public class DownloadTask {
 			}
 		}
 
-		mSaveName = saveName + "." + getFileType(mUrl).split("/")[1];
+		SaveFile = saveName + "." + getFileType(Url).split("/")[1];
+		ProgressFile = saveName + ".tmp";
 
-		File file = new File(dirFile.getPath() + File.separator + mSaveName);
+		File file = new File(SaveDirectory, SaveFile);
 		if (file.exists() == false) {
 			file.createNewFile();
 		}
@@ -150,138 +123,127 @@ public class DownloadTask {
 	}
 
 	public int getTaskID() {
-		return mTaskID;
+		return TaskID;
 	}
 
 	public String getUrl() {
-		return mUrl;
+		return Url;
 	}
 
 	public void setUrl(String Url) {
-		this.mUrl = Url;
+		this.Url = Url;
 	}
 
 	public String getSaveDirectory() {
-		return mSaveDirectory;
+		return SaveDirectory;
 	}
 
 	public void setSaveDirectory(String SaveDirectory) {
-		this.mSaveDirectory = SaveDirectory;
+		this.SaveDirectory = SaveDirectory;
 	}
 
 	public String getSaveName() {
-		return mSaveName;
+		return SaveFile;
 	}
 
 	public void setSaveName(String SaveName) {
-		this.mSaveName = SaveName;
+		this.SaveFile = SaveName;
 	}
 
 	public void setTaskThreadCount(int thread_count) {
-		mThreadCount = thread_count;
+		ThreadCount = thread_count;
 	}
 
 	public int getTaskThreadCount() {
-		return mThreadCount;
+		return ThreadCount;
 	}
 
-	private ArrayList<DownloadRunnable> splitDownload(int thread_count) { 				//Split thread
-		ArrayList<DownloadRunnable> runnables = new ArrayList<DownloadRunnable>();
+	private void splitDownload(int thread_count) { 				//Split thread
 		try {
-			int size = getFileLength(mUrl);
-			mFileSize = size;
+			int size = getFileLength(Url);
+			FileSize = size;
 			int sublen = size / thread_count;
 			for (int i = 0; i < thread_count; i++) {
 				int startPos = sublen * i;
 				int endPos = (i == thread_count - 1) ? size	: (sublen * (i + 1) - 1);
 				
-				DownloadRunnable runnable = new DownloadRunnable(mUrl, mSaveDirectory, mSaveName, startPos, endPos, mTaskID, i+1, this);
-				runnables.add(runnable);
+				DownloadRunnable runnable = new DownloadRunnable(
+						Url, SaveDirectory, SaveFile,
+						startPos, endPos,
+						TaskID, i+1, this);
+				ListRunnable.add(runnable);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return runnables;
 	}
 
-//	private void resumeProgress() throws IOException {   //Khôi phục công việc trước còn dang dở
-//		try {
-//			File progressFile = new File(FileUtils.getSafeDirPath(mProgressDir)
-//					+ File.separator + mProgressFileName);
-//			if (progressFile.exists() == false) {
-//				throw new IOException("Progress File does not exsist");
-//			}
-//
-//			JAXBContext context = JAXBContext.newInstance(DownloadTask.class);
-//			Unmarshaller unmarshaller = context.createUnmarshaller();
-//			
-//			DownloadTask task = (DownloadTask) unmarshaller.unmarshal(progressFile);
-//			
-//			File targetSaveFile = new File(
-//					FileUtils.getSafeDirPath(task.mSaveDirectory
-//							+ File.separator + task.mSaveName));
-//			
-//			if (targetSaveFile.exists() == false) {
-//				throw new IOException(
-//						"Try to continue download file , but target file does not exist");
-//			}
-//			ArrayList<RunnableRecoveryInfo> mRunnableRecoveryInfos = getDownloadProgress();
-//			recoveryRunnableInfos.clear();
-//			for (DownloadRunnable runnable : task.listRunnable) {
-//				recoveryRunnableInfos.add(new RecoveryRunnableInfo(runnable
-//						.getStartPosition(), runnable.getCurrentPosition(),
-//						runnable.getEndPosition()));
-//			}
-//			mSpeedMonitor = new SpeedMonitor(this);
-//			mStoreMonitor = new StoreMonitor();
-//			System.out.println("Resume finished");
-//			listRunnable.clear();
-//		} catch (JAXBException e) {
-//			e.printStackTrace();
-//		}
-//	}
-
-	public void startTask() {
-		setDownloadStatus(Values.DOWNLOADING);
-		//resumeProgress();	//Khôi phục công việc của các luồng
+	private void resumeProgress() throws IOException {   //Khôi phục công việc các luồng
+		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
+		if(file.exists() == false) return;
 		
-		if (mRunnableRecoveryInfos.size() != 0) {
-//			for (RecoveryInfo runnableInfo : mRecoveryInfos) {
-//				if (runnableInfo.isFinished == false) {
-//					DownloadRunnable runnable = new DownloadRunnable(mMonitor,
-//							mUrl, mSaveDirectory, mSaveName,
-//							runnableInfo.getStartPosition(),
-//							runnableInfo.getCurrentPosition(),
-//							runnableInfo.getEndPosition());
-//					System.out.println("Position: " + 1);
-//					Threads.add(thread);
-//					System.out.println("Position: " + 2);
-//					threadPool.submit(runnable);
-//				}
-//			}
-			System.out.println("recovery");
-		} else {
-			for (DownloadRunnable runnable : splitDownload(mThreadCount)) {
-				Thread t = new Thread(runnable);
-				listRunnable.add(runnable);
-				t.start();
+//		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss z 'on' dd-MM-yyyy");
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
+			String line = reader.readLine();
+			if (line == null) {
+				throw new NullPointerException("Unexpected EOF");
 			}
+			int count = Integer.parseInt(line.trim());
+			for (int i = 0; i < count; i++) {
+				int ThreadID = Integer.parseInt(reader.readLine());
+				int startPosition = Integer.parseInt(reader.readLine());
+				int currentPosition = Integer.parseInt(reader.readLine());
+				int endPosition = Integer.parseInt(reader.readLine());
+				if(currentPosition >= endPosition) continue;
+				DownloadRunnable runnable = new DownloadRunnable(
+						Url, SaveDirectory, SaveFile,
+						startPosition, currentPosition, endPosition,
+						TaskID, ThreadID, this);
+				ListRunnable.add(runnable);
+			}
+			reader.close();
+		}catch (Exception e) {
+			
 		}
-//		mSpeedTimer.scheduleAtFixedRate(mSpeedMonitor, 0, 1000);
+	}
+
+	public void startTask() throws IOException {
+		setDownloadStatus(Values.DOWNLOADING);
+		resumeProgress();	//Khôi phục công việc của các luồng (nếu có)
+		
+		if (ListRunnable.size() == 0) {
+			splitDownload(ThreadCount);
+		}
+		
+		for (DownloadRunnable runnable : ListRunnable) {
+			Thread t = new Thread(runnable);
+			t.start();
+		}
+//		SpeedTimer.scheduleAtFixedRate(SpeedMonitor, 0, 1000);
 	}
 	
-	public void notify(int Thread_ID) {
-        System.out.println("*******Task ID " + mTaskID + ": Thread " + Thread_ID + " download complete *********");
+	public int getThreadByID(int ThreadID) {
+		for(int i = 0; i < ListRunnable.size(); i++) {
+			if(ListRunnable.get(i).getThreadID() == ThreadID)
+				return i;
+		}
+		return -1;
+	}
+	
+	public void notify(int ThreadID) {
+        System.out.println("*******Task ID " + TaskID + ": Thread " + ThreadID + " download complete *********");
         completedThread++;
-        if(completedThread == mThreadCount) {
-        	mTaskStatus = Values.FINISHED;
-        	System.out.println("\n--------Complete file " + mSaveName + " download--------\n");
-            DownloadManager.getInstance().cancelTask(mTaskID);
+        ListRunnable.remove(getThreadByID(ThreadID));
+        if(completedThread == ThreadCount) {
+        	TaskStatus = Values.FINISHED;
+        	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
+            DownloadManager.getInstance().cancelTask(TaskID);
         }
 	}
 
 	public void addPartedTask(DownloadRunnable runnable) {
-		listRunnable.add(runnable);
+		ListRunnable.add(runnable);
 	}
 	
 	private int getFileLength(String fileUrl) throws IOException {
@@ -296,28 +258,20 @@ public class DownloadTask {
 		return connection.getContentType();
 	}
 
-//	public File getHistoryFile() {
-//		return new File(mHistoryDirectory + File.separator + mHistoryName);
-//	}
-
 	public File getDownloadFile() {
-		return new File(mSaveDirectory + File.separator + mSaveName);
+		return new File(SaveDirectory + File.separator + SaveFile);
 	}
-
-//	public File getHistoryDir() {
-//	return new File(mHistoryDirectory + File.separator + mHistoryName);
-//}
 
 	public long getDownloadedSize() { //Kích thước đã tải
 		long size = 0;
-		for(DownloadRunnable r : listRunnable) {
+		for(DownloadRunnable r : ListRunnable) {
 			size += r.getCurrentPosition() - r.getStartPosition();
 		}
 		return size;
 	}
 
 	public long getSpeed() {
-		return mSpeedMonitor.getSpeed();
+		return SpeedMonitor.getSpeed();
 	}
 
 	public String getReadableSpeed() {
@@ -325,7 +279,7 @@ public class DownloadTask {
 	}
 
 	public long getMaxSpeed() {
-		return mSpeedMonitor.getMaxSpeed();
+		return SpeedMonitor.getMaxSpeed();
 	}
 
 	public String getReadableMaxSpeed() {
@@ -333,102 +287,83 @@ public class DownloadTask {
 	}
 
 	public long getAverageSpeed() {
-		return mSpeedMonitor.getAverageSpeed();
+		return SpeedMonitor.getAverageSpeed();
 	}
 
 	public String getReadableAverageSpeed() {
-		return DownloadUtils.getReadableSpeed(mSpeedMonitor.getAverageSpeed());
+		return DownloadUtils.getReadableSpeed(SpeedMonitor.getAverageSpeed());
 	}
 
 	public long getTimePassed() {
-		return mSpeedMonitor.getDownloadedTime();
+		return SpeedMonitor.getDownloadedTime();
 	}
 
-//	public int getActiveTheadCount() {
-//		return mThreadPoolRef.getActiveCount();
-//	}
+	public int getActiveTheadCount() {
+		return ListRunnable.size();
+	}
 
 	public int getFileSize() {
-		return mFileSize;
+		return FileSize;
 	}
 
-	public void pause() {
+	public void pause() throws IOException {
 		setDownloadStatus(Values.PAUSED);
 		storeProgress();
-//		mThreadPoolRef.pause(mTaskID);
+//		mThreadPoolRef.pause(TaskID);
 	}
 
 	private void setDownloadStatus(int status) {
 		if (status == Values.FINISHED) {
-//			mSpeedTimer.cancel();
+//			SpeedTimer.cancel();
 		}
-		mTaskStatus = status;
+		TaskStatus = status;
 	}
 	
 	public int getDownloadStatus() {
-		return mTaskStatus;
+		return TaskStatus;
 	}
 
-	public void storeProgress() { //Lưu tiến trình làm việc
-		mRunnableRecoveryInfos.clear();
-		for(int i = 0; i < listRunnable.size(); i++) {
-			
+	public void storeProgress() throws IOException { //Lưu tiến trình làm việc
+		File dir = new File(DownloadManager.getInstance().getDataDir());
+		if (dir.exists() == false) {
+			dir.createNewFile();
 		}
-	}
+		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
+		if (file.exists() == false) {
+			file.createNewFile();
+		}
+		BufferedWriter writer = null;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss z 'on' dd-MM-yyyy");
+		String newLine = System.getProperty("line.separator");
+		try {
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8")));
+			writer.write(ListRunnable.size());
+			writer.newLine();
+			for(DownloadRunnable i : ListRunnable) {
+				String s = i.getThreadID() + newLine + 
+						   i.getStartPosition() + newLine +
+						   i.getCurrentPosition() + newLine +
+						   i.getEndPosition() + newLine;
+				writer.write(s);				
+			}
+			writer.write(dateFormat.format(new Date(System.currentTimeMillis())) + newLine);
+			writer.close();
+		} catch (Exception e) {
+			try {
+				if (writer != null)
+					writer.close();
+			} catch (Exception e1) {
+			}
+		}
+//		RunnableRecoveryInfos.clear();
 
-//	public static DownloadTask recoverTaskFromProgressFile(
-//			String progressDirectory, String progressFileName)
-//			throws IOException {
-//		try {
-//			File progressFile = new File(
-//					FileUtils.getSafeDirPath(progressDirectory)
-//							+ File.separator + progressFileName);
-//			if (progressFile.exists() == false) {
-//				throw new IOException("Progress File does not exsist");
-//			}
-//
-//			JAXBContext context = JAXBContext
-//					.newInstance(DownloadTask.class);
-//			Unmarshaller unmarshaller = context.createUnmarshaller();
-//			DownloadTask Task = (DownloadTask) unmarshaller
-//					.unmarshal(progressFile);
-//			File targetSaveFile = new File(
-//					FileUtils.getSafeDirPath(Task.mSaveDirectory
-//							+ File.separator + Task.mSaveName));
-//			if (targetSaveFile.exists() == false) {
-//				throw new IOException(
-//						"Try to continue download file , but target file does not exist");
-//			}
-//			Task.setProgessFile(progressDirectory, progressFileName);
-//			Task.mTaskID = Task_ID_COUNTER++;
-//			ArrayList<RecoveryRunnableInfo> recoveryRunnableInfos = Task
-//					.getDownloadProgress();
-//			for (DownloadRunnable runnable : Task.listRunnable) {
-//				recoveryRunnableInfos.add(new RecoveryRunnableInfo(runnable
-//						.getStartPosition(), runnable.getCurrentPosition(),
-//						runnable.getEndPosition()));
-//			}
-//			Task.listRunnable.clear();
-//			return Task;
-//		} catch (JAXBException e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-
-	private void deleteHistoryFile() {
-//		getHistoryFile().delete();
-	}
-
-	public ArrayList<RunnableRecoveryInfo> getDownloadProgress() {
-		return mRunnableRecoveryInfos;
+//		ListRunnable.clear();
 	}
 
 	public void cancel() {
-		deleteHistoryFile();
-//		mSpeedTimer.cancel();
-		listRunnable.clear();
-		mRunnableRecoveryInfos.clear();
-//		mThreadPoolRef.cancel(mTaskID);
+//		deleteHistoryFile();
+//		SpeedTimer.cancel();
+		ListRunnable.clear();
+//		mThreadPoolRef.cancel(TaskID);
 	}
 }

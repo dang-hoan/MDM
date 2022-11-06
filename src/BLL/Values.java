@@ -10,10 +10,4 @@ public class Values {
 	public static final int DOWNLOADING = 2;
 	public static final int PAUSED = 3;
 	public static final int FINISHED = 4;
-	
-	private Values _this = null;
-	public Values getInstance() {
-		if(_this == null) _this = new Values();
-		return _this;
-	}
 }
