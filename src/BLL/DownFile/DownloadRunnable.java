@@ -101,7 +101,7 @@ public class DownloadRunnable implements Runnable {
 			bufferedInputStream = new BufferedInputStream(urlConnection.getInputStream());
 			
 			while (CurrentPosition < EndPosition) {
-				if (Thread.currentThread().isInterrupted()) {
+				if (t.isInterrupted()) {
 					System.out.println("Download TaskID: "
 							+ TaskID + ": Thread " + ThreadID
 							+ " was interrupted, Start:" + StartPosition
@@ -109,7 +109,7 @@ public class DownloadRunnable implements Runnable {
 							+ EndPosition);
 					bufferedInputStream.close();
 					randomAccessFile.close();
-					break;
+					return;
 				}
 				int len = bufferedInputStream.read(buf, 0, BUFFER_SIZE);
 //				System.out.println("Thread " + Thread_ID);

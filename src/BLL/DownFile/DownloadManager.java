@@ -1,14 +1,15 @@
 package BLL.DownFile;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.Hashtable;
-import java.util.Locale;
 
 import BLL.Values;
 
@@ -21,9 +22,10 @@ public class DownloadManager {
 	private DownloadManager() {
 	}
 
-	public static DownloadManager getInstance() {
+	public static DownloadManager getInstance() throws IOException {
 		if (instance == null) {
 			instance = new DownloadManager();
+//			instance.resumeTasks();
 		}
 		return instance;
 	}
@@ -39,7 +41,7 @@ public class DownloadManager {
 		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
 			ThreadCount = Values.DEFAULT_THREAD_COUNT;
 		}
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount);
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount, Values.dateFormat.format(System.currentTimeMillis()));
 		addTask(downloadTask);
 		if(now == true) downloadTask.startTask();
 	}
@@ -52,9 +54,18 @@ public class DownloadManager {
 		return Tasks.get(TaskID);
 	}
 
+	public void startTask(int TaskID) throws IOException {
+		for (DownloadTask task : Tasks.values()) {
+			if(task.getTaskID() == TaskID) {
+				task.startTask();
+				break;
+			}
+		}
+	}
+	
 	public void startAll() throws IOException {
 		for (DownloadTask task : Tasks.values()) {
-			if(task.getDownloadStatus() == Values.READY);
+			if(task.getDownloadStatus() == Values.READY)
 				task.startTask();
 		}
 	}
@@ -77,7 +88,7 @@ public class DownloadManager {
 		for (Integer taskID : Tasks.keySet()) {
 			pauseTask(taskID);
 		}
-		storeTask();
+		storeTasks();
 	}
 
 	public void pauseTask(int TaskID) throws IOException {
@@ -87,7 +98,37 @@ public class DownloadManager {
 		}
 	}
 	
-	public void storeTask() throws IOException {
+	private void resumeTasks() throws IOException {   				//Khôi phục thông tin các task (file)
+		File file = new File(DataDir, DataFile);
+		if (file.exists() == false) return;
+		
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
+			String line = reader.readLine();
+			if (line == null) {
+				throw new NullPointerException("Unexpected EOF");
+			}
+			int count = Integer.parseInt(line.trim());
+			for (int i = 0; i < count; i++) {
+				String url = reader.readLine();
+				String SaveName = reader.readLine();
+				int FileSize = Integer.parseInt(reader.readLine());
+				String SaveDirectory = reader.readLine();
+				int DownloadStatus = Integer.parseInt(reader.readLine());
+				String createDate = reader.readLine();
+				DownloadTask task = new DownloadTask(
+						Values.Task_ID_COUNTER++,
+						url, SaveDirectory, SaveName, FileSize, DownloadStatus, createDate);
+				addTask(task);
+			}
+			reader.close();
+			file.delete();
+		}catch (Exception e) {
+			
+		}
+	}
+	
+	public void storeTasks() throws IOException {
 		File dir = new File(DataDir);
 		if (dir.exists() == false) {
 			dir.mkdir();
@@ -98,18 +139,19 @@ public class DownloadManager {
 			file.createNewFile();
 		}
 		BufferedWriter writer = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss Z 'on' dd-MM-yyyy", Locale.getDefault());
+		
 		String newLine = System.getProperty("line.separator");
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8")));
 			writer.write(Integer.toString(Tasks.size()));
 			writer.newLine();
 			for(DownloadTask i : Tasks.values()) {
-				String s = i.getSaveName() + newLine +
+				String s = i.getUrl() + newLine +
+						   i.getSaveName() + newLine +
 						   i.getFileSize() + newLine +
 						   i.getSaveDirectory() + newLine +
 						   i.getDownloadStatus() + newLine +
-						   dateFormat.format(i.getCreateDate()) + newLine;
+						   i.getCreateDate() + newLine;
 				writer.write(s);				
 			}
 			writer.close();
@@ -131,8 +173,7 @@ public class DownloadManager {
 
 	public void cancelTask(int TaskID) {
 		if (Tasks.containsKey(TaskID)) {
-//			DownloadTask Task = Tasks.remove(TaskID);
-			DownloadTask Task = getTask(TaskID);
+			DownloadTask Task = Tasks.remove(TaskID);
 			Task.cancel();
 		}
 	}
@@ -141,6 +182,7 @@ public class DownloadManager {
 		for (Integer task_id : Tasks.keySet()) {
 			Tasks.get(task_id).pause();
 		}
+		storeTasks();
 //		mThreadPool.shutdown();
 	}
 

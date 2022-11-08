@@ -8,6 +8,9 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import BLL.DownFile.DownloadManager;
+
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JMenuBar;
@@ -133,8 +136,8 @@ public class Main_View extends JFrame {
 		);
 		panel.setLayout(null);
 		
-		JButton btnNewButton = new JButton("");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton bNewDownload = new JButton("");
+		bNewDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					new NewDownload_View().setVisible(true);
@@ -151,29 +154,53 @@ public class Main_View extends JFrame {
 				};
 			}
 		});
-		btnNewButton.setBounds(0, 0, 62, 65);
-		panel.add(btnNewButton);
-		btnNewButton.setIcon(new ImageIcon("icon\\plus.png"));
+		bNewDownload.setBounds(0, 0, 62, 65);
+		panel.add(bNewDownload);
+		bNewDownload.setIcon(new ImageIcon("icon\\plus.png"));
 		
-		JButton btnNewButton_1 = new JButton("");
-		btnNewButton_1.setIcon(new ImageIcon("icon\\x.png"));
-		btnNewButton_1.setBounds(72, 0, 62, 65);
-		panel.add(btnNewButton_1);
+		JButton bCancelDownload = new JButton("");
+		bCancelDownload.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		bCancelDownload.setIcon(new ImageIcon("icon\\x.png"));
+		bCancelDownload.setBounds(72, 0, 62, 65);
+		panel.add(bCancelDownload);
 		
-		JButton btnNewButton_1_1 = new JButton("");
-		btnNewButton_1_1.setIcon(new ImageIcon("icon\\pause.png"));
-		btnNewButton_1_1.setBounds(144, 0, 62, 65);
-		panel.add(btnNewButton_1_1);
+		JButton bPauseDownload = new JButton("");
+		bPauseDownload.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					DownloadManager.getInstance().pauseTask(0);
+					
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		bPauseDownload.setIcon(new ImageIcon("icon\\pause.png"));
+		bPauseDownload.setBounds(144, 0, 62, 65);
+		panel.add(bPauseDownload);
 		
-		JButton btnNewButton_1_2 = new JButton("");
-		btnNewButton_1_2.setIcon(new ImageIcon("icon\\play.png"));
-		btnNewButton_1_2.setBounds(216, 0, 62, 65);
-		panel.add(btnNewButton_1_2);
+		JButton bStartDownload = new JButton("");
+		bStartDownload.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					DownloadManager.getInstance().startTask(0);
+					
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		bStartDownload.setIcon(new ImageIcon("icon\\play.png"));
+		bStartDownload.setBounds(216, 0, 62, 65);
+		panel.add(bStartDownload);
 		
-		JButton btnNewButton_1_3 = new JButton("");
-		btnNewButton_1_3.setIcon(new ImageIcon("icon\\gear.png"));
-		btnNewButton_1_3.setBounds(288, 0, 62, 65);
-		panel.add(btnNewButton_1_3);
+		JButton bSettings = new JButton("");
+		bSettings.setIcon(new ImageIcon("icon\\gear.png"));
+		bSettings.setBounds(288, 0, 62, 65);
+		panel.add(bSettings);
 		contentPane.setLayout(gl_contentPane);
 	}
 }

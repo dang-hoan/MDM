@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		DownloadManager downloadManager = DownloadManager.getInstance();
 		String url = "https://1.bp.blogspot.com/-a71p9zvla98/UkP4-cPfK4I/AAAAAAAAAg8/va9AmdChErg/s1600/anh-dep-hinh-nen-thien-nhien-0.jpg";
 		String saveDirectory = "C:\\Users\\DELL\\Downloads";

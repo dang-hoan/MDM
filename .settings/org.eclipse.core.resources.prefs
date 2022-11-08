@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/BLL/DownFile/DownloadManager.java=UTF-8
 encoding//src/BLL/DownFile/DownloadTask.java=UTF-8
 encoding//src/View/Main.java=UTF-8
 encoding//src/View/NewDownload_View.java=UTF-8

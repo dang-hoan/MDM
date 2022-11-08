@@ -89,8 +89,14 @@ public class NewDownload_View extends JFrame {
 		txtURL = new JTextArea();
 		txtURL.setBounds(118, 37, 281, 22);
 
-		txtURL.setText((String) Toolkit.getDefaultToolkit().getSystemClipboard()
-				.getData(DataFlavor.stringFlavor));
+		String s;
+		try {
+			s = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
+			.getData(DataFlavor.stringFlavor);
+		}catch(Exception e){
+			s = "";
+		}
+		txtURL.setText(s);
 		getContentPane().add(txtURL);
 		
 		labURL = new JLabel("URL:");
@@ -111,7 +117,8 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						downloadManager.addTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), true);					
+						downloadManager.addTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), true);
+						NewDownload_View.this.dispose();
 					} catch (MalformedURLException e1) {
 						e1.printStackTrace();
 					} catch (IOException e1) {

@@ -20,7 +20,7 @@ import BLL.Values;
 public class DownloadTask {
 	private int TaskID;
 	private int TaskStatus = Values.READY;
-	private long createDate;
+	private String createDate;
 	
 	private String Url;
 	private String SaveDirectory;
@@ -90,15 +90,25 @@ public class DownloadTask {
 //		}
 //	}
 
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, String createDate) throws IOException {
 		this.TaskID = TaskID;
 		this.Url = url;
-		setTargetFile(saveDirectory, saveName);
+		setTargetFile(saveDirectory, saveName, false);
 		if(ThreadCount > 0) this.ThreadCount = ThreadCount;
+		this.createDate = createDate;
 		System.out.println("TaskID: " + TaskID);
 	}
+	
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int FileSize, int DownloadStatus, String createDate) throws IOException {
+		this.TaskID = TaskID;
+		this.Url = url;
+		setTargetFile(saveDirectory, saveName, true);
+		this.FileSize = FileSize;
+		this.TaskStatus = DownloadStatus;
+		this.createDate = createDate;
+	}
 
-	public Boolean setTargetFile(String saveDir, String saveName) throws IOException {
+	public Boolean setTargetFile(String saveDir, String saveName, boolean resume) throws IOException {
 		if (saveDir.lastIndexOf(File.separator) == saveDir.length() - 1) {
 			saveDir = saveDir.substring(0, saveDir.length() - 1);
 		}
@@ -112,17 +122,19 @@ public class DownloadTask {
 		}
 
 		SaveFile = saveName + "." + getFileType(Url).split("/")[1];
-		ProgressFile = saveName + ".tmp";
-
 		File file = new File(SaveDirectory, SaveFile);
-		String f = saveName;
+		
 		int i = 1;
 		while(file.exists() == true) {
-			SaveFile = f + "(" + Integer.toString(i) + ")" + "." + getFileType(Url).split("/")[1];
+			SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + getFileType(Url).split("/")[1];
 			file = new File(SaveDirectory, SaveFile);
 			i += 1;
 		}
+		
 		file.createNewFile();
+		
+		if(resume) ProgressFile = saveName + ".tmp";
+		else ProgressFile = SaveFile.split("\\.")[0] + ".tmp";
 		return true;
 	}
 
@@ -186,7 +198,6 @@ public class DownloadTask {
 		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
 		if(file.exists() == false) return;
 		
-//		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss z 'on' dd-MM-yyyy");
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
 			String line = reader.readLine();
@@ -206,7 +217,9 @@ public class DownloadTask {
 						TaskID, ThreadID, this);
 				ListRunnable.add(runnable);
 			}
+			createDate = reader.readLine();
 			reader.close();
+			file.delete();
 		}catch (Exception e) {
 			
 		}
@@ -219,7 +232,7 @@ public class DownloadTask {
 		if (ListRunnable.size() == 0) {
 			splitDownload(ThreadCount);
 		}
-		
+		System.out.println(ListRunnable.size());
 		for (DownloadRunnable runnable : ListRunnable) {
 			runnable.start();
 		}
@@ -234,13 +247,13 @@ public class DownloadTask {
 		return -1;
 	}
 	
-	public void notify(int ThreadID) {
+	public void notify(int ThreadID) throws IOException {
         System.out.println("*******Task ID " + TaskID + ": Thread " + ThreadID + " download complete *********");
         completedThread++;
         ListRunnable.remove(getThreadByID(ThreadID));
         if(completedThread == ThreadCount) {
         	TaskStatus = Values.FINISHED;
-        	createDate = System.currentTimeMillis();
+        	createDate = Values.dateFormat.format(System.currentTimeMillis());
         	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
             DownloadManager.getInstance().cancelTask(TaskID);
         }
@@ -311,12 +324,14 @@ public class DownloadTask {
 	}
 
 	public void pause() throws IOException {
+		if(TaskStatus != Values.DOWNLOADING) return;
 		setDownloadStatus(Values.PAUSED);
-		createDate = System.currentTimeMillis();
+		createDate = Values.dateFormat.format(System.currentTimeMillis());
 		storeProgress();
-		for(DownloadRunnable i : ListRunnable) {
-			i.pause();			
+		for(int i = 0; i < ListRunnable.size(); i++) {
+			ListRunnable.get(i).pause();
 		}
+		ListRunnable.clear();
 	}
 
 	private void setDownloadStatus(int status) {
@@ -330,7 +345,7 @@ public class DownloadTask {
 		return TaskStatus;
 	}
 	
-	public long getCreateDate() {
+	public String getCreateDate() {
 		return createDate;
 	}
 	
