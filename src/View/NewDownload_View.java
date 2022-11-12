@@ -63,7 +63,6 @@ public class NewDownload_View extends JFrame {
 //				}
 				JFileChooser jfc = new JFileChooser();
 				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//				jfc.setbu
 				
 				File dir = new File(folder); //Đặt thư mục mặc định
 				if (dir != null) {
@@ -119,12 +118,12 @@ public class NewDownload_View extends JFrame {
 					try {
 						downloadManager.addTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), true);
 						NewDownload_View.this.dispose();
+						
 					} catch (MalformedURLException e1) {
 						e1.printStackTrace();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -157,7 +156,7 @@ public class NewDownload_View extends JFrame {
 			item.add(Integer.toString(i));
 		
 		cbNumber = new JComboBox<>(item.toArray());
-		cbNumber.setBounds(139, 125, 43, 22);
+		cbNumber.setBounds(139, 125, 51, 22);
 		cbNumber.setSelectedItem(Integer.toString(Values.DEFAULT_THREAD_COUNT));
 		getContentPane().add(cbNumber);
 		

@@ -1,9 +1,12 @@
 package BLL.DownFile;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -19,7 +22,6 @@ public class DownloadRunnable implements Runnable {
 	private int CurrentPosition;
 	private int EndPosition;
 	
-	DownloadTask Task;
 	public final int TaskID;
 	public final int ThreadID;
 
@@ -31,7 +33,7 @@ public class DownloadRunnable implements Runnable {
 
 	public DownloadRunnable(String FileUrl,
 			String SaveDirectory, String SaveFileName, int StartPosition,
-			int EndPosition, int TaskID, int ThreadID, DownloadTask Task) {
+			int EndPosition, int TaskID, int ThreadID) {
 		super();
 		this.FileUrl = FileUrl;
 		this.SaveDirectory = SaveDirectory;
@@ -41,7 +43,6 @@ public class DownloadRunnable implements Runnable {
 		this.EndPosition = EndPosition;
 		this.CurrentPosition = this.StartPosition;
 		
-		this.Task = Task;
 		this.TaskID = TaskID;
 		this.ThreadID = ThreadID;
 	}
@@ -49,9 +50,9 @@ public class DownloadRunnable implements Runnable {
 	public DownloadRunnable(
 			String FileUrl, String SaveDirectory, String SaveFileName, 
 			int StartPosition,	int CurrentPosition, int EndPosition,
-			int TaskID, int ThreadID, DownloadTask Task) {
+			int TaskID, int ThreadID) {
 		
-		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID, Task);
+		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID);
 		this.CurrentPosition = CurrentPosition;
 	}
 	
@@ -67,13 +68,13 @@ public class DownloadRunnable implements Runnable {
 	@Override
 	public void run() {
 		File targetFile;
-		synchronized (this) {
+		synchronized (this) {//LA
 			File dir = new File(SaveDirectory);
 			if (dir.exists() == false) {
 				dir.mkdirs();
 			}
 			
-			targetFile = new File(SaveDirectory + File.separator + SaveFileName);
+			targetFile = new File(SaveDirectory, SaveFileName);
 			if (targetFile.exists() == false) {
 				try {
 					targetFile.createNewFile();
@@ -86,45 +87,55 @@ public class DownloadRunnable implements Runnable {
 		System.out.println("Download Task ID " + TaskID + ": Thread " + ThreadID
 				+ " has been started! Range From " + CurrentPosition + " To "
 				+ EndPosition);
-		BufferedInputStream bufferedInputStream = null;
-		RandomAccessFile randomAccessFile = null;
+
 		byte[] buf = new byte[BUFFER_SIZE];
-		URLConnection urlConnection = null;
 		try {
-			URL url = new URL(FileUrl);
-			urlConnection = url.openConnection();
+			if(CurrentPosition > EndPosition) { //luồng đã xong trước khi store
+				DownloadManager.getInstance().getTask(TaskID).notify(ThreadID);
+				return;
+			}
+			
+			URI uri = new URI(FileUrl);
+//			String userInfo = uri.getRawUserInfo();
+//			if(userInfo != null && userInfo.length() > 0)
+//			    userInfo = Base64.getEncoder().encodeToString(userInfo.getBytes());
+			
+			URL url = uri.toURL();
+			URLConnection urlConnection = url.openConnection();
+			
 			urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
 			
-			randomAccessFile = new RandomAccessFile(targetFile, "rw");
-			randomAccessFile.seek(CurrentPosition);
+//			if(userInfo != null && userInfo.length() > 0)
+//				urlConnection.setRequestProperty("Authorization", "Basic " + userInfo);
 			
-			bufferedInputStream = new BufferedInputStream(urlConnection.getInputStream());
+			BufferedInputStream is = new BufferedInputStream(urlConnection.getInputStream());
+			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile, true));
 			
-			while (CurrentPosition < EndPosition) {
+			while (CurrentPosition <= EndPosition) {
 				if (t.isInterrupted()) {
 					System.out.println("Download TaskID: "
 							+ TaskID + ": Thread " + ThreadID
 							+ " was interrupted, Start:" + StartPosition
 							+ " Current:" + CurrentPosition + " End:"
 							+ EndPosition);
-					bufferedInputStream.close();
-					randomAccessFile.close();
+					is.close();
+					os.close();
 					return;
 				}
-				int len = bufferedInputStream.read(buf, 0, BUFFER_SIZE);
+				int len = is.read(buf, 0, BUFFER_SIZE);
 //				System.out.println("Thread " + Thread_ID);
 				if (len == -1)
 					break;
 				else {
-					randomAccessFile.write(buf, 0, len);
+					os.write(buf, 0, len);
 					CurrentPosition += len;
 				}
 			}
-			
-			Task.notify(ThreadID);
-			bufferedInputStream.close();
-			randomAccessFile.close();
-		} catch (IOException e) {
+
+			is.close();
+			os.close();
+			DownloadManager.getInstance().getTask(TaskID).notify(ThreadID);
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}
@@ -170,6 +181,14 @@ public class DownloadRunnable implements Runnable {
 
 	public int getEndPosition() {
 		return EndPosition;
+	}
+	
+	public String getSaveDir() {
+		return SaveDirectory;
+	}
+	
+	public String getSaveFile() {
+		return SaveFileName;
 	}
 
 }

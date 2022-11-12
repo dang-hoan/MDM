@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import BLL.Values;
 import BLL.DownFile.DownloadManager;
 
 import javax.swing.GroupLayout;
@@ -21,6 +22,8 @@ import javax.swing.ImageIcon;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 @SuppressWarnings("serial")
 public class Main_View extends JFrame {
@@ -47,6 +50,17 @@ public class Main_View extends JFrame {
 	 * Create the frame.
 	 */
 	public Main_View() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					DownloadManager.getInstance().pauseAllTasks();
+					
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 		setTitle("PBL4_MAX_SPEED_DOWNLOAD");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(700, 400);
@@ -65,13 +79,10 @@ public class Main_View extends JFrame {
 					new NewDownload_View().setVisible(true);
 					
 				} catch (HeadlessException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (UnsupportedFlavorException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				};
 			}
@@ -143,13 +154,10 @@ public class Main_View extends JFrame {
 					new NewDownload_View().setVisible(true);
 					
 				} catch (HeadlessException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (UnsupportedFlavorException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				};
 			}
@@ -171,7 +179,7 @@ public class Main_View extends JFrame {
 		bPauseDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					DownloadManager.getInstance().pauseTask(0);
+					DownloadManager.getInstance().pauseTask(Values.Task_ID_COUNTER-1);
 					
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -186,7 +194,7 @@ public class Main_View extends JFrame {
 		bStartDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					DownloadManager.getInstance().startTask(0);
+					DownloadManager.getInstance().startTask(Values.Task_ID_COUNTER-1);
 					
 				} catch (IOException e1) {
 					e1.printStackTrace();

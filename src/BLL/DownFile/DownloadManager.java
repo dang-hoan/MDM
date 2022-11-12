@@ -25,7 +25,7 @@ public class DownloadManager {
 	public static DownloadManager getInstance() throws IOException {
 		if (instance == null) {
 			instance = new DownloadManager();
-//			instance.resumeTasks();
+			instance.resumeTasks();
 		}
 		return instance;
 	}
@@ -41,7 +41,7 @@ public class DownloadManager {
 		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
 			ThreadCount = Values.DEFAULT_THREAD_COUNT;
 		}
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount, Values.dateFormat.format(System.currentTimeMillis()));
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount);
 		addTask(downloadTask);
 		if(now == true) downloadTask.startTask();
 	}
@@ -112,17 +112,17 @@ public class DownloadManager {
 			for (int i = 0; i < count; i++) {
 				String url = reader.readLine();
 				String SaveName = reader.readLine();
+				String ProgressFile = reader.readLine();
 				int FileSize = Integer.parseInt(reader.readLine());
 				String SaveDirectory = reader.readLine();
 				int DownloadStatus = Integer.parseInt(reader.readLine());
-				String createDate = reader.readLine();
+				Long createDate = Long.parseLong(reader.readLine());
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
-						url, SaveDirectory, SaveName, FileSize, DownloadStatus, createDate);
+						url, SaveDirectory, SaveName, ProgressFile, FileSize, DownloadStatus, createDate);
 				addTask(task);
 			}
 			reader.close();
-			file.delete();
 		}catch (Exception e) {
 			
 		}
@@ -142,18 +142,20 @@ public class DownloadManager {
 		
 		String newLine = System.getProperty("line.separator");
 		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8")));
-			writer.write(Integer.toString(Tasks.size()));
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), Charset.forName("UTF-8")));
+			writer.write(Integer.toString(Tasks.size()));		//Số file
 			writer.newLine();
+			String s = "";
 			for(DownloadTask i : Tasks.values()) {
-				String s = i.getUrl() + newLine +
-						   i.getSaveName() + newLine +
-						   i.getFileSize() + newLine +
-						   i.getSaveDirectory() + newLine +
-						   i.getDownloadStatus() + newLine +
-						   i.getCreateDate() + newLine;
-				writer.write(s);				
+				s += i.getUrl() + newLine +
+				     i.getSaveName() + newLine +
+				     i.getProgressFile() + newLine +
+				     i.getFileSize() + newLine +
+				     i.getSaveDirectory() + newLine +
+				     i.getDownloadStatus() + newLine +
+				     i.getCreateDate() + newLine;			
 			}
+			writer.write(s);	
 			writer.close();
 		} catch (Exception e) {
 			try {
@@ -165,15 +167,16 @@ public class DownloadManager {
 //		ListRunnable.clear();
 	}
 
-	public void cancelAllTasks() {
+	public void cancelAllTasks() throws IOException {
 		for (Integer taskID : Tasks.keySet()) {
 			cancelTask(taskID);
 		}
 	}
 
-	public void cancelTask(int TaskID) {
+	public void cancelTask(int TaskID) throws IOException {
 		if (Tasks.containsKey(TaskID)) {
-			DownloadTask Task = Tasks.remove(TaskID);
+//			DownloadTask Task = Tasks.remove(TaskID);
+			DownloadTask Task = Tasks.get(TaskID);
 			Task.cancel();
 		}
 	}
