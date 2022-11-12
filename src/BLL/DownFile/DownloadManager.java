@@ -32,7 +32,7 @@ public class DownloadManager {
 
 //	public void setMaxThreadCount(int MaxCount) {
 //		if (MaxCount > 0)
-//			ThreadPool.setCorePoolSize(MaxCount);
+//			Values.MAX_THREAD_COUNT = MaxCount;
 //	}
 	//length = -1 ??
 	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg

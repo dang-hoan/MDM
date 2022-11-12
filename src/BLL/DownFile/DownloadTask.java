@@ -13,8 +13,6 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.TimerTask;
 
@@ -86,13 +84,6 @@ public class DownloadTask {
 		}
 	}
 
-//	private class StoreMonitor extends TimerTask {
-//		@Override
-//		public void run() {
-//			storeProgress();
-//		}
-//	}
-
 	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
 		this.TaskID = TaskID;
 		this.Url = url;
@@ -106,7 +97,6 @@ public class DownloadTask {
 		this.Url = url;
 		this.createDate = createDate;
 		this.ProgressFile = progressFile;
-//		setResumeFile(saveDirectory, saveName);
 		//check and change status file
 		this.SaveDirectory = saveDirectory;
 		this.SaveFile = saveName;
@@ -142,45 +132,6 @@ public class DownloadTask {
 		file.createNewFile();
 		
 		ProgressFile = SaveFile.split("\\.")[0] + "_" + createDate + ".tmp";
-	}
-	
-	public boolean setResumeFile(String SaveDirectory, String SaveFile) throws IOException {
-		File dirFile = new File(SaveDirectory);
-		if (dirFile.exists() == false) {
-			if (dirFile.mkdirs() == false) {
-				throw new RuntimeException("Error to create directory");
-			}
-		}
-
-		File file = new File(SaveDirectory, SaveFile);
-		String fileType = getFileType(Url).split("/")[1];
-		System.out.println("res" + SaveFile);
-		if(file.exists() == true) {
-			BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-			System.out.println(Values.dateFormat.format(attr.lastModifiedTime().toMillis()) + ", " + Values.dateFormat.format(createDate));
-			if(attr.lastModifiedTime().toMillis() != createDate) {
-				deleteOldFile();
-				String saveName;
-				if(SaveFile.contains("(")) saveName = SaveFile.split("\\(")[0];
-				else saveName = SaveFile.split("\\.")[0];				
-				int i = 1;
-				while(file.exists() == true) {
-					SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
-					file = new File(SaveDirectory, SaveFile);
-					i += 1;
-				}
-				this.SaveFile = SaveFile;
-				this.ProgressFile = SaveFile.split("\\.")[0] + ".tmp";
-				System.out.println("res2" + SaveFile);
-				return false;
-			}
-		}
-		else {
-			deleteOldFile();
-			file.createNewFile();
-			return false;
-		}
-		return true;
 	}
 
 	public int getTaskID() {
@@ -262,7 +213,9 @@ public class DownloadTask {
 			if (line == null) {
 				throw new NullPointerException("Unexpected EOF");
 			}
+			
 			int count = Integer.parseInt(line.trim());			//Số luồng của file
+			ThreadCount = count;
 			for (int i = 0; i < count; i++) {
 				int ThreadID = Integer.parseInt(reader.readLine());
 				String saveDir = reader.readLine();
@@ -294,7 +247,7 @@ public class DownloadTask {
 		if (!resumeProgress()) {
 			splitDownload(ThreadCount);
 		}
-		System.out.println(TaskStatus);
+		System.out.println(ThreadCount);
 		for (DownloadRunnable runnable : ListRunnable) {
 			runnable.start();
 		}
@@ -402,7 +355,11 @@ public class DownloadTask {
 	}
 
 	public int getActiveTheadCount() {
-		return ListRunnable.size();
+		int count = 0;
+		for(DownloadRunnable r : ListRunnable) {
+			if(!r.isFinished()) count++;
+		}
+		return count;
 	}
 
 	public int getFileSize() {
@@ -422,7 +379,6 @@ public class DownloadTask {
 
 	private void setDownloadStatus(int status) throws IOException {
 		if (status == Values.FINISHED) {
-//			DownloadManager.getInstance().cancelTask(getTaskID());
 //			SpeedTimer.cancel();
 		}
 		TaskStatus = status;
