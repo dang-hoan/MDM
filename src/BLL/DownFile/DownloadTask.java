@@ -30,7 +30,7 @@ public class DownloadTask {
 	private String ProgressFolder;
 	
 	private int FileSize;	
-	private int ThreadCount = Values.DEFAULT_THREAD_COUNT;
+	private int ThreadCount;
 	private int completedThread = 0;
 	
 	private ArrayList<DownloadRunnable> ListRunnable = new ArrayList<DownloadRunnable>();
@@ -89,11 +89,11 @@ public class DownloadTask {
 		this.TaskID = TaskID;
 		this.Url = url;
 		setTargetFile(saveDirectory, saveName);
-		if(ThreadCount > 0) this.ThreadCount = ThreadCount;
+		this.ThreadCount = ThreadCount;
 		System.out.println("TaskID: " + TaskID);
 	}
 	
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, int FileSize, int DownloadStatus, long createDate) throws IOException {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, int FileSize, int ThreadCount, int DownloadStatus, long createDate) throws IOException {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
@@ -102,6 +102,7 @@ public class DownloadTask {
 		this.ProgressFile = progressFile;
 		this.ProgressFolder = progressFolder;
 		this.FileSize = FileSize;
+		this.ThreadCount = ThreadCount;
 		this.TaskStatus = DownloadStatus;
 	}
 
@@ -418,6 +419,10 @@ public class DownloadTask {
 	
 	public long getCreateDate() {
 		return createDate;
+	}
+	
+	public int getThreadCount() {
+		return ThreadCount;
 	}
 	
 	public void storeProgress() throws IOException { //Lưu tiến trình làm việc

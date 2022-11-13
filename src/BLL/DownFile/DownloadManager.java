@@ -110,15 +110,16 @@ public class DownloadManager {
 			for (int i = 0; i < count; i++) {
 				String url = reader.readLine();
 				String SaveName = reader.readLine();
+				String SaveDirectory = reader.readLine();
 				String ProgressFile = reader.readLine();
 				String ProgressFolder = reader.readLine();
 				int FileSize = Integer.parseInt(reader.readLine());
-				String SaveDirectory = reader.readLine();
+				int ThreadCount = Integer.parseInt(reader.readLine());
 				int DownloadStatus = Integer.parseInt(reader.readLine());
 				Long createDate = Long.parseLong(reader.readLine());
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
-						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, DownloadStatus, createDate);
+						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate);
 				addTask(task);
 			}
 			reader.close();
@@ -148,10 +149,11 @@ public class DownloadManager {
 			for(DownloadTask i : Tasks.values()) {
 				s += i.getUrl() + newLine +
 				     i.getSaveName() + newLine +
+				     i.getSaveDirectory() + newLine +
 				     i.getProgressFile() + newLine +
 				     i.getProgressFolder() + newLine +
 				     i.getFileSize() + newLine +
-				     i.getSaveDirectory() + newLine +
+				     i.getThreadCount() + newLine +
 				     i.getDownloadStatus() + newLine +
 				     i.getCreateDate() + newLine;			
 			}
