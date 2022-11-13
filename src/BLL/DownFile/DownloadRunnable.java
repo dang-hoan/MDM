@@ -135,7 +135,8 @@ public class DownloadRunnable implements Runnable {
 			is.close();
 			os.close();
 			DownloadManager.getInstance().getTask(TaskID).notify(ThreadID);
-		} catch (IOException | URISyntaxException e) {
+		}
+		catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}

@@ -29,11 +29,11 @@ import java.awt.event.WindowEvent;
 public class Main_View extends JFrame {
 
 	private JPanel contentPane;
-
 	/**
 	 * Launch the application.
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -49,6 +49,7 @@ public class Main_View extends JFrame {
 	/**
 	 * Create the frame.
 	 */
+
 	public Main_View() {
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -169,6 +170,12 @@ public class Main_View extends JFrame {
 		JButton bCancelDownload = new JButton("");
 		bCancelDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				try {
+					DownloadManager.getInstance().cancelTask(Values.Task_ID_COUNTER-1);
+					
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		bCancelDownload.setIcon(new ImageIcon("icon\\x.png"));

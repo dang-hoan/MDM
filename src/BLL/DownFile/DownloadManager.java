@@ -71,10 +71,8 @@ public class DownloadManager {
 	}
 	
 	public Boolean isAllTasksFinished() {
-		for (Integer task_id : Tasks.keySet()) {
-			if (isTaskFinished(task_id) == false) {
-				return false;
-			}
+		for (DownloadTask task : Tasks.values()) {
+			if(task.getDownloadStatus() != Values.FINISHED) return false;
 		}
 		return true;
 	}
@@ -101,7 +99,7 @@ public class DownloadManager {
 	private void resumeTasks() throws IOException {   				//Khôi phục thông tin các task (file)
 		File file = new File(DataDir, DataFile);
 		if (file.exists() == false) return;
-		
+
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
 			String line = reader.readLine();
@@ -113,13 +111,14 @@ public class DownloadManager {
 				String url = reader.readLine();
 				String SaveName = reader.readLine();
 				String ProgressFile = reader.readLine();
+				String ProgressFolder = reader.readLine();
 				int FileSize = Integer.parseInt(reader.readLine());
 				String SaveDirectory = reader.readLine();
 				int DownloadStatus = Integer.parseInt(reader.readLine());
 				Long createDate = Long.parseLong(reader.readLine());
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
-						url, SaveDirectory, SaveName, ProgressFile, FileSize, DownloadStatus, createDate);
+						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, DownloadStatus, createDate);
 				addTask(task);
 			}
 			reader.close();
@@ -150,6 +149,7 @@ public class DownloadManager {
 				s += i.getUrl() + newLine +
 				     i.getSaveName() + newLine +
 				     i.getProgressFile() + newLine +
+				     i.getProgressFolder() + newLine +
 				     i.getFileSize() + newLine +
 				     i.getSaveDirectory() + newLine +
 				     i.getDownloadStatus() + newLine +
@@ -168,14 +168,13 @@ public class DownloadManager {
 	}
 
 	public void cancelAllTasks() throws IOException {
-		for (Integer taskID : Tasks.keySet()) {
-			cancelTask(taskID);
+		for(DownloadTask Task : Tasks.values()) {
+			Task.cancel();
 		}
 	}
 
 	public void cancelTask(int TaskID) throws IOException {
 		if (Tasks.containsKey(TaskID)) {
-//			DownloadTask Task = Tasks.remove(TaskID);
 			DownloadTask Task = Tasks.get(TaskID);
 			Task.cancel();
 		}

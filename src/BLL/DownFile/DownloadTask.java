@@ -27,6 +27,7 @@ public class DownloadTask {
 	private String SaveDirectory;
 	private String SaveFile;
 	private String ProgressFile;			//Lưu tiến trình tải
+	private String ProgressFolder;
 	
 	private int FileSize;	
 	private int ThreadCount = Values.DEFAULT_THREAD_COUNT;
@@ -92,14 +93,14 @@ public class DownloadTask {
 		System.out.println("TaskID: " + TaskID);
 	}
 	
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, int FileSize, int DownloadStatus, long createDate) throws IOException {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, int FileSize, int DownloadStatus, long createDate) throws IOException {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
-		this.ProgressFile = progressFile;
-		//check and change status file
 		this.SaveDirectory = saveDirectory;
 		this.SaveFile = saveName;
+		this.ProgressFile = progressFile;
+		this.ProgressFolder = progressFolder;
 		this.FileSize = FileSize;
 		this.TaskStatus = DownloadStatus;
 	}
@@ -116,7 +117,7 @@ public class DownloadTask {
 				throw new RuntimeException("Error to create directory");
 			}
 		}
-		String fileType = getFileType(Url).split("/")[1];
+		String fileType = getFileType();
 
 		SaveFile = saveName + "." + fileType;
 		File file = new File(SaveDirectory, SaveFile);
@@ -132,6 +133,7 @@ public class DownloadTask {
 		file.createNewFile();
 		
 		ProgressFile = SaveFile.split("\\.")[0] + "_" + createDate + ".tmp";
+		ProgressFolder = SaveFile.split("\\.")[0] + "_" + createDate;
 	}
 
 	public int getTaskID() {
@@ -153,9 +155,13 @@ public class DownloadTask {
 	public String getSaveName() {
 		return SaveFile;
 	}
-
+	
 	public String getProgressFile() {
 		return ProgressFile;
+	}
+
+	public String getProgressFolder() {
+		return ProgressFolder;
 	}
 
 	public void setSaveDirectory(String SaveDirectory) {
@@ -182,7 +188,7 @@ public class DownloadTask {
 			int sublen = size / thread_count;
 			
 			System.out.println("split");
-			File dir = new File(DownloadManager.getInstance().getDataDir(), SaveFile.split("\\.")[0] + "_" + System.currentTimeMillis());
+			File dir = new File(DownloadManager.getInstance().getDataDir(), ProgressFolder);
 			if(dir.exists() == false) dir.mkdir();
 			
 			for (int i = 0; i < thread_count; i++) {
@@ -267,16 +273,34 @@ public class DownloadTask {
         completedThread++;
 //        ListRunnable.remove(getThreadByID(ThreadID));
         if(completedThread == ThreadCount) {
-        	TaskStatus = Values.FINISHED;
         	assemble();
         	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
-            DownloadManager.getInstance().cancelTask(TaskID);
+        	TaskStatus = Values.FINISHED;
+    		ListRunnable.clear();
+        	deleteOldFile();
         }
 	}
 	
 	public void assemble() {
 		try {
-			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(SaveDirectory + File.separator + SaveFile));
+			System.out.println("assemble " + ThreadCount + ", " + completedThread);
+			
+			File saveF = new File(SaveDirectory, SaveFile);
+			if(saveF.exists() == false) saveF.createNewFile();
+			else {
+				if(saveF.length() != 0) {
+					String saveName = SaveFile.split("\\.")[0], fileType = getFileType();
+					int i = 1;
+					while(saveF.exists() == true) {
+						SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
+						saveF = new File(SaveDirectory, SaveFile);
+						i += 1;
+					}
+					saveF.createNewFile();					
+				};
+			}
+			
+			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(saveF));
 			for(int i = 0; i < ThreadCount; i++) {
 				DownloadRunnable r = ListRunnable.get(i);
 				File file = new File(r.getSaveDir(), r.getSaveFile());
@@ -308,10 +332,10 @@ public class DownloadTask {
 		return connection.getContentLength();
 	}
 
-	private String getFileType(String fileUrl) throws IOException {
-		URL url = new URL(fileUrl);
+	private String getFileType() throws IOException {
+		URL url = new URL(this.Url);
 		URLConnection connection = url.openConnection();
-		return connection.getContentType();
+		return connection.getContentType().split("/")[1];
 	}
 
 	public File getDownloadFile() {
@@ -370,11 +394,15 @@ public class DownloadTask {
 		if(TaskStatus != Values.DOWNLOADING) return;
 		
 		setDownloadStatus(Values.PAUSED);
+		pauseAllThread();		
+		storeProgress();
+		ListRunnable.clear();
+	}
+	
+	public void pauseAllThread() {
 		for(int i = 0; i < ListRunnable.size(); i++) {
 			ListRunnable.get(i).pause();
 		}
-		storeProgress();
-		ListRunnable.clear();
 	}
 
 	private void setDownloadStatus(int status) throws IOException {
@@ -432,9 +460,11 @@ public class DownloadTask {
 	}
 
 	public void cancel() throws IOException {
+		pauseAllThread();
 		ListRunnable.clear();
-    	deleteOldFile();
-//		mThreadPoolRef.cancel(TaskID);
+		deleteAllFile();
+    	TaskStatus = Values.CANCELED;
+    	System.out.println("Task ID: " + TaskID + " is canceled!");
 	}
 	
 	public void deleteOldFile() throws IOException {
@@ -442,5 +472,25 @@ public class DownloadTask {
 		if (file.exists()) {
 			file.delete();
 		}
+	}
+	
+	public void deleteAllFile() throws IOException {
+		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
+		if (file.exists()) {
+			file.delete();
+		}
+				
+		File directory = new File(DownloadManager.getInstance().getDataDir(), ProgressFolder);
+		if(directory.exists()) {
+			File[] files = directory.listFiles();
+		    for(File subFile : files) { // delete each file from the director			    
+		      subFile.delete();
+		    }
+	    
+		    directory.delete();
+	    }
+	    
+	    File saveF = new File(SaveDirectory, SaveFile);
+		if(saveF.exists() && saveF.length() == 0) saveF.delete();
 	}
 }

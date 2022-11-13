@@ -13,6 +13,7 @@ public class Values {
 	public static final int DOWNLOADING = 2;
 	public static final int PAUSED = 3;
 	public static final int FINISHED = 4;
+	public static final int CANCELED = 5;
 	
 	public static SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss Z 'on' dd-MM-yyyy", Locale.getDefault());
 }
