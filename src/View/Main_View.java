@@ -55,7 +55,16 @@ public class Main_View extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				try {
-					DownloadManager.getInstance().pauseAllTasks();
+					DownloadManager.getInstance().shutdown();
+					
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override
+			public void windowOpened(WindowEvent e) {
+				try {
+					DownloadManager.getInstance().resumeTasks();
 					
 				} catch (IOException e1) {
 					e1.printStackTrace();

@@ -25,15 +25,15 @@ public class DownloadManager {
 	public static DownloadManager getInstance() throws IOException {
 		if (instance == null) {
 			instance = new DownloadManager();
-			instance.resumeTasks();
 		}
 		return instance;
 	}
 
-//	public void setMaxThreadCount(int MaxCount) {
-//		if (MaxCount > 0)
-//			Values.MAX_THREAD_COUNT = MaxCount;
-//	}
+	public void setMaxThreadCount(int MaxCount) {
+		if (MaxCount > 0)
+			Values.MAX_THREAD_COUNT = MaxCount;
+	}
+	
 	//length = -1 ??
 	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg
 	
@@ -83,20 +83,28 @@ public class DownloadManager {
 	}
 
 	public void pauseAllTasks() throws IOException {
-		for (Integer taskID : Tasks.keySet()) {
-			pauseTask(taskID);
-		}
-		storeTasks();
-	}
-
-	public void pauseTask(int TaskID) throws IOException {
-		if (Tasks.containsKey(TaskID)) {
-			DownloadTask task = Tasks.get(TaskID);
+		for (DownloadTask task : Tasks.values()) {
 			task.pause();
 		}
 	}
+
+	public void pauseTask(int TaskID) throws IOException {
+		DownloadTask task = Tasks.get(TaskID);
+		if(task != null) task.pause();
+	}
 	
-	private void resumeTasks() throws IOException {   				//Khôi phục thông tin các task (file)
+	public void shutdown() throws IOException {
+		pauseAllTasks();
+		for (DownloadTask task : Tasks.values()) {
+			task.shutdown();
+		}
+		storeTasks();
+	}
+	public void shutdownRudely() throws IOException {
+		pauseAllTasks();
+	}
+	
+	public void resumeTasks() throws IOException {   				//Khôi phục thông tin các task (file)
 		File file = new File(DataDir, DataFile);
 		if (file.exists() == false) return;
 
@@ -166,7 +174,6 @@ public class DownloadManager {
 			} catch (Exception e1) {
 			}
 		}
-//		ListRunnable.clear();
 	}
 
 	public void cancelAllTasks() throws IOException {
@@ -180,14 +187,6 @@ public class DownloadManager {
 			DownloadTask Task = Tasks.get(TaskID);
 			Task.cancel();
 		}
-	}
-
-	public void shutdownSafely() throws IOException {
-		for (Integer task_id : Tasks.keySet()) {
-			Tasks.get(task_id).pause();
-		}
-		storeTasks();
-//		mThreadPool.shutdown();
 	}
 
 	public String getDataDir() {
@@ -218,7 +217,4 @@ public class DownloadManager {
 		return DownloadUtils.getReadableSpeed(getTotalSpeed());
 	}
 		
-	public void shutdDownloadRudely() {
-//		mThreadPool.shutdownNow();
-	}
 }

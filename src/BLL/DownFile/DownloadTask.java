@@ -183,7 +183,6 @@ public class DownloadTask {
 
 	private void splitDownload(int thread_count) { 				//Split thread
 		try {
-			completedThread = 0;
 			int size = getFileLength(Url);
 			FileSize = size;
 			int sublen = size / thread_count;
@@ -207,12 +206,12 @@ public class DownloadTask {
 		}
 	}
 
-	private boolean resumeProgress() throws IOException {   //Khôi phục công việc các luồng		
+	private boolean resumeProgress() throws IOException {   //Khôi phục công việc các luồng	
 		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
 		if(file.exists() == false) {
-			ListRunnable.clear();
 			return false;
 		}
+		
 		System.out.println("resume");
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
@@ -223,6 +222,8 @@ public class DownloadTask {
 			
 			int count = Integer.parseInt(line.trim());			//Số luồng của file
 			ThreadCount = count;
+			int completedThread = Integer.parseInt(reader.readLine());			//Số luồng hoàn thành
+			this.completedThread = completedThread;
 			for (int i = 0; i < count; i++) {
 				int ThreadID = Integer.parseInt(reader.readLine());
 				String saveDir = reader.readLine();
@@ -239,7 +240,6 @@ public class DownloadTask {
 			}
 			createDate = Long.parseLong(reader.readLine());
 			reader.close();
-			completedThread = 0;
 			return true;
 		}catch (Exception e) {
 			ListRunnable.clear();
@@ -249,14 +249,18 @@ public class DownloadTask {
 
 	public void startTask() throws IOException {
 		if(TaskStatus == Values.DOWNLOADING) return;
+		
 		setDownloadStatus(Values.DOWNLOADING);
-			
-		if (!resumeProgress()) {
-			splitDownload(ThreadCount);
+		
+		if(ListRunnable.size() == 0) {
+			completedThread = 0;
+			if (!resumeProgress()) {
+				splitDownload(ThreadCount);
+			}			
 		}
-		System.out.println(ThreadCount);
+		System.out.println("So luong: " + ListRunnable.size() + ", hoan thanh: " + completedThread);
 		for (DownloadRunnable runnable : ListRunnable) {
-			runnable.start();
+			if(!runnable.isFinished()) runnable.start();
 		}
 //		SpeedTimer.scheduleAtFixedRate(SpeedMonitor, 0, 1000);
 	}
@@ -269,7 +273,7 @@ public class DownloadTask {
 		return -1;
 	}
 	
-	public void notify(int ThreadID) throws IOException {
+	public synchronized void notify(int ThreadID) throws IOException {
         System.out.println("*******Task ID " + TaskID + ": Thread " + ThreadID + " download complete *********");
         completedThread++;
 //        ListRunnable.remove(getThreadByID(ThreadID));
@@ -393,11 +397,8 @@ public class DownloadTask {
 
 	public void pause() throws IOException {
 		if(TaskStatus != Values.DOWNLOADING) return;
-		
 		setDownloadStatus(Values.PAUSED);
-		pauseAllThread();		
-		storeProgress();
-		ListRunnable.clear();
+		pauseAllThread();	
 	}
 	
 	public void pauseAllThread() {
@@ -405,11 +406,12 @@ public class DownloadTask {
 			ListRunnable.get(i).pause();
 		}
 	}
+	
+	public void shutdown() throws IOException {
+		storeProgress();
+	}
 
 	private void setDownloadStatus(int status) throws IOException {
-		if (status == Values.FINISHED) {
-//			SpeedTimer.cancel();
-		}
 		TaskStatus = status;
 	}
 	
@@ -426,7 +428,6 @@ public class DownloadTask {
 	}
 	
 	public void storeProgress() throws IOException { //Lưu tiến trình làm việc
-		deleteOldFile();
 		File dir = new File(DownloadManager.getInstance().getDataDir());
 		if (dir.exists() == false) {
 			dir.mkdir();
@@ -441,6 +442,8 @@ public class DownloadTask {
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8")));
 			writer.write(Integer.toString(ListRunnable.size()));
+			writer.newLine();
+			writer.write(Integer.toString(completedThread));
 			writer.newLine();
 			String s = "";
 			for(DownloadRunnable i : ListRunnable) {
@@ -465,10 +468,11 @@ public class DownloadTask {
 	}
 
 	public void cancel() throws IOException {
+		if(TaskStatus == Values.CANCELED || TaskStatus == Values.FINISHED) return;
+    	TaskStatus = Values.CANCELED;
 		pauseAllThread();
 		ListRunnable.clear();
 		deleteAllFile();
-    	TaskStatus = Values.CANCELED;
     	System.out.println("Task ID: " + TaskID + " is canceled!");
 	}
 	

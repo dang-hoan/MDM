@@ -89,12 +89,7 @@ public class DownloadRunnable implements Runnable {
 				+ EndPosition);
 
 		byte[] buf = new byte[BUFFER_SIZE];
-		try {
-			if(CurrentPosition > EndPosition) { //luồng đã xong trước khi store
-				DownloadManager.getInstance().getTask(TaskID).notify(ThreadID);
-				return;
-			}
-			
+		try {			
 			URI uri = new URI(FileUrl);
 //			String userInfo = uri.getRawUserInfo();
 //			if(userInfo != null && userInfo.length() > 0)
@@ -165,7 +160,7 @@ public class DownloadRunnable implements Runnable {
 //	}
 
 	public boolean isFinished() {
-		return CurrentPosition >= EndPosition;
+		return CurrentPosition > EndPosition;
 	}
 
 	public int getThreadID() {
