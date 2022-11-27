@@ -71,7 +71,7 @@ public class DownloadTask {
 				saveDir = saveDir.substring(0, saveDir.length() - 1);
 			}
 			SaveDirectory = saveDir;
-			
+
 			File dirFile = new File(saveDir);
 			if (dirFile.exists() == false) {
 				if (dirFile.mkdirs() == false) {
@@ -81,12 +81,12 @@ public class DownloadTask {
 			String fileType = getFileType();
 
 			SaveFile = saveName + "." + fileType;
-			File file = new File(SaveDirectory, SaveFile);
+			File file = new File(SaveDirectory + File.separator + SaveFile);
 			
 			int i = 1;
 			while(file.exists() == true) {
 				SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
-				file = new File(SaveDirectory, SaveFile);
+				file = new File(SaveDirectory + File.separator + SaveFile);
 				i += 1;
 			}
 			file.createNewFile();
@@ -103,6 +103,7 @@ public class DownloadTask {
 			
 			file = new File(file.getAbsolutePath(), SaveFile);
 			file.createNewFile();
+			
 			
 		}
 		catch(IOException e) {
@@ -304,7 +305,7 @@ public class DownloadTask {
     			}
     		}        	
         	
-    		File desF = new File(SaveDirectory, SaveFile);
+    		File desF = new File(SaveDirectory + File.separator + SaveFile);
 			if(desF.exists() == false) saveF.renameTo(desF);
 			else {
 				if(desF.length() != 0) {
@@ -312,7 +313,7 @@ public class DownloadTask {
 					int i = 1;
 					while(desF.exists() == true) {
 						SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
-						desF = new File(SaveDirectory, SaveFile);
+						desF = new File(SaveDirectory + File.separator + SaveFile);
 						i += 1;
 					}				
 				};
@@ -496,7 +497,7 @@ public class DownloadTask {
 		    directory.delete();
 	    }
 	    
-	    File saveF = new File(SaveDirectory, SaveFile);
+	    File saveF = new File(SaveDirectory + File.separator + SaveFile);
 		if(saveF.exists() && saveF.length() == 0) saveF.delete();
 	}
 	
