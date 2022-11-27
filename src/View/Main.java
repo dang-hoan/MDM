@@ -11,8 +11,8 @@ public class Main {
 		String saveDirectory = "C:\\Users\\DELL\\Downloads";
 		
 		try {			
-			downloadManager.addTask(url, saveDirectory, "file100", 50, true);
-			downloadManager.addTask(url, saveDirectory, "file101", 50, true);
+			downloadManager.addTask(url, saveDirectory, "file100", 50, true, null, null);
+			downloadManager.addTask(url, saveDirectory, "file101", 50, true, null, null);
 			
 			int counter = 0;			
 			//Lặp để in ra tốc độ tải và các thông tin khác khi tải 1 file (thông tin Task), ở đây lặp 2 lần để minh hoạ
@@ -26,7 +26,7 @@ public class Main {
 				// + task.getReadableMaxSpeed() + " Time:"
 				// + task.getTimePassed() + "s");
 				System.out.println("Downloader information Speed:"
-						+ downloadManager.getReadableTotalSpeed()
+						+ downloadManager.getTotalDownloadedSize()
 						+ " Down Size:"
 						+ downloadManager.getReadableDownloadSize());
 				Thread.sleep(1000);
@@ -38,8 +38,6 @@ public class Main {
 				// downloadManager.start();
 				// }
 			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

@@ -212,6 +212,10 @@ public class Main_View extends JFrame {
 				try {
 					DownloadManager.getInstance().startTask(Values.Task_ID_COUNTER-1);
 					
+//					Lấy TaskID của file mà người dùng chọn r tạo mới view_Task_Download để tải
+//					view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(TaskID);
+//					viewTaskDownload.setVisible(true);
+					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

@@ -15,6 +15,7 @@ public class Values {
 	public static final int PAUSED = 3;
 	public static final int FINISHED = 4;
 	public static final int CANCELED = 5;
+	public static final int ASSEMBLING = 6;
 	
 	public String[] video = {".mp4", ".mp3"};
 	

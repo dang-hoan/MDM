@@ -19,7 +19,6 @@ import javax.swing.JFileChooser;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
@@ -116,13 +115,11 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						downloadManager.addTask(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), true);
+						view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())));
+//						Thread.sleep(5000);
+						viewTaskDownload.setVisible(true);
 						NewDownload_View.this.dispose();
 						
-					} catch (MalformedURLException e1) {
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						e1.printStackTrace();
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}

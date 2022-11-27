@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Hashtable;
 
+import javax.swing.JProgressBar;
+
 import BLL.Values;
 
 public class DownloadManager {
@@ -22,7 +24,7 @@ public class DownloadManager {
 	private DownloadManager() {
 	}
 
-	public static DownloadManager getInstance() throws IOException {
+	public static DownloadManager getInstance(){
 		if (instance == null) {
 			instance = new DownloadManager();
 		}
@@ -37,13 +39,17 @@ public class DownloadManager {
 	//length = -1 ??
 	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg
 	
-	public void addTask(String url, String saveDirectory, String saveName, int ThreadCount, Boolean now) throws IOException {
+	public DownloadTask addTask(String url, String saveDirectory, String saveName, 
+			int ThreadCount, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload) {
 		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
 			ThreadCount = Values.DEFAULT_THREAD_COUNT;
 		}
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount);
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount,jProgressBars,speedDownload);
 		addTask(downloadTask);
+		
 		if(now == true) downloadTask.startTask();
+		
+		return downloadTask;
 	}
 
 	public void addTask(DownloadTask downloadTask) {
@@ -125,6 +131,7 @@ public class DownloadManager {
 				int ThreadCount = Integer.parseInt(reader.readLine());
 				int DownloadStatus = Integer.parseInt(reader.readLine());
 				Long createDate = Long.parseLong(reader.readLine());
+
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
 						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate);
@@ -203,18 +210,6 @@ public class DownloadManager {
 
 	public String getReadableDownloadSize() {
 		return DownloadUtils.getReadableSize(getTotalDownloadedSize());
-	}
-
-	public int getTotalSpeed() {
-		int speed = 0;
-		for (DownloadTask Task : Tasks.values()) {
-			speed += Task.getSpeed();
-		}
-		return speed;
-	}
-
-	public String getReadableTotalSpeed() {
-		return DownloadUtils.getReadableSpeed(getTotalSpeed());
 	}
 		
 }

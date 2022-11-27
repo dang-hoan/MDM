@@ -10,6 +10,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.swing.JProgressBar;
+
 public class DownloadRunnable implements Runnable {
 	private Thread t;
 	private static final int BUFFER_SIZE = 1024;
@@ -24,6 +26,9 @@ public class DownloadRunnable implements Runnable {
 	
 	public final int TaskID;
 	public final int ThreadID;
+	
+	private JProgressBar jProgressBar;
+	private speed_Download speed_Download;
 
 //	private DownloadRunnable() {
 //		// just use for annotation
@@ -33,7 +38,7 @@ public class DownloadRunnable implements Runnable {
 
 	public DownloadRunnable(String FileUrl,
 			String SaveDirectory, String SaveFileName, int StartPosition,
-			int EndPosition, int TaskID, int ThreadID) {
+			int EndPosition, int TaskID, int ThreadID, JProgressBar jProgressBar,speed_Download speed_Download) {
 		super();
 		this.FileUrl = FileUrl;
 		this.SaveDirectory = SaveDirectory;
@@ -45,15 +50,23 @@ public class DownloadRunnable implements Runnable {
 		
 		this.TaskID = TaskID;
 		this.ThreadID = ThreadID;
+		
+		this.speed_Download=speed_Download;
+		this.jProgressBar=jProgressBar;
+		this.jProgressBar.setMinimum(this.StartPosition);
+		this.jProgressBar.setMaximum(this.EndPosition-1);
+		this.jProgressBar.setValue(CurrentPosition);
 	}
 
 	public DownloadRunnable(
 			String FileUrl, String SaveDirectory, String SaveFileName, 
 			int StartPosition,	int CurrentPosition, int EndPosition,
-			int TaskID, int ThreadID) {
+			int TaskID, int ThreadID,JProgressBar jProgressBar,speed_Download speed_Download) {
 		
-		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID);
+		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID,jProgressBar,speed_Download);
 		this.CurrentPosition = CurrentPosition;
+		
+		this.jProgressBar.setValue(CurrentPosition);
 	}
 	
 	public void start() {
@@ -63,6 +76,10 @@ public class DownloadRunnable implements Runnable {
 	
 	public void pause() {
 		if(t != null) t.interrupt();
+	}
+	
+	public void join() throws InterruptedException {
+		if(t != null) t.join();
 	}
 
 	@Override
@@ -108,7 +125,7 @@ public class DownloadRunnable implements Runnable {
 			
 			while (CurrentPosition <= EndPosition) {
 				if (t.isInterrupted()) {
-					System.out.println("Download TaskID: "
+					System.out.println("Download Task ID "
 							+ TaskID + ": Thread " + ThreadID
 							+ " was interrupted, Start:" + StartPosition
 							+ " Current:" + CurrentPosition + " End:"
@@ -124,6 +141,9 @@ public class DownloadRunnable implements Runnable {
 				else {
 					os.write(buf, 0, len);
 					CurrentPosition += len;
+					
+					this.jProgressBar.setValue(CurrentPosition);
+					this.speed_Download.plus_Size_DownLoad_1s(len);
 				}
 			}
 
@@ -134,6 +154,9 @@ public class DownloadRunnable implements Runnable {
 		catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
+		this.jProgressBar.setValue(jProgressBar.getMaximum());
+		
+		//System.out.println("Cur "+ this.CurrentPosition + " End :" + this.EndPosition+ " Star :" + this.StartPosition +"Thread"+ this.t);
 	}
 
 //	public DownloadRunnable split() {

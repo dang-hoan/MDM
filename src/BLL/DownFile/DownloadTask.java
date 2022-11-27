@@ -1,6 +1,5 @@
 package BLL.DownFile;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,11 +9,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.TimerTask;
+
+import javax.swing.JProgressBar;
 
 import BLL.Values;
 
@@ -34,66 +35,23 @@ public class DownloadTask {
 	private int completedThread = 0;
 	
 	private ArrayList<DownloadRunnable> ListRunnable = new ArrayList<DownloadRunnable>();
+	private long indexInSubFile = 0;
+	private boolean finished = true;
 
-	private SpeedMonitor SpeedMonitor = new SpeedMonitor(this);
+	private JProgressBar[] jProgressBars;
+	private speed_Download speed_Download;
 
-//	private Timer SpeedTimer = new Timer();
-//	private Timer mStoreTimer = new Timer();
-
-
-	private static class SpeedMonitor extends TimerTask {
-		private long LastSecondSize = 0;	
-		private long CurrentSecondSize = 0;		
-		private long Speed;		
-		private long MaxSpeed;	
-		private long AverageSpeed;
-		private long Counter;
-
-		private DownloadTask HostTask;
-
-		public long getMaxSpeed() {
-			return MaxSpeed;
-		}
-
-		public SpeedMonitor(DownloadTask TaskBelongTo) {
-			HostTask = TaskBelongTo;
-		}
-
-		@Override
-		public void run() {
-			Counter++;
-			CurrentSecondSize = HostTask.getDownloadedSize();
-			Speed = CurrentSecondSize - LastSecondSize;
-			LastSecondSize = CurrentSecondSize;
-			if (Speed > MaxSpeed) {
-				MaxSpeed = Speed;
-			}
-
-			AverageSpeed = CurrentSecondSize / Counter;
-		}
-
-		public long getDownloadedTime() {
-			return Counter;
-		}
-
-		public long getSpeed() {
-			return Speed;
-		}
-
-		public long getAverageSpeed() {
-			return AverageSpeed;
-		}
-	}
-
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount) throws IOException {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, JProgressBar[] jProgressBars,speed_Download speed_Download) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		setTargetFile(saveDirectory, saveName);
 		this.ThreadCount = ThreadCount;
-		System.out.println("TaskID: " + TaskID);
+		System.out.println("TaskID: " + TaskID);		
+		this.jProgressBars = jProgressBars;
+		this.speed_Download = speed_Download;
 	}
 	
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, int FileSize, int ThreadCount, int DownloadStatus, long createDate) throws IOException {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, int FileSize, int ThreadCount, int DownloadStatus, long createDate) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
@@ -106,35 +64,50 @@ public class DownloadTask {
 		this.TaskStatus = DownloadStatus;
 	}
 
-	public void setTargetFile(String saveDir, String saveName) throws IOException {
-		if (saveDir.lastIndexOf(File.separator) == saveDir.length() - 1) {
-			saveDir = saveDir.substring(0, saveDir.length() - 1);
-		}
-		SaveDirectory = saveDir;
-		
-		File dirFile = new File(saveDir);
-		if (dirFile.exists() == false) {
-			if (dirFile.mkdirs() == false) {
-				throw new RuntimeException("Error to create directory");
+	public void setTargetFile(String saveDir, String saveName) {
+		try {
+			
+			if (saveDir.lastIndexOf(File.separator) == saveDir.length() - 1) {
+				saveDir = saveDir.substring(0, saveDir.length() - 1);
 			}
-		}
-		String fileType = getFileType();
+			SaveDirectory = saveDir;
+			
+			File dirFile = new File(saveDir);
+			if (dirFile.exists() == false) {
+				if (dirFile.mkdirs() == false) {
+					throw new RuntimeException("Error to create directory");
+				}
+			}
+			String fileType = getFileType();
 
-		SaveFile = saveName + "." + fileType;
-		File file = new File(SaveDirectory, SaveFile);
-		
-		int i = 1;
-		while(file.exists() == true) {
-			SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
-			file = new File(SaveDirectory, SaveFile);
-			i += 1;
+			SaveFile = saveName + "." + fileType;
+			File file = new File(SaveDirectory, SaveFile);
+			
+			int i = 1;
+			while(file.exists() == true) {
+				SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
+				file = new File(SaveDirectory, SaveFile);
+				i += 1;
+			}
+			file.createNewFile();
+			createDate = System.currentTimeMillis();
+			
+			ProgressFile = SaveFile.split("\\.")[0] + "_" + createDate + ".tmp";
+			ProgressFolder = SaveFile.split("\\.")[0] + "_" + createDate;
+			
+			file = new File(DownloadManager.getInstance().getDataDir());
+			file.mkdir();
+			
+			file = new File(DownloadManager.getInstance().getDataDir(), ProgressFolder);
+			file.mkdir();
+			
+			file = new File(file.getAbsolutePath(), SaveFile);
+			file.createNewFile();
+			
 		}
-		
-		createDate = System.currentTimeMillis();
-		file.createNewFile();
-		
-		ProgressFile = SaveFile.split("\\.")[0] + "_" + createDate + ".tmp";
-		ProgressFolder = SaveFile.split("\\.")[0] + "_" + createDate;
+		catch(IOException e) {
+			
+		}
 	}
 
 	public int getTaskID() {
@@ -187,6 +160,8 @@ public class DownloadTask {
 			FileSize = size;
 			int sublen = size / thread_count;
 			
+			indexInSubFile = 0;
+			
 			System.out.println("split");
 			File dir = new File(DownloadManager.getInstance().getDataDir(), ProgressFolder);
 			if(dir.exists() == false) dir.mkdir();
@@ -198,7 +173,7 @@ public class DownloadTask {
 				DownloadRunnable runnable = new DownloadRunnable(
 						Url, dir.getAbsolutePath(), SaveFile + "_" + (i+1),
 						startPos, endPos,
-						TaskID, i+1);
+						TaskID, i+1, this.jProgressBars[i],this.speed_Download);
 				ListRunnable.add(runnable);
 			}
 		} catch (IOException e) {
@@ -209,24 +184,18 @@ public class DownloadTask {
 	private boolean resumeProgress() throws IOException {   //Khôi phục công việc các luồng	
 		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
 		if(file.exists() == false) {
+			completedThread = 0;
+			ListRunnable.clear();
 			return false;
 		}
 		
 		System.out.println("resume");
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
-			String line = reader.readLine();
-			if (line == null) {
-				throw new NullPointerException("Unexpected EOF");
-			}
-			
-			int count = Integer.parseInt(line.trim());			//Số luồng của file
-			ThreadCount = count;
-			int completedThread = Integer.parseInt(reader.readLine());			//Số luồng hoàn thành
-			this.completedThread = completedThread;
-			for (int i = 0; i < count; i++) {
+			this.completedThread = Integer.parseInt(reader.readLine());				//Số luồng hoàn thành
+			String saveDir = reader.readLine();
+			for (int i = 0; i < this.ThreadCount; i++) {
 				int ThreadID = Integer.parseInt(reader.readLine());
-				String saveDir = reader.readLine();
 				String saveFile = reader.readLine();
 				int startPosition = Integer.parseInt(reader.readLine());
 				int currentPosition = Integer.parseInt(reader.readLine());
@@ -235,34 +204,47 @@ public class DownloadTask {
 				DownloadRunnable runnable = new DownloadRunnable(
 						Url, saveDir, saveFile,
 						startPosition, currentPosition, endPosition,
-						TaskID, ThreadID);
+						TaskID, ThreadID,this.jProgressBars[i],this.speed_Download);
 				ListRunnable.add(runnable);
 			}
-			createDate = Long.parseLong(reader.readLine());
+			this.indexInSubFile = Integer.parseInt(reader.readLine());
+//			createDate = Long.parseLong(reader.readLine());
 			reader.close();
 			return true;
 		}catch (Exception e) {
+			completedThread = 0;
 			ListRunnable.clear();
 			return false;
 		}
 	}
 
-	public void startTask() throws IOException {
-		if(TaskStatus == Values.DOWNLOADING) return;
-		
-		setDownloadStatus(Values.DOWNLOADING);
-		
-		if(ListRunnable.size() == 0) {
-			completedThread = 0;
-			if (!resumeProgress()) {
-				splitDownload(ThreadCount);
-			}			
+	public void startTask() {
+		try {
+
+			if(TaskStatus == Values.DOWNLOADING || TaskStatus == Values.ASSEMBLING) return;
+			
+			TaskStatus = Values.DOWNLOADING;
+			if(ListRunnable.size() == 0 || finished) {			
+				if (!resumeProgress()) {
+					splitDownload(ThreadCount);
+				}			
+			}
+			System.out.println("So luong: " + ListRunnable.size() + ", hoan thanh: " + completedThread);
+
+			if(completedThread == ThreadCount) {
+				TaskStatus = Values.ASSEMBLING;
+				assemble();
+			}
+			else
+				for (DownloadRunnable runnable : ListRunnable) {
+					if(!runnable.isFinished()) runnable.start();
+				}
+//			SpeedTimer.scheduleAtFixedRate(SpeedMonitor, 0, 1000);
+			
 		}
-		System.out.println("So luong: " + ListRunnable.size() + ", hoan thanh: " + completedThread);
-		for (DownloadRunnable runnable : ListRunnable) {
-			if(!runnable.isFinished()) runnable.start();
+		catch(IOException e) {
+			
 		}
-//		SpeedTimer.scheduleAtFixedRate(SpeedMonitor, 0, 1000);
 	}
 	
 	public int getThreadByID(int ThreadID) {
@@ -277,42 +259,34 @@ public class DownloadTask {
         System.out.println("*******Task ID " + TaskID + ": Thread " + ThreadID + " download complete *********");
         completedThread++;
 //        ListRunnable.remove(getThreadByID(ThreadID));
-        if(completedThread == ThreadCount) {
-        	assemble();
-        	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
-        	TaskStatus = Values.FINISHED;
-    		ListRunnable.clear();
-        	deleteOldFile();
-        }
+        if(completedThread == ThreadCount) assemble();
 	}
 	
 	public void assemble() {
 		try {
 			System.out.println("assemble " + ThreadCount + ", " + completedThread);
 			
-			File saveF = new File(SaveDirectory, SaveFile);
+			File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
 			if(saveF.exists() == false) saveF.createNewFile();
-			else {
-				if(saveF.length() != 0) {
-					String saveName = SaveFile.split("\\.")[0], fileType = getFileType();
-					int i = 1;
-					while(saveF.exists() == true) {
-						SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
-						saveF = new File(SaveDirectory, SaveFile);
-						i += 1;
-					}
-					saveF.createNewFile();					
-				};
-			}
 			
-			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(saveF));
+			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(saveF, true));
+			boolean Seeked = false;
 			for(int i = 0; i < ThreadCount; i++) {
 				DownloadRunnable r = ListRunnable.get(i);
 				File file = new File(r.getSaveDir(), r.getSaveFile());
 				if(file.exists()) {
-					BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+					RandomAccessFile is = new RandomAccessFile(file, "r");
+					if(!Seeked && indexInSubFile > 0) {is.seek(indexInSubFile); Seeked = true;}
 					int s;
 					while((s = is.read()) != -1) {
+						if(Thread.currentThread().isInterrupted()) {
+							indexInSubFile = is.getFilePointer()-1;
+							is.close();
+							os.close();
+				        	createDate = System.currentTimeMillis();
+				        	System.out.println("Stop assembling!");
+							return;
+						}
 						os.write(s);
 					}		
 					is.close();
@@ -321,7 +295,40 @@ public class DownloadTask {
 			}
 			os.close();
         	createDate = System.currentTimeMillis();
+    		
+        	//Di chuyển file từ thư mục tạm thời trong mdm sang thư mục đích
+        	File saveDir = new File(SaveDirectory);
+    		if (saveDir.exists() == false) {
+    			if (saveDir.mkdirs() == false) {
+    				throw new RuntimeException("Error to create directory");
+    			}
+    		}        	
+        	
+    		File desF = new File(SaveDirectory, SaveFile);
+			if(desF.exists() == false) saveF.renameTo(desF);
+			else {
+				if(desF.length() != 0) {
+					String saveName = SaveFile.split("\\.")[0], fileType = getFileType();
+					int i = 1;
+					while(desF.exists() == true) {
+						SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
+						desF = new File(SaveDirectory, SaveFile);
+						i += 1;
+					}				
+				};
+				desF.delete();
+				saveF.renameTo(desF);
+			}    		
+			
+			this.speed_Download.set_Check(true);
+        	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
+        	TaskStatus = Values.FINISHED;
+
+			//Xoá thư mục tạm thời
         	new File(ListRunnable.get(0).getSaveDir()).delete();
+        	
+    		ListRunnable.clear();
+        	deleteOldFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -355,34 +362,6 @@ public class DownloadTask {
 		return size;
 	}
 
-	public long getSpeed() {
-		return SpeedMonitor.getSpeed();
-	}
-
-	public String getReadableSpeed() {
-		return DownloadUtils.getReadableSpeed(getSpeed());
-	}
-
-	public long getMaxSpeed() {
-		return SpeedMonitor.getMaxSpeed();
-	}
-
-	public String getReadableMaxSpeed() {
-		return DownloadUtils.getReadableSpeed(getMaxSpeed());
-	}
-
-	public long getAverageSpeed() {
-		return SpeedMonitor.getAverageSpeed();
-	}
-
-	public String getReadableAverageSpeed() {
-		return DownloadUtils.getReadableSpeed(SpeedMonitor.getAverageSpeed());
-	}
-
-	public long getTimePassed() {
-		return SpeedMonitor.getDownloadedTime();
-	}
-
 	public int getActiveTheadCount() {
 		int count = 0;
 		for(DownloadRunnable r : ListRunnable) {
@@ -396,23 +375,41 @@ public class DownloadTask {
 	}
 
 	public void pause() throws IOException {
-		if(TaskStatus != Values.DOWNLOADING) return;
-		setDownloadStatus(Values.PAUSED);
-		pauseAllThread();	
+		if(TaskStatus == Values.DOWNLOADING) {
+			TaskStatus = Values.PAUSED;
+			pauseAllThread();					// Khi các luồng con còn đang tải
+		}
+		if(TaskStatus == Values.ASSEMBLING) {
+			TaskStatus = Values.PAUSED;
+			Thread current = Thread.currentThread();
+			current.interrupt(); 				// Khi đang ghép file	
+			try {
+				current.join();					// Đợi cho luồng đã dừng xong r đã làm chuyện khác
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		finished = false;
 	}
 	
 	public void pauseAllThread() {
 		for(int i = 0; i < ListRunnable.size(); i++) {
 			ListRunnable.get(i).pause();
 		}
+		
+		//Đợi cho các luồng đã dừng xong r đã làm chuyện khác
+		for(int i = 0; i < ListRunnable.size(); i++)
+			try {
+				ListRunnable.get(i).join();
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 	}
 	
 	public void shutdown() throws IOException {
 		storeProgress();
-	}
-
-	private void setDownloadStatus(int status) throws IOException {
-		TaskStatus = status;
 	}
 	
 	public int getDownloadStatus() {
@@ -428,6 +425,7 @@ public class DownloadTask {
 	}
 	
 	public void storeProgress() throws IOException { //Lưu tiến trình làm việc
+		if(TaskStatus != Values.PAUSED) return;
 		File dir = new File(DownloadManager.getInstance().getDataDir());
 		if (dir.exists() == false) {
 			dir.mkdir();
@@ -441,22 +439,21 @@ public class DownloadTask {
 		String newLine = System.getProperty("line.separator");
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8")));
-			writer.write(Integer.toString(ListRunnable.size()));
-			writer.newLine();
 			writer.write(Integer.toString(completedThread));
 			writer.newLine();
 			String s = "";
+			if(ListRunnable.get(0) != null) s += ListRunnable.get(0).getSaveDir() + newLine;
 			for(DownloadRunnable i : ListRunnable) {
-				s += i.getThreadID() + newLine + 
-					 i.getSaveDir() + newLine +
+				s += i.getThreadID() + newLine +
 					 i.getSaveFile() + newLine +
 					 i.getStartPosition() + newLine +
 					 i.getCurrentPosition() + newLine +
 					 i.getEndPosition() + newLine;			
 			}
+			s += indexInSubFile + newLine;
 			writer.write(s);	
 			createDate = System.currentTimeMillis();
-			writer.write(createDate + newLine);
+//			writer.write(createDate + newLine);
 			writer.close();
 		} catch (Exception e) {
 			try {
@@ -469,8 +466,8 @@ public class DownloadTask {
 
 	public void cancel() throws IOException {
 		if(TaskStatus == Values.CANCELED || TaskStatus == Values.FINISHED) return;
+		pause();
     	TaskStatus = Values.CANCELED;
-		pauseAllThread();
 		ListRunnable.clear();
 		deleteAllFile();
     	System.out.println("Task ID: " + TaskID + " is canceled!");
@@ -502,4 +499,16 @@ public class DownloadTask {
 	    File saveF = new File(SaveDirectory, SaveFile);
 		if(saveF.exists() && saveF.length() == 0) saveF.delete();
 	}
+	
+	public void setJProgressBar(JProgressBar[] jProgressBars) {
+		this.jProgressBars = jProgressBars;
+	}
+	
+	public void setSpeed_Download(speed_Download speed_Download) {
+		this.speed_Download = speed_Download;
+	}
+	
 }
+
+//test
+//https://th.bing.com/th/id/R.927deebd63a9b90134ee662041e51272?rik=wIu7IyPyWYCAmQ&riu=http%3a%2f%2f2.bp.blogspot.com%2f-ccVAHYlUyP4%2fT8iJzBsa4PI%2fAAAAAAAAD2A%2fY9s6I5YaisE%2fs1600%2fdesktop-wallpaper-40.jpg&ehk=v7KSzP%2bbCxdVQHjYGxm3vwcoFHA992W3qj2J6Km%2bvio%3d&risl=&pid=ImgRaw&r=0
