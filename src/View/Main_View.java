@@ -174,7 +174,7 @@ public class Main_View extends JFrame {
 		});
 		bNewDownload.setBounds(0, 0, 62, 65);
 		panel.add(bNewDownload);
-		bNewDownload.setIcon(new ImageIcon("icon\\plus.png"));
+		bNewDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/plus.png")));
 		
 		JButton bCancelDownload = new JButton("");
 		bCancelDownload.addActionListener(new ActionListener() {
@@ -187,7 +187,7 @@ public class Main_View extends JFrame {
 				}
 			}
 		});
-		bCancelDownload.setIcon(new ImageIcon("icon\\x.png"));
+		bCancelDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/x.png")));
 		bCancelDownload.setBounds(72, 0, 62, 65);
 		panel.add(bCancelDownload);
 		
@@ -202,7 +202,7 @@ public class Main_View extends JFrame {
 				}
 			}
 		});
-		bPauseDownload.setIcon(new ImageIcon("icon\\pause.png"));
+		bPauseDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/pause.png")));
 		bPauseDownload.setBounds(144, 0, 62, 65);
 		panel.add(bPauseDownload);
 		
@@ -218,12 +218,12 @@ public class Main_View extends JFrame {
 
 			}
 		});
-		bStartDownload.setIcon(new ImageIcon("icon\\play.png"));
+		bStartDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/play.png")));
 		bStartDownload.setBounds(216, 0, 62, 65);
 		panel.add(bStartDownload);
 		
 		JButton bSettings = new JButton("");
-		bSettings.setIcon(new ImageIcon("icon\\gear.png"));
+		bSettings.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/gear.png")));
 		bSettings.setBounds(288, 0, 62, 65);
 		panel.add(bSettings);
 		contentPane.setLayout(gl_contentPane);

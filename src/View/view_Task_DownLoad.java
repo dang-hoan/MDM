@@ -192,7 +192,7 @@ public class view_Task_DownLoad extends JFrame {
 				}
 			}
 		});
-		btn_Play.setIcon(new ImageIcon("icon\\play.png"));
+		btn_Play.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/play.png")));
 
 		JButton btn_Pause = new JButton("");
 		btn_Pause.addActionListener(new ActionListener() {
@@ -205,7 +205,7 @@ public class view_Task_DownLoad extends JFrame {
 				}
 			}
 		});
-		btn_Pause.setIcon(new ImageIcon("icon\\pause.png"));
+		btn_Pause.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/pause.png")));
 
 		JButton btn_Huy = 
 				new JButton("");
@@ -220,7 +220,7 @@ public class view_Task_DownLoad extends JFrame {
 				}
 			}
 		});
-		btn_Huy.setIcon(new ImageIcon("icon\\x.png"));
+		btn_Huy.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/x.png")));
 		GroupLayout gl_panel_2_1 = new GroupLayout(panel_2_1);
 		gl_panel_2_1.setHorizontalGroup(
 			gl_panel_2_1.createParallelGroup(Alignment.LEADING)

@@ -74,7 +74,7 @@ public class NewDownload_View extends JFrame {
 				}
 			}
 		});
-		btnNewButton.setIcon(new ImageIcon("icon\\new-window.png"));
+		btnNewButton.setIcon(new ImageIcon(NewDownload_View.class.getResource("/View/icon/new-window.png")));
 		btnNewButton.setBounds(373, 81, 27, 22);
 		getContentPane().add(btnNewButton);
 		
