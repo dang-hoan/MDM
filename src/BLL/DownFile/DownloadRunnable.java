@@ -14,7 +14,7 @@ import javax.swing.JProgressBar;
 
 public class DownloadRunnable implements Runnable {
 	private Thread t;
-	private static final int BUFFER_SIZE = 1024;
+	private static final int BUFFER_SIZE = 8 * 8192;
 
 	private String FileUrl;
 	private String SaveDirectory;
@@ -54,7 +54,10 @@ public class DownloadRunnable implements Runnable {
 		this.speed_Download=speed_Download;
 		this.jProgressBar=jProgressBar;
 		this.jProgressBar.setMinimum(this.StartPosition);
-		this.jProgressBar.setMaximum(this.EndPosition-1);
+		
+		if(this.EndPosition == -1) this.jProgressBar.setMaximum(1000000);
+		else this.jProgressBar.setMaximum(this.EndPosition);
+		
 		this.jProgressBar.setValue(CurrentPosition);
 	}
 
@@ -115,15 +118,16 @@ public class DownloadRunnable implements Runnable {
 			URL url = uri.toURL();
 			URLConnection urlConnection = url.openConnection();
 			
-			urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
-			
+			if(EndPosition != -1) urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
 //			if(userInfo != null && userInfo.length() > 0)
 //				urlConnection.setRequestProperty("Authorization", "Basic " + userInfo);
 			
 			BufferedInputStream is = new BufferedInputStream(urlConnection.getInputStream());
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile, true));
 			
-			while (CurrentPosition <= EndPosition) {
+			if(EndPosition == -1 && CurrentPosition > 0) is.skip(CurrentPosition);
+			
+			while (CurrentPosition <= EndPosition || EndPosition == -1) {
 				if (t.isInterrupted()) {
 					System.out.println("Download Task ID "
 							+ TaskID + ": Thread " + ThreadID
@@ -149,6 +153,7 @@ public class DownloadRunnable implements Runnable {
 
 			is.close();
 			os.close();
+			System.out.println("Cur "+ this.CurrentPosition + " End :" + this.EndPosition+ " Star :" + this.StartPosition +"Thread"+ this.t);
 			DownloadManager.getInstance().getTask(TaskID).notify(ThreadID);
 		}
 		catch (IOException | URISyntaxException e) {

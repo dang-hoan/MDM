@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 
+import BLL.Utils;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
 import BLL.DownFile.speed_Download;
@@ -40,9 +41,13 @@ public class view_Task_DownLoad extends JFrame {
 	
 	public view_Task_DownLoad(int TaskID) {		
 		this.task = downloadManager.getTask(TaskID);
-		
+		if(task.getFileSize() == -1) {
+			this.array_JProgressBar = new JProgressBar[1];
+		}
+		else {
+			this.array_JProgressBar = new JProgressBar[task.getThreadCount()];
+		}
 		this.speed_Download = new speed_Download();
-		this.array_JProgressBar = new JProgressBar[task.getThreadCount()];
 		initComponent();
 
 		task.setSpeed_Download(this.speed_Download);
@@ -57,7 +62,11 @@ public class view_Task_DownLoad extends JFrame {
 	 */
 	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread) {
 		this.speed_Download = new speed_Download();
-		this.array_JProgressBar = new JProgressBar[number_Thread];
+		
+		if(Utils.getFileLength(url) == -1)
+			this.array_JProgressBar = new JProgressBar[1];
+		else
+			this.array_JProgressBar = new JProgressBar[number_Thread];
 		
 		this.task = downloadManager.addTask(url, folder, FileName, number_Thread, false, this.array_JProgressBar,this.speed_Download);
 		

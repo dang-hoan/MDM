@@ -3,6 +3,7 @@ package BLL;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 
 public class Utils {
 	private Utils() {
@@ -26,6 +27,18 @@ public class Utils {
 			newFile.createNewFile();
 		}
 		return newFile;
+	}
+	
+	public static int getFileLength(String fileUrl) {
+		try {
+			URL url = new URL(fileUrl);
+			URLConnection connection = url.openConnection();
+			connection.setRequestProperty("Accept-Encoding", "identity");
+			return connection.getContentLength();
+			
+		}catch(IOException e) {
+			return -1;
+		}
 	}
 	
 	public static boolean validateURL(String url) {
