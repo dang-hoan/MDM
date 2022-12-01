@@ -17,7 +17,19 @@ public class Values {
 	public static final int CANCELED = 5;
 	public static final int ASSEMBLING = 6;
 	
-	public String[] video = {".mp4", ".mp3"};
+	public static String State(int i)
+	{
+		switch(i)
+		{
+			case 0: return "DEFAULT_KEEP_ALIVE_TIME";
+			case 1: return "READY";
+			case 2: return "DOWNLOADING";
+			case 3: return "PAUSED";
+			case 4: return "FINISHED";
+			case 5: return "CANCELED";
+		}
+		return ("");
+	}
 	
 	public static SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss Z 'on' dd-MM-yyyy", Locale.getDefault());
 }

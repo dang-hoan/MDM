@@ -161,7 +161,8 @@ public class DownloadManager {
 			writer.write(Integer.toString(Tasks.size()));		//Số file
 			writer.newLine();
 			String s = "";
-			for(DownloadTask i : Tasks.values()) {
+			for(DownloadTask i : Tasks.values()) 
+			{
 				s += i.getUrl() + newLine +
 				     i.getSaveName() + newLine +
 				     i.getSaveDirectory() + newLine +
@@ -172,7 +173,8 @@ public class DownloadManager {
 				     i.getDownloadStatus() + newLine +
 				     i.getCreateDate() + newLine;			
 			}
-			writer.write(s);	
+			writer.write(s);
+//			System.out.println(s);
 			writer.close();
 		} catch (Exception e) {
 			try {

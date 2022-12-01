@@ -6,12 +6,16 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
+import BLL.DownFile.DownloadTask;
 
+import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JMenuBar;
@@ -28,11 +32,10 @@ import java.awt.event.WindowEvent;
 @SuppressWarnings("serial")
 public class Main_View extends JFrame {
 
-	private JPanel contentPane;
-	/**
-	 * Launch the application.
-	 * @throws IOException 
-	 */
+	private JPanel contentPane; 
+	JScrollPane scrollPaneListView = new JScrollPane();
+	JList<CompactTask> listView = new JList<>();
+	
 	public static void main(String[] args) throws IOException {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -45,10 +48,6 @@ public class Main_View extends JFrame {
 			}
 		});
 	}
-
-	/**
-	 * Create the frame.
-	 */
 
 	public Main_View() {
 		addWindowListener(new WindowAdapter() {
@@ -65,7 +64,7 @@ public class Main_View extends JFrame {
 			public void windowOpened(WindowEvent e) {
 				try {
 					DownloadManager.getInstance().resumeTasks();
-					
+					ReloadView();					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -86,15 +85,10 @@ public class Main_View extends JFrame {
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					new NewDownload_View().setVisible(true);
-					
+					newDownloadView();					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
-				} catch (UnsupportedFlavorException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				};
+				} 
 			}
 		});
 		mntmNewMenuItem_1.setMnemonic(KeyEvent.VK_N);
@@ -134,46 +128,42 @@ public class Main_View extends JFrame {
 
 		setContentPane(contentPane);
 		
-		JPanel panel = new JPanel();
+		JPanel under_panel = new JPanel();
 		
-		JPanel panel_1 = new JPanel();
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE))
-						.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE))
+					.addContainerGap()
+					.addComponent(under_panel, GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE)
 					.addContainerGap())
+				.addComponent(scrollPaneListView, GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
 		);
 		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
-					.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addComponent(scrollPaneListView, GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE))
+					.addComponent(under_panel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE))
 		);
-		panel.setLayout(null);
+	
+		scrollPaneListView.setViewportView(listView);
+		
+		under_panel.setLayout(null);
 		
 		JButton bNewDownload = new JButton("");
 		bNewDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					new NewDownload_View().setVisible(true);
+					newDownloadView();		
 					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
-				} catch (UnsupportedFlavorException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				};
+				}
 			}
 		});
 		bNewDownload.setBounds(0, 0, 62, 65);
-		panel.add(bNewDownload);
+		under_panel.add(bNewDownload);
 		bNewDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/plus.png")));
 		
 		JButton bCancelDownload = new JButton("");
@@ -189,13 +179,13 @@ public class Main_View extends JFrame {
 		});
 		bCancelDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/x.png")));
 		bCancelDownload.setBounds(72, 0, 62, 65);
-		panel.add(bCancelDownload);
+		under_panel.add(bCancelDownload);
 		
 		JButton bPauseDownload = new JButton("");
 		bPauseDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					DownloadManager.getInstance().pauseTask(Values.Task_ID_COUNTER-1);
+					DownloadManager.getInstance().pauseTask(listView.getSelectedIndex());
 					
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -204,12 +194,12 @@ public class Main_View extends JFrame {
 		});
 		bPauseDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/pause.png")));
 		bPauseDownload.setBounds(144, 0, 62, 65);
-		panel.add(bPauseDownload);
+		under_panel.add(bPauseDownload);
 		
 		JButton bStartDownload = new JButton("");
 		bStartDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(Values.Task_ID_COUNTER-1);
+				view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(listView.getSelectedIndex());
 				viewTaskDownload.setVisible(true);	
 				
 //				Lấy TaskID của file mà người dùng chọn r tạo mới view_Task_Download để tải
@@ -220,12 +210,80 @@ public class Main_View extends JFrame {
 		});
 		bStartDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/play.png")));
 		bStartDownload.setBounds(216, 0, 62, 65);
-		panel.add(bStartDownload);
+		under_panel.add(bStartDownload);
 		
 		JButton bSettings = new JButton("");
 		bSettings.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/gear.png")));
 		bSettings.setBounds(288, 0, 62, 65);
-		panel.add(bSettings);
+		under_panel.add(bSettings);
 		contentPane.setLayout(gl_contentPane);
+	}
+	public void ReloadView()
+	{
+		DefaultListModel<CompactTask> model = new DefaultListModel<>();
+		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
+		{
+			try {
+				DownloadTask task = DownloadManager.getInstance().getTask(i);
+				String str_name = task.getSaveName();
+				String urlicon = "";
+				String str_status = Values.State(task.getDownloadStatus());
+				String str_size = new String();
+				double totalSize = task.getFileSize();
+				double downloadedSize = task.getDownloadedSize();
+				String donvi = "B";
+				if (totalSize/1024 > 1)
+				{
+					totalSize /= 1024;
+					downloadedSize /= 1024;
+					donvi = "KB";
+				}
+				if (totalSize/1024 > 1)
+				{
+					totalSize /= 1024;
+					downloadedSize /= 1024;
+					donvi = "MB";
+				}
+				if (totalSize/1024 > 1)
+				{
+					totalSize %= 1024;
+					downloadedSize /= 1024;
+					donvi = "GB";
+				}
+				switch (task.getDownloadStatus()) {
+				case 1:
+					str_size = ""; urlicon = "icon\\ready.png"; break;
+				case 2: 
+					str_size = ""; urlicon = "icon\\dloading.png"; break;
+				case 3: //pause
+					str_size = String.format("%.2f/%.2f %s",downloadedSize, totalSize, donvi);
+					urlicon = "icon\\dloading.png"; break;
+				case 4:
+					str_size = String.format("%.2f %s", totalSize, donvi);
+					urlicon = "icon\\completed.png"; break;
+				case 5: 
+					str_size = ""; urlicon = "icon\\canceled.png"; break;
+				}
+				
+				String str_date = Values.dateFormat.format(task.getCreateDate());
+				model.addElement(new CompactTask(str_name, urlicon, str_status, str_size, str_date));
+			} 
+			catch (Exception e) { e.printStackTrace(); }
+		}
+		listView.setModel(model);
+		listView.setCellRenderer(new TaskRenderer());
+	}
+	public void newDownloadView()
+	{
+		try {
+			new NewDownload_View(this).setVisible(true);
+			
+		} catch (HeadlessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedFlavorException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
