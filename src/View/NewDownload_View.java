@@ -3,9 +3,11 @@ package View;
 import javax.swing.JFrame;
 
 import BLL.Values;
+import BLL.Utils;
 import BLL.DownFile.DownloadManager;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -164,9 +166,20 @@ public class NewDownload_View extends JFrame {
 		});
 	}
 	public boolean check() {
-		if(txtURL.getText().equals("") || txtFileName.getText().equals("")) {
+		String urlStr = txtURL.getText();
+		String fileName = txtFileName.getText();
+		if(urlStr.equals("") || fileName.equals("")) {
 			labNotice.setText("You must enter all the fields!");
 			return false;
+		}
+		if (!Utils.validateURL(urlStr)) {
+			urlStr = "http://" + urlStr;
+			if (!Utils.validateURL(urlStr)) {
+				labNotice.setText("Url are no valid!");
+				return false;
+			} else {
+				txtURL.setText(urlStr);
+			}
 		}
 		labNotice.setText("");
 		return true;

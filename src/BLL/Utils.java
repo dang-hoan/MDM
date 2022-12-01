@@ -1,10 +1,11 @@
-package BLL.DownFile;
+package BLL;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
-public class FileUtils {
-	private FileUtils() {
+public class Utils {
+	private Utils() {
 
 	}
 
@@ -25,5 +26,19 @@ public class FileUtils {
 			newFile.createNewFile();
 		}
 		return newFile;
+	}
+	
+	public static boolean validateURL(String url) {
+		try {
+			url = url.toLowerCase();
+			if (url.startsWith("http://") || url.startsWith("https://")
+					|| url.startsWith("ftp://")) {
+				new URL(url);
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }
