@@ -35,10 +35,7 @@ public class DownloadManager {
 		if (MaxCount > 0)
 			Values.MAX_THREAD_COUNT = MaxCount;
 	}
-	
-	//length = -1 ??
-	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg
-	
+
 	public DownloadTask addTask(String url, String saveDirectory, String saveName, 
 			int ThreadCount, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload) {
 		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
@@ -161,7 +158,8 @@ public class DownloadManager {
 			writer.write(Integer.toString(Tasks.size()));		//Số file
 			writer.newLine();
 			String s = "";
-			for(DownloadTask i : Tasks.values()) {
+			for(DownloadTask i : Tasks.values()) 
+			{
 				s += i.getUrl() + newLine +
 				     i.getSaveName() + newLine +
 				     i.getSaveDirectory() + newLine +
@@ -172,7 +170,8 @@ public class DownloadManager {
 				     i.getDownloadStatus() + newLine +
 				     i.getCreateDate() + newLine;			
 			}
-			writer.write(s);	
+			writer.write(s);
+			System.out.println(s);
 			writer.close();
 		} catch (Exception e) {
 			try {

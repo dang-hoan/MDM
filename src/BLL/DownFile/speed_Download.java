@@ -8,7 +8,7 @@ public class speed_Download{
 		check = false;
 	}
 
-	public synchronized void plus_Size_DownLoad_1s(int dungluong)
+	public void plus_Size_DownLoad_1s(int dungluong)
 	{
 		total_Size_1s+=dungluong;
 	}

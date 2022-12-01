@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.awt.event.ActionEvent;
 
 public class view_Task_DownLoad extends JFrame {
+	
 	private static final long serialVersionUID = 1L;
 	
 	private DownloadManager downloadManager = DownloadManager.getInstance();
@@ -33,12 +34,18 @@ public class view_Task_DownLoad extends JFrame {
 	private JLabel jlb_NameFile;
 	private JLabel jlb_Speed;
 	
-
+	private Main_View _Main_View;
 	/**
-	 * Launch the application.
-	 */
-	
-	public view_Task_DownLoad(int TaskID) {		
+     * Launch the application.
+     */
+
+
+
+   /**
+     * Create the frame.
+     */
+	public view_Task_DownLoad(int TaskID) 
+	{		
 		this.task = downloadManager.getTask(TaskID);
 		
 		this.speed_Download = new speed_Download();
@@ -51,18 +58,20 @@ public class view_Task_DownLoad extends JFrame {
 		start_Download();
 		get_Speed();		
 	}
-	
+
 	/**
 	 * @wbp.parser.constructor
 	 */
-	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread) {
+	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread, Main_View _Main_View) {
+		
 		this.speed_Download = new speed_Download();
 		this.array_JProgressBar = new JProgressBar[number_Thread];
 		
 		this.task = downloadManager.addTask(url, folder, FileName, number_Thread, false, this.array_JProgressBar,this.speed_Download);
 		
+		this._Main_View = _Main_View;
+		
 		initComponent();		
-			
 		start_Download();
 		get_Speed();		
 	}
@@ -97,7 +106,6 @@ public class view_Task_DownLoad extends JFrame {
 			{
 				while(true)
 				{
-
 				try {
 					if(speed_Download.get_Check()==false)
 					{
@@ -110,6 +118,7 @@ public class view_Task_DownLoad extends JFrame {
 					else
 					{
 						jlb_Speed.setText("Hoàn thành");
+						_Main_View.ReloadView();
 						break;
 					}
 				} catch (InterruptedException e) {
@@ -127,9 +136,6 @@ public class view_Task_DownLoad extends JFrame {
 		this.dispose();
 	}
 	
-	/**
-	 * Create the frame.
-	 */
 	public void initComponent() {
 		setTitle("Task Download");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -192,7 +198,7 @@ public class view_Task_DownLoad extends JFrame {
 				}
 			}
 		});
-		btn_Play.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/play.png")));
+		btn_Play.setIcon(new ImageIcon("icon\\play.png"));
 
 		JButton btn_Pause = new JButton("");
 		btn_Pause.addActionListener(new ActionListener() {
@@ -200,12 +206,11 @@ public class view_Task_DownLoad extends JFrame {
 				try {
 					downloadManager.pauseTask(task.getTaskID());
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
-		btn_Pause.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/pause.png")));
+		btn_Pause.setIcon(new ImageIcon("icon\\pause.png"));
 
 		JButton btn_Huy = 
 				new JButton("");
@@ -220,7 +225,7 @@ public class view_Task_DownLoad extends JFrame {
 				}
 			}
 		});
-		btn_Huy.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/x.png")));
+		btn_Huy.setIcon(new ImageIcon("icon\\x.png"));
 		GroupLayout gl_panel_2_1 = new GroupLayout(panel_2_1);
 		gl_panel_2_1.setHorizontalGroup(
 			gl_panel_2_1.createParallelGroup(Alignment.LEADING)
@@ -246,17 +251,16 @@ public class view_Task_DownLoad extends JFrame {
 		panel_2_1.setLayout(gl_panel_2_1);
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 225, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
 					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 225, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(106, Short.MAX_VALUE))
-				.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
-				.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(panel_2_1, GroupLayout.PREFERRED_SIZE, 535, GroupLayout.PREFERRED_SIZE)
-					.addGap(49))
+					.addContainerGap(108, Short.MAX_VALUE))
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
+					.addContainerGap())
+				.addComponent(panel_2_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 576, Short.MAX_VALUE)
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -266,7 +270,7 @@ public class view_Task_DownLoad extends JFrame {
 						.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED, 100, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED, 103, Short.MAX_VALUE)
 					.addComponent(panel_2_1, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE))
 		);
 

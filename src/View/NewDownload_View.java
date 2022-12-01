@@ -3,11 +3,9 @@ package View;
 import javax.swing.JFrame;
 
 import BLL.Values;
-import BLL.Utils;
 import BLL.DownFile.DownloadManager;
 
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -38,30 +36,27 @@ public class NewDownload_View extends JFrame {
 	private JLabel labNotice;
 	private JTextArea txtURL;
 	private JTextArea txtFileName;
-	private JButton btnNewButton;
+	private JButton btnChoseFile;
 	private JLabel labSaveAt;
 	private JLabel labNumber;
 	private JComboBox<?> cbNumber;
 	private String folder = new File(System.getProperty("user.home"), "Downloads").getAbsolutePath();
 	DownloadManager downloadManager = DownloadManager.getInstance();
+	private Main_View _Main_View;
 
-	public NewDownload_View() throws HeadlessException, UnsupportedFlavorException, IOException {
+	public NewDownload_View(Main_View _Main_View ) throws HeadlessException, UnsupportedFlavorException, IOException {
 		setTitle("NEW_DOWNLOAD");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(485, 267);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(null);
 		
-		btnNewButton = new JButton("");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-//				String dir = folder;     //Lấy đường dẫn thư mục cũ
-//				if (String.isNullOrEmptyOrBlank(dir)) {
-//					dir = Config.getInstance().getLastFolder();
-//					if (StringUtils.isNullOrEmptyOrBlank(dir)) {
-//						dir = Config.getInstance().getDownloadFolder();
-//					}
-//				}
+		this._Main_View = _Main_View;
+		
+		btnChoseFile = new JButton("");
+		btnChoseFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
 				JFileChooser jfc = new JFileChooser();
 				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				
@@ -76,9 +71,9 @@ public class NewDownload_View extends JFrame {
 				}
 			}
 		});
-		btnNewButton.setIcon(new ImageIcon(NewDownload_View.class.getResource("/View/icon/new-window.png")));
-		btnNewButton.setBounds(373, 81, 27, 22);
-		getContentPane().add(btnNewButton);
+		btnChoseFile.setIcon(new ImageIcon("icon\\new-window.png"));
+		btnChoseFile.setBounds(373, 81, 27, 22);
+		getContentPane().add(btnChoseFile);
 		
 		labNotice = new JLabel();
 		labNotice.setForeground(Color.RED);
@@ -117,10 +112,12 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())));
+						view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
 //						Thread.sleep(5000);
+						
 						viewTaskDownload.setVisible(true);
 						NewDownload_View.this.dispose();
+						_Main_View.ReloadView();
 						
 					} catch (Exception e1) {
 						e1.printStackTrace();
@@ -129,7 +126,6 @@ public class NewDownload_View extends JFrame {
 				
 			}
 		});
-		
 		
 		bCancel = new JButton("CANCEL");
 		bCancel.setBounds(288, 182, 89, 23);
@@ -166,20 +162,9 @@ public class NewDownload_View extends JFrame {
 		});
 	}
 	public boolean check() {
-		String urlStr = txtURL.getText();
-		String fileName = txtFileName.getText();
-		if(urlStr.equals("") || fileName.equals("")) {
+		if(txtURL.getText().equals("") || txtFileName.getText().equals("")) {
 			labNotice.setText("You must enter all the fields!");
 			return false;
-		}
-		if (!Utils.validateURL(urlStr)) {
-			urlStr = "http://" + urlStr;
-			if (!Utils.validateURL(urlStr)) {
-				labNotice.setText("Url are no valid!");
-				return false;
-			} else {
-				txtURL.setText(urlStr);
-			}
 		}
 		labNotice.setText("");
 		return true;

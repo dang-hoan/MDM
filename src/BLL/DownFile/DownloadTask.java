@@ -342,7 +342,6 @@ public class DownloadTask {
 	private int getFileLength(String fileUrl) throws IOException {
 		URL url = new URL(fileUrl);
 		URLConnection connection = url.openConnection();
-		connection.setRequestProperty("Accept-Encoding", "identity");
 		return connection.getContentLength();
 	}
 
@@ -406,7 +405,7 @@ public class DownloadTask {
 				ListRunnable.get(i).join();
 				
 			} catch (InterruptedException e) {
-				continue;
+				e.printStackTrace();
 			}
 	}
 	
