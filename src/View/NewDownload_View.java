@@ -7,7 +7,6 @@ import BLL.Utils;
 import BLL.DownFile.DownloadManager;
 
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import java.awt.HeadlessException;
