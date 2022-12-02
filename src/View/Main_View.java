@@ -231,36 +231,48 @@ public class Main_View extends JFrame {
 				String str_status = Values.State(task.getDownloadStatus());
 				String str_size = new String();
 				double totalSize = task.getFileSize();
-				double downloadedSize = task.getDownloadedSize();
-				String donvi = "B";
-				if (totalSize/1024 > 1)
-				{
-					totalSize /= 1024;
-					downloadedSize /= 1024;
-					donvi = "KB";
+				if(totalSize == -1) totalSize = task.getCurrentSize();
+				double downloadedSize = task.getCurrentSize();
+				
+				String[] donvi = {"B", "KB", "MB", "GB", "TB"};
+				int total = 0, download = 0;
+				while(totalSize/1024 > 1 && total < donvi.length) {
+					totalSize /= 1024; total++;
 				}
-				if (totalSize/1024 > 1)
-				{
-					totalSize /= 1024;
-					downloadedSize /= 1024;
-					donvi = "MB";
+				while(downloadedSize/1024 > 1 && download < donvi.length) {
+					downloadedSize /= 1024; download++;
 				}
-				if (totalSize/1024 > 1)
-				{
-					totalSize %= 1024;
-					downloadedSize /= 1024;
-					donvi = "GB";
-				}
+//				
+//				String donvi = "B";
+//				if (totalSize/1024 > 1)
+//				{
+//					totalSize /= 1024;
+//					downloadedSize /= 1024;
+//					donvi = "KB";
+//				}
+//				if (totalSize/1024 > 1)
+//				{
+//					totalSize /= 1024;
+//					downloadedSize /= 1024;
+//					donvi = "MB";
+//				}
+//				if (totalSize/1024 > 1)
+//				{
+//					totalSize %= 1024;
+//					downloadedSize /= 1024;
+//					donvi = "GB";
+//				}
+				
 				switch (task.getDownloadStatus()) {
 				case 1:
 					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/ready.png"); break;
 				case 2: 
 					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/dloading.png"); break;
 				case 3: //pause
-					str_size = String.format("%.2f/%.2f %s",downloadedSize, totalSize, donvi);
+					str_size = String.format("%.2f%s / %.2f%s",downloadedSize, donvi[download], totalSize, donvi[total]);
 					urlicon =Main_View.class.getResource("/View/icon/dloading.png"); break;
 				case 4:
-					str_size = String.format("%.2f %s", totalSize, donvi);
+					str_size = String.format("%.2f %s", totalSize, donvi[total]);
 					urlicon = Main_View.class.getResource("/View/icon/completed.png"); break;
 				case 5: 
 					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/canceled.png"); break;

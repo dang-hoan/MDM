@@ -343,7 +343,7 @@ public class DownloadTask {
 					SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
 					desF = new File(SaveDirectory + File.separator + SaveFile);
 					i += 1;
-				}				
+				}
 			};
 			desF.delete();
 			saveF.renameTo(desF);
@@ -409,6 +409,39 @@ public class DownloadTask {
 
 	public int getFileSize() {
 		return FileSize;
+	}
+	
+	public long getCurrentSize() {
+		if(TaskStatus == Values.DOWNLOADING) return Math.min(getDownloadedSize(), FileSize);
+		if(TaskStatus == Values.ASSEMBLING) return FileSize;
+		if(TaskStatus == Values.FINISHED){	// chỉ cần lấy kích thước file đã tải xong
+			File file = new File(SaveDirectory + File.separator +  SaveFile);
+			if(file.exists()) return file.length();
+		}
+		if(TaskStatus == Values.PAUSED) {
+			//Đã bật app và bắt đầu tải r
+			if(ListRunnable.size() != 0) return Math.min(getDownloadedSize(), FileSize);
+			//Mới bật app
+			File dir = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder);
+			
+			// Đối với file không lấy được chiều dài khi kết nối tới server -> lấy kích thước file đang tải
+			if(dir.exists() && FileSize == -1) {	
+				File file = new File(dir.getAbsolutePath() + File.separator +  SaveFile);
+				if(file.exists()) return file.length();
+			}
+			
+			// Đối với file thông thường -> cộng tổng kích thước các file con
+			else if(dir.exists()){									
+				long sum = 0; int i = 2;
+				File file = new File(dir.getAbsolutePath() + File.separator +  SaveFile + "_" + 1);
+				while(file.exists()) {
+					sum += file.length();
+					file = new File(dir.getAbsolutePath() + File.separator +  SaveFile + "_" + i++);
+				}
+				return sum;
+			}
+		}
+		return -1;
 	}
 
 	public void pause() throws IOException {
