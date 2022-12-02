@@ -4,6 +4,7 @@ import java.awt.HeadlessException;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -226,7 +227,7 @@ public class Main_View extends JFrame {
 			try {
 				DownloadTask task = DownloadManager.getInstance().getTask(i);
 				String str_name = task.getSaveName();
-				String urlicon = "";
+				URL urlicon = null;
 				String str_status = Values.State(task.getDownloadStatus());
 				String str_size = new String();
 				double totalSize = task.getFileSize();
@@ -252,17 +253,17 @@ public class Main_View extends JFrame {
 				}
 				switch (task.getDownloadStatus()) {
 				case 1:
-					str_size = ""; urlicon = "icon\\ready.png"; break;
+					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/ready.png"); break;
 				case 2: 
-					str_size = ""; urlicon = "icon\\dloading.png"; break;
+					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/dloading.png"); break;
 				case 3: //pause
 					str_size = String.format("%.2f/%.2f %s",downloadedSize, totalSize, donvi);
-					urlicon = "icon\\dloading.png"; break;
+					urlicon =Main_View.class.getResource("/View/icon/dloading.png"); break;
 				case 4:
 					str_size = String.format("%.2f %s", totalSize, donvi);
-					urlicon = "icon\\completed.png"; break;
+					urlicon = Main_View.class.getResource("/View/icon/completed.png"); break;
 				case 5: 
-					str_size = ""; urlicon = "icon\\canceled.png"; break;
+					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/canceled.png"); break;
 				}
 				
 				String str_date = Values.dateFormat.format(task.getCreateDate());

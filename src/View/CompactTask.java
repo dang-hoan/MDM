@@ -1,14 +1,17 @@
 package View;
+
+import java.net.URL;
+
 public class CompactTask 
 {
 	private int id;
 	private String name;	
-	private String icon;
+	private URL icon;
 	private String status;
 	private String size;
 	private String datetime;
 	
-	public CompactTask(String name, String icon, String status, String size, String datetime) 
+	public CompactTask(String name, URL icon, String status, String size, String datetime) 
 	{
 		this.name = name;
 		this.icon = icon;
@@ -24,11 +27,11 @@ public class CompactTask
 		this.name = name;
 	}
 
-	public String getIcon() {
+	public URL getIcon() {
 		return icon;
 	}
 
-	public void setIcon(String icon) {
+	public void setIcon(URL icon) {
 		this.icon = icon;
 	}
 

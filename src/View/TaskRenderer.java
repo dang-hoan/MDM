@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -76,13 +78,13 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 		return this;
 	}
 	// can chinh image
-	public Icon load(String linkImage, int k, int m)/*linkImage là tên icon, k kích thước chiều rộng mình muốn,
-														m chiều dài và hàm này trả về giá trị là 1 icon.*/
+	public Icon load(URL linkImage, int k, int m)/*linkImage là tên icon, k kích thước chiều rộng mình muốn,
+													m chiều dài và hàm này trả về giá trị là 1 icon.*/
 	{  
 		try 
 		{
-	        BufferedImage image = ImageIO.read(new File(linkImage));//đọc ảnh dùng BufferedImage
-	 
+	        BufferedImage image = ImageIO.read(linkImage);//đọc ảnh dùng BufferedImage
+	        
 	        int x = k;
 	        int y = m;
 	        int ix = image.getWidth();

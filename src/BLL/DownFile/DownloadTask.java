@@ -299,17 +299,17 @@ public class DownloadTask {
 				if(file.exists()) {
 					RandomAccessFile is = new RandomAccessFile(file, "r");
 					if(!Seeked && indexInSubFile > 0) {is.seek(indexInSubFile); Seeked = true;}
-					int s;
-					while((s = is.read()) != -1) {
+					int s; byte[] buf = new byte[1024*1024];
+					while((s = is.read(buf, 0, buf.length)) != -1) {
 						if(Thread.currentThread().isInterrupted()) {
-							indexInSubFile = is.getFilePointer()-1;
+							indexInSubFile = is.getFilePointer()-s;
 							is.close();
 							os.close();
 				        	createDate = System.currentTimeMillis();
 				        	System.out.println("Stop assembling!");
 							return;
 						}
-						os.write(s);
+						os.write(buf, 0, s);
 					}		
 					is.close();
 					file.delete();						
