@@ -1,11 +1,13 @@
 package BLL.DownFile;
 
+import BLL.Values;
+
 public class speed_Download{
 	private  int total_Size_1s;
-	private boolean check;
+	private int check;
 	public speed_Download() {
 		total_Size_1s=0;
-		check = false;
+		check = Values.READY;
 	}
 
 	public synchronized void plus_Size_DownLoad_1s(int dungluong)
@@ -20,12 +22,12 @@ public class speed_Download{
 	{
 		this.total_Size_1s=0;
 	}
-	public void set_Check(boolean check)
+	public void set_Check(int check)
 	{
 		this.check=check;
 
 	}
-	public boolean get_Check()
+	public int get_Check()
 	{
 		return this.check;
 	}

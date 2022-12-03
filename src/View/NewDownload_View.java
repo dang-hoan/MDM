@@ -114,7 +114,6 @@ public class NewDownload_View extends JFrame {
 				if(check()) {
 					try {
 						view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
-//						Thread.sleep(5000);
 						
 						viewTaskDownload.setVisible(true);
 						NewDownload_View.this.dispose();

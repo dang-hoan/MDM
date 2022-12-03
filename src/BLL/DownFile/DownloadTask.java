@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
+import java.net.FileNameMap;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -30,7 +33,8 @@ public class DownloadTask {
 	private String ProgressFile;			//Lưu tiến trình tải
 	private String ProgressFolder;
 	
-	private int FileSize;	
+	private int FileSize;
+	private String FileType;
 	private int ThreadCount;
 	private int completedThread = 0;
 	
@@ -80,14 +84,14 @@ public class DownloadTask {
 					throw new RuntimeException("Error to create directory");
 				}
 			}
-			String fileType = getFileType();
+			FileType = getFileType();
 
-			SaveFile = saveName + "." + fileType;
+			SaveFile = saveName + FileType;
 			File file = new File(SaveDirectory + File.separator + SaveFile);
 			
 			int i = 1;
 			while(file.exists() == true) {
-				SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
+				SaveFile = saveName + "(" + Integer.toString(i) + ")" + FileType;
 				file = new File(SaveDirectory + File.separator + SaveFile);
 				i += 1;
 			}
@@ -235,6 +239,8 @@ public class DownloadTask {
 			if(TaskStatus == Values.DOWNLOADING || TaskStatus == Values.ASSEMBLING) return;
 			
 			TaskStatus = Values.DOWNLOADING;
+			this.speed_Download.set_Check(Values.DOWNLOADING);
+			
 			if(ListRunnable.size() == 0 || finished) {			
 				if (!resumeProgress()) {
 					if(FileSize < 0) singleDownload();
@@ -288,6 +294,8 @@ public class DownloadTask {
 		try {
 			System.out.println("assemble " + ThreadCount + ", " + completedThread);
 			
+			this.speed_Download.set_Check(Values.ASSEMBLING);
+			
 			File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
 			if(saveF.exists() == false) saveF.createNewFile();
 			
@@ -332,24 +340,29 @@ public class DownloadTask {
 				throw new RuntimeException("Error to create directory");
 			}
 		}        	
-    	
+
 		File desF = new File(SaveDirectory + File.separator + SaveFile);
-		if(desF.exists() == false) saveF.renameTo(desF);
+		if(desF.exists() && desF.length() == 0) desF.delete();
+		if(FileType == "") SaveFile += getFileType();
+		desF = new File(SaveDirectory + File.separator + SaveFile);
+		if(desF.exists() == false) {
+			saveF.renameTo(desF);
+		}
 		else {
 			if(desF.length() != 0) {
-				String saveName = SaveFile.split("\\.")[0], fileType = getFileType();
+				String saveName = SaveFile.split("\\.")[0];
 				int i = 1;
 				while(desF.exists() == true) {
-					SaveFile = saveName + "(" + Integer.toString(i) + ")" + "." + fileType;
+					SaveFile = saveName + "(" + Integer.toString(i) + ")" + FileType;
 					desF = new File(SaveDirectory + File.separator + SaveFile);
 					i += 1;
 				}
-			};
-			desF.delete();
+			}
+			else desF.delete();
 			saveF.renameTo(desF);
 		}    		
 		
-		this.speed_Download.set_Check(true);
+		this.speed_Download.set_Check(Values.FINISHED);
     	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
     	TaskStatus = Values.FINISHED;
 
@@ -366,12 +379,13 @@ public class DownloadTask {
 	
 	private int getFileLength(String fileUrl) {
 		try {
-			URL url = new URL(fileUrl);
+			URI uri = new URI(fileUrl);
+			URL url = uri.toURL();
 			URLConnection connection = url.openConnection();
 			connection.setRequestProperty("Accept-Encoding", "identity");
 			return connection.getContentLength();
 			
-		}catch(IOException e) {
+		}catch(IOException | URISyntaxException e) {
 			return -1;
 		}
 	}
@@ -380,8 +394,23 @@ public class DownloadTask {
 		try {
 			URL url = new URL(this.Url);
 			URLConnection connection = url.openConnection();
-			return connection.getContentType().split("/")[1];
+			String type = connection.getContentType();
+			if(type != null) return "." + type.split("/")[1];
 			
+			if(TaskStatus == Values.READY) return "";
+			
+			File dir = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder);
+			if(dir.exists() == false) return "";
+			
+			File file = new File(dir.getAbsoluteFile() + File.separator + SaveFile);
+			if(file.exists() == false) return "";
+			
+			type = URLConnection.guessContentTypeFromStream(new FileInputStream(file));
+			if(type != null) System.out.println(type);
+			
+			if(type != null) return "." + type.split("/")[1];			 
+
+			return "";
 		}catch(IOException e) {
 			return "";
 		}
@@ -460,6 +489,7 @@ public class DownloadTask {
 				e.printStackTrace();
 			}
 		}
+		if(this.speed_Download != null) this.speed_Download.set_Check(Values.PAUSED);
 		finished = false;
 	}
 	
