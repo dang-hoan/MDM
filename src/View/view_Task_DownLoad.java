@@ -46,7 +46,7 @@ public class view_Task_DownLoad extends JFrame {
    /**
      * Create the frame.
      */
-	public view_Task_DownLoad(int TaskID) 
+	public view_Task_DownLoad(int TaskID, Main_View _Main_View) 
 	{		
 		this.task = downloadManager.getTask(TaskID);
 		if(task.getFileSize() == -1) {
@@ -55,12 +55,13 @@ public class view_Task_DownLoad extends JFrame {
 		else {
 			this.array_JProgressBar = new JProgressBar[task.getThreadCount()];
 		}
+		
 		this.speed_Download = new speed_Download();
 		initComponent();
 
 		task.setSpeed_Download(this.speed_Download);
-		task.setJProgressBar(this.array_JProgressBar);
-		
+		task.setJProgressBar(this.array_JProgressBar);	
+		this._Main_View=_Main_View;
 		start_Download();
 	}
 
@@ -95,15 +96,26 @@ public class view_Task_DownLoad extends JFrame {
 	}
 	public void add_array_JProgressBar(int ThreadCount)
 	{
-		for(int i = 0; i < ThreadCount; i++)
+		int tmp = (this.getWidth()-25)/ThreadCount;
+		if(array_JProgressBar.length==1)
 		{
-			int tmp = (this.getWidth()-25)/ThreadCount;
-
-
-			array_JProgressBar[i] = new JProgressBar();
-			array_JProgressBar[i].setBounds(tmp*i+5, 100, tmp, 20);
-			array_JProgressBar[i].setStringPainted(true);
-			getContentPane().add(this.array_JProgressBar[i]);		
+			array_JProgressBar[0] = new JProgressBar();
+			array_JProgressBar[0].setBounds(5, 100, tmp, 20);
+			array_JProgressBar[0].setIndeterminate(true);
+			array_JProgressBar[0].setStringPainted(true);
+			array_JProgressBar[0].setString("DOWNLOADING...");
+			getContentPane().add(this.array_JProgressBar[0]);	
+		}
+		else
+		{
+			for(int i= 0;i<array_JProgressBar.length;i++)
+			{
+			
+				array_JProgressBar[i] = new JProgressBar();
+				array_JProgressBar[i].setBounds(tmp*i+5, 100, tmp, 20);
+				array_JProgressBar[i].setStringPainted(true);
+				getContentPane().add(this.array_JProgressBar[i]);	
+			}
 		}
 
 	}
@@ -251,6 +263,7 @@ public class view_Task_DownLoad extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.pauseTask(task.getTaskID());
+					_Main_View.ReloadView();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -264,6 +277,7 @@ public class view_Task_DownLoad extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.cancelTask(task.getTaskID());
+					_Main_View.ReloadView();
 					close_Frame();
 					
 				} catch (IOException e1) {
