@@ -20,9 +20,9 @@ public class DownloadRunnable implements Runnable {
 	private String SaveDirectory;
 	private String SaveFileName;
 	
-	private int StartPosition;
-	private int CurrentPosition;
-	private int EndPosition;
+	private long StartPosition;
+	private long CurrentPosition;
+	private long EndPosition;
 	
 	public final int TaskID;
 	public final int ThreadID;
@@ -35,10 +35,10 @@ public class DownloadRunnable implements Runnable {
 //		// -1 is meanningless
 //		Task_ID = -1;
 //	}
-
+	
 	public DownloadRunnable(String FileUrl,
-			String SaveDirectory, String SaveFileName, int StartPosition,
-			int EndPosition, int TaskID, int ThreadID, JProgressBar jProgressBar,speed_Download speed_Download) {
+			String SaveDirectory, String SaveFileName, long StartPosition,
+			long EndPosition, int TaskID, int ThreadID, JProgressBar jProgressBar,speed_Download speed_Download) {
 		super();
 		this.FileUrl = FileUrl;
 		this.SaveDirectory = SaveDirectory;
@@ -53,23 +53,23 @@ public class DownloadRunnable implements Runnable {
 		
 		this.speed_Download=speed_Download;
 		this.jProgressBar=jProgressBar;
-		this.jProgressBar.setMinimum(this.StartPosition);
+		this.jProgressBar.setMinimum((int)(100*this.StartPosition/this.EndPosition));
 		
-		if(this.EndPosition == -1) this.jProgressBar.setMaximum(1000000);
-		else this.jProgressBar.setMaximum(this.EndPosition);
+		this.jProgressBar.setMaximum(100);
 		
-		this.jProgressBar.setValue(CurrentPosition);
+		this.jProgressBar.setValue((int) (100*CurrentPosition/EndPosition));
+
 	}
 
 	public DownloadRunnable(
 			String FileUrl, String SaveDirectory, String SaveFileName, 
-			int StartPosition,	int CurrentPosition, int EndPosition,
+			long StartPosition,	long CurrentPosition, long EndPosition,
 			int TaskID, int ThreadID,JProgressBar jProgressBar,speed_Download speed_Download) {
 		
 		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID,jProgressBar,speed_Download);
 		this.CurrentPosition = CurrentPosition;
 		
-		this.jProgressBar.setValue(CurrentPosition);
+		this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
 	}
 	
 	public void start() {
@@ -115,18 +115,18 @@ public class DownloadRunnable implements Runnable {
 //			if(userInfo != null && userInfo.length() > 0)
 //			    userInfo = Base64.getEncoder().encodeToString(userInfo.getBytes());
 			
-			URL url = uri.toURL();
+			URL url = uri.toURL();		
 			URLConnection urlConnection = url.openConnection();
-			
+
 			if(EndPosition != -1) urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
 //			if(userInfo != null && userInfo.length() > 0)
 //				urlConnection.setRequestProperty("Authorization", "Basic " + userInfo);
-			
+
 			BufferedInputStream is = new BufferedInputStream(urlConnection.getInputStream());
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile, true));
 			
 			if(EndPosition == -1 && CurrentPosition > 0) is.skip(CurrentPosition);
-			
+
 			while (CurrentPosition <= EndPosition || EndPosition == -1) {
 				if (t.isInterrupted()) {
 					System.out.println("Download Task ID "
@@ -146,7 +146,7 @@ public class DownloadRunnable implements Runnable {
 					os.write(buf, 0, len);
 					CurrentPosition += len;
 					
-					this.jProgressBar.setValue(CurrentPosition);
+					this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
 					this.speed_Download.plus_Size_DownLoad_1s(len);
 				}
 			}
@@ -195,15 +195,15 @@ public class DownloadRunnable implements Runnable {
 		return ThreadID;
 	}
 	
-	public int getStartPosition() {
+	public long getStartPosition() {
 		return StartPosition;
 	}
 
-	public int getCurrentPosition() {
+	public long getCurrentPosition() {
 		return CurrentPosition;
 	}
 
-	public int getEndPosition() {
+	public long getEndPosition() {
 		return EndPosition;
 	}
 	

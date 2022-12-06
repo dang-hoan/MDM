@@ -16,6 +16,7 @@ import BLL.Values;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
 
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -64,6 +65,7 @@ public class Main_View extends JFrame {
 			@Override
 			public void windowOpened(WindowEvent e) {
 				try {
+					new TrayClass().show();
 					DownloadManager.getInstance().resumeTasks();
 					ReloadView();					
 				} catch (IOException e1) {
@@ -75,7 +77,13 @@ public class Main_View extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(700, 400);
 		setLocationRelativeTo(null);
-		
+		//icon
+		try {
+			this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/View/icon/app.png")));
+			
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		

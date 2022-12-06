@@ -36,7 +36,7 @@ public class DownloadManager {
 			Values.MAX_THREAD_COUNT = MaxCount;
 	}
 	
-	//length = -1 ??
+	//length = -1
 	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg
 	
 	public DownloadTask addTask(String url, String saveDirectory, String saveName, 
@@ -127,7 +127,7 @@ public class DownloadManager {
 				String SaveDirectory = reader.readLine();
 				String ProgressFile = reader.readLine();
 				String ProgressFolder = reader.readLine();
-				int FileSize = Integer.parseInt(reader.readLine());
+				long FileSize = Integer.parseInt(reader.readLine());
 				int ThreadCount = Integer.parseInt(reader.readLine());
 				int DownloadStatus = Integer.parseInt(reader.readLine());
 				Long createDate = Long.parseLong(reader.readLine());

@@ -1,5 +1,6 @@
 package BLL.DownFile;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
-import java.net.FileNameMap;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -33,7 +33,7 @@ public class DownloadTask {
 	private String ProgressFile;			//Lưu tiến trình tải
 	private String ProgressFolder;
 	
-	private int FileSize;
+	private long FileSize;
 	private String FileType;
 	private int ThreadCount;
 	private int completedThread = 0;
@@ -57,7 +57,7 @@ public class DownloadTask {
 		else this.ThreadCount = ThreadCount;
 	}
 	
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, int FileSize, int ThreadCount, int DownloadStatus, long createDate) {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, long FileSize, int ThreadCount, int DownloadStatus, long createDate) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
@@ -162,9 +162,9 @@ public class DownloadTask {
 	}
 
 	private void splitDownload(int thread_count) { 				//Split thread
-		int size = getFileLength(Url);
+		long size = getFileLength(Url);
 		FileSize = size;
-		int sublen = size / thread_count;
+		long sublen = size / thread_count;
 		
 		indexInSubFile = 0;
 		
@@ -173,9 +173,9 @@ public class DownloadTask {
 		if(dir.exists() == false) dir.mkdir();
 		
 		for (int i = 0; i < thread_count; i++) {
-			int startPos = sublen * i;
-			int endPos = (i == thread_count - 1) ? size-1	: (sublen * (i + 1) - 1);
-					
+			long startPos = sublen * i;
+			long endPos = (i == thread_count - 1) ? size-1	: (sublen * (i + 1) - 1);
+			
 			DownloadRunnable runnable = new DownloadRunnable(
 					Url, dir.getAbsolutePath(), SaveFile + "_" + (i+1),
 					startPos, endPos,
@@ -266,7 +266,7 @@ public class DownloadTask {
 			
 		}
 		catch(IOException e) {
-			
+			e.printStackTrace();
 		}
 	}
 	
@@ -350,7 +350,8 @@ public class DownloadTask {
 		}
 		else {
 			if(desF.length() != 0) {
-				String saveName = SaveFile.split("\\.")[0];
+				int index = SaveFile.lastIndexOf(".");
+				String saveName = (index != -1)?SaveFile.substring(0, index):SaveFile;
 				int i = 1;
 				while(desF.exists() == true) {
 					SaveFile = saveName + "(" + Integer.toString(i) + ")" + FileType;
@@ -377,13 +378,13 @@ public class DownloadTask {
 		ListRunnable.add(runnable);
 	}
 	
-	private int getFileLength(String fileUrl) {
+	private long getFileLength(String fileUrl) {
 		try {
 			URI uri = new URI(fileUrl);
 			URL url = uri.toURL();
 			URLConnection connection = url.openConnection();
 			connection.setRequestProperty("Accept-Encoding", "identity");
-			return connection.getContentLength();
+			return connection.getContentLengthLong();
 			
 		}catch(IOException | URISyntaxException e) {
 			return -1;
@@ -405,7 +406,7 @@ public class DownloadTask {
 			File file = new File(dir.getAbsoluteFile() + File.separator + SaveFile);
 			if(file.exists() == false) return "";
 			
-			type = URLConnection.guessContentTypeFromStream(new FileInputStream(file));
+			type = URLConnection.guessContentTypeFromStream(new BufferedInputStream(new FileInputStream(file)));
 			if(type != null) System.out.println(type);
 			
 			if(type != null) return "." + type.split("/")[1];			 
@@ -436,7 +437,7 @@ public class DownloadTask {
 		return count;
 	}
 
-	public int getFileSize() {
+	public long getFileSize() {
 		return FileSize;
 	}
 	

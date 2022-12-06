@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import javax.swing.JComboBox;
@@ -82,8 +85,33 @@ public class NewDownload_View extends JFrame {
 		labNotice.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		getContentPane().add(labNotice);
 		
+		txtFileName = new JTextArea();
+		txtFileName.setBounds(118, 81, 255, 22);
+		getContentPane().add(txtFileName);
+		
 		txtURL = new JTextArea();
 		txtURL.setBounds(118, 37, 281, 22);
+		DocumentListener dl = new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateFieldState();				
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateFieldState();		
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateFieldState();		
+			}
+            protected void updateFieldState() {
+            	String txt = txtURL.getText();
+			    txtFileName.setText(Utils.getFileName(txt));
+            }
+		};
+		txtURL.getDocument().addDocumentListener(dl);
 
 		String s;
 		try {
@@ -137,10 +165,6 @@ public class NewDownload_View extends JFrame {
 		labSaveAt.setBounds(194, 106, 206, 14);
 		getContentPane().add(labSaveAt);
 		
-		txtFileName = new JTextArea();
-		txtFileName.setBounds(118, 81, 255, 22);
-		getContentPane().add(txtFileName);
-		
 		labNumber = new JLabel("Thread number:");
 		labNumber.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		labNumber.setBounds(44, 129, 89, 14);
@@ -160,6 +184,13 @@ public class NewDownload_View extends JFrame {
 				dispose();
 			}
 		});
+		
+		try {
+			this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/View/icon/app.png")));
+			
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
 	}
 	public boolean check() {
 		String urlStr = txtURL.getText();

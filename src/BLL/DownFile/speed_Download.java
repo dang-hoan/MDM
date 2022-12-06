@@ -3,18 +3,18 @@ package BLL.DownFile;
 import BLL.Values;
 
 public class speed_Download{
-	private  int total_Size_1s;
+	private  long total_Size_1s;
 	private int check;
 	public speed_Download() {
 		total_Size_1s=0;
 		check = Values.READY;
 	}
 
-	public synchronized void plus_Size_DownLoad_1s(int dungluong)
+	public synchronized void plus_Size_DownLoad_1s(long dungluong)
 	{
 		total_Size_1s+=dungluong;
 	}
-	public int Get_Seze_1s()
+	public long Get_Seze_1s()
 	{
 		return total_Size_1s;
 	}

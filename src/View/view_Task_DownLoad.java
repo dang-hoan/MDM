@@ -11,6 +11,7 @@ import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
 import BLL.DownFile.speed_Download;
 
+import javax.imageio.ImageIO;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
@@ -130,7 +131,7 @@ public class view_Task_DownLoad extends JFrame {
 				try {
 					if(speed_Download.get_Check()==Values.DOWNLOADING)
 					{
-						int tmp = speed_Download.Get_Seze_1s();
+						long tmp = speed_Download.Get_Seze_1s();
 						
 						String s = ""; int MB = 1024*1024, KB = 1024;
 						if (tmp < 0)
@@ -349,6 +350,13 @@ public class view_Task_DownLoad extends JFrame {
 						.addContainerGap()));
 		panel.setLayout(gl_panel);
 		contentPane.setLayout(gl_contentPane);
+		
+		try {
+			this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/View/icon/app.png")));
+			
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
 		
 		add_array_JProgressBar(task.getThreadCount());
 	}
