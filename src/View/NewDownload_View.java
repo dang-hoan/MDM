@@ -50,7 +50,7 @@ public class NewDownload_View extends JFrame {
 
 	public NewDownload_View(Main_View _Main_View ) throws HeadlessException, UnsupportedFlavorException, IOException {
 		setTitle("NEW_DOWNLOAD");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setSize(485, 267);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(null);
@@ -141,10 +141,8 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
-						
-						viewTaskDownload.setVisible(true);
-						NewDownload_View.this.dispose();
+						new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
+//						NewDownload_View.this.dispose();
 						_Main_View.ReloadView();
 						
 					} catch (Exception e1) {
@@ -191,6 +189,7 @@ public class NewDownload_View extends JFrame {
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
+		
 	}
 	public boolean check() {
 		String urlStr = txtURL.getText();

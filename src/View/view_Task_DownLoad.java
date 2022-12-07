@@ -63,6 +63,7 @@ public class view_Task_DownLoad extends JFrame {
 		task.setSpeed_Download(this.speed_Download);
 		task.setJProgressBar(this.array_JProgressBar);	
 		this._Main_View=_Main_View;
+		this.setVisible(true);
 		start_Download();
 	}
 
@@ -83,6 +84,7 @@ public class view_Task_DownLoad extends JFrame {
 		this._Main_View = _Main_View;
 		
 		initComponent();		
+		this.setVisible(true);
 		start_Download();	
 	}
 

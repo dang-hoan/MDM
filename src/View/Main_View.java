@@ -208,8 +208,7 @@ public class Main_View extends JFrame {
 		JButton bStartDownload = new JButton("");
 		bStartDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(listView.getSelectedIndex(),getthis());
-				viewTaskDownload.setVisible(true);	
+				new view_Task_DownLoad(listView.getSelectedIndex(),getthis());
 				
 //				Lấy TaskID của file mà người dùng chọn r tạo mới view_Task_Download để tải
 //				view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(TaskID);
@@ -297,7 +296,7 @@ public class Main_View extends JFrame {
 	public void newDownloadView()
 	{
 		try {
-			new NewDownload_View(this).setVisible(true);
+			new NewDownload_View(this).setVisible(true);;
 			
 		} catch (HeadlessException e) {
 			e.printStackTrace();
