@@ -84,7 +84,14 @@ public class DownloadTask {
 					throw new RuntimeException("Error to create directory");
 				}
 			}
-			FileType = getFileType();
+			
+			FileType = URLConnection.guessContentTypeFromName(saveName);
+			if(FileType != null) {
+				saveName = saveName.substring(0, saveName.lastIndexOf("."));
+				System.out.println("Guess type C1: " + FileType);
+				FileType = "." + FileType.split("/")[1];
+			}
+			else FileType = getFileType();
 
 			SaveFile = saveName + FileType;
 			File file = new File(SaveDirectory + File.separator + SaveFile);
@@ -250,9 +257,7 @@ public class DownloadTask {
 			System.out.println("So luong: " + ListRunnable.size() + ", hoan thanh: " + completedThread);
 
 			if(completedThread == ThreadCount && FileSize < 0) {
-				String folder = ListRunnable.get(0).getSaveDir();
-				String saveF = ListRunnable.get(0).getSaveFile();
-				moveFile(new File(folder + File.separator + saveF));
+				moveFile();
 			}
 			else if(completedThread == ThreadCount) {
 				TaskStatus = Values.ASSEMBLING;
@@ -283,9 +288,7 @@ public class DownloadTask {
         completedThread++;
 //        ListRunnable.remove(getThreadByID(ThreadID));
         if(FileSize < 0){
-			String folder = ListRunnable.get(0).getSaveDir();
-			String saveF = ListRunnable.get(0).getSaveFile();
-			moveFile(new File(folder + File.separator + saveF));
+			moveFile();
 		}
 		else if(completedThread == ThreadCount) assemble();
 	}
@@ -327,23 +330,28 @@ public class DownloadTask {
         	createDate = System.currentTimeMillis();
 
     		//Di chuyển file từ thư mục tạm thời trong mdm sang thư mục đích
-        	moveFile(saveF);
+        	moveFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void moveFile(File saveF) {
-    	File saveDir = new File(SaveDirectory);
+	public void moveFile() {
+		File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
+		File saveDir = new File(SaveDirectory);
 		if (saveDir.exists() == false) {
 			if (saveDir.mkdirs() == false) {
 				throw new RuntimeException("Error to create directory");
 			}
 		}        	
 
-		File desF = new File(SaveDirectory + File.separator + SaveFile);
-		if(desF.exists() && desF.length() == 0) desF.delete();
-		if(FileType == "") SaveFile += getFileType();
+		File desF;
+		if(FileType == "") {
+			desF = new File(SaveDirectory + File.separator + SaveFile);
+			if(desF.exists() && desF.length() == 0) desF.delete();
+			FileType = getFileType();
+			SaveFile += FileType;
+		}
 		desF = new File(SaveDirectory + File.separator + SaveFile);
 		if(desF.exists() == false) {
 			saveF.renameTo(desF);
@@ -364,14 +372,14 @@ public class DownloadTask {
 		}    		
 		
 		this.speed_Download.set_Check(Values.FINISHED);
-    	System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
-    	TaskStatus = Values.FINISHED;
+		System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
+		TaskStatus = Values.FINISHED;
 
 		//Xoá thư mục tạm thời
-    	new File(ListRunnable.get(0).getSaveDir()).delete();
-    	
+		new File(ListRunnable.get(0).getSaveDir()).delete();
+		
 		ListRunnable.clear();
-    	deleteOldFile();
+		deleteOldFile();
 	}
 	
 	public void addPartedTask(DownloadRunnable runnable) {
@@ -396,7 +404,7 @@ public class DownloadTask {
 			URL url = new URL(this.Url);
 			URLConnection connection = url.openConnection();
 			String type = connection.getContentType();
-			if(type != null) return "." + type.split("/")[1];
+			if(type != null) return "." + type.split("/")[1];			
 			
 			if(TaskStatus == Values.READY) return "";
 			
@@ -404,13 +412,15 @@ public class DownloadTask {
 			if(dir.exists() == false) return "";
 			
 			File file = new File(dir.getAbsoluteFile() + File.separator + SaveFile);
-			if(file.exists() == false) return "";
+			if(file.exists() == false) return "";			
 			
-			type = URLConnection.guessContentTypeFromStream(new BufferedInputStream(new FileInputStream(file)));
-			if(type != null) System.out.println(type);
+			BufferedInputStream os = new BufferedInputStream(new FileInputStream(file));
+			type = URLConnection.guessContentTypeFromStream(os);
 			
-			if(type != null) return "." + type.split("/")[1];			 
-
+			if(type != null) System.out.println("Guess type C2: " + type);
+			os.close();
+			if(type != null) return "." + type.split("/")[1];	
+		 
 			return "";
 		}catch(IOException e) {
 			return "";

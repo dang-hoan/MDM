@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 
 public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask>
 {
+	private static final long serialVersionUID = 1L;
 	JLabel lbicon;
 	JLabel lbname;
 	JLabel lbstate;
@@ -97,7 +98,7 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 	            dx = x;
 	            dy = dx * iy / ix;
 	        }
-	        return new ImageIcon(image.getScaledInstance(dx, dy, image.SCALE_SMOOTH));
+	        return new ImageIcon(image.getScaledInstance(dx, dy, BufferedImage.SCALE_SMOOTH));
 	    } catch (IOException e) { e.printStackTrace(); }
 	    return null;
 	}
