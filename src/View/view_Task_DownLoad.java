@@ -149,17 +149,7 @@ public class view_Task_DownLoad extends JFrame {
 						String remainTime = "";
 						if(task.getFileSize() > 0) {
 							long second = (tmp != 0)? (task.getFileSize()-task.getDownloadedSize())/tmp : 0;
-							long hour = 0, minute = 0;
-							if(second > 3600) {		// > 1 giờ
-								hour = second/3600; 
-								minute = (second%3600)/60;
-							} else if(second > 60) {// > 1 phút
-								minute = second/60;
-								second = second%60;
-							}
-							if(hour > 0) remainTime += hour + " giờ ";
-							if(minute > 0) remainTime += minute + " phút ";
-							if(second > 0) remainTime += second + " giây";
+							remainTime = calculateTime(second);
 							if(remainTime != "") remainTime = " còn " + remainTime;
 						}
 						
@@ -172,7 +162,9 @@ public class view_Task_DownLoad extends JFrame {
 						jlb_Speed.setText("Đang ghép file...");
 					}
 					if(speed_Download.get_Check() == Values.FINISHED) {
-						jlb_Speed.setText("Hoàn thành");
+						String time = calculateTime(task.getDownloadTime()/1000);
+						if(time.equals("")) time = "gần 1 giây";
+						jlb_Speed.setText("Hoàn thành, " + "tổng thời gian tải: " + time);
 						jlb_NameFile.setText(task.getSaveName());
 						_Main_View.ReloadView();
 						break;
@@ -191,6 +183,23 @@ public class view_Task_DownLoad extends JFrame {
 		};
 		thread.start();
 	}
+	
+	public String calculateTime(long second) {
+		String remainTime = "";
+		long hour = 0, minute = 0;
+		if(second > 3600) {		// > 1 giờ
+			hour = second/3600; 
+			minute = (second%3600)/60;
+		} else if(second > 60) {// > 1 phút
+			minute = second/60;
+			second = second%60;
+		}
+		if(hour > 0) remainTime += hour + " giờ ";
+		if(minute > 0) remainTime += minute + " phút ";
+		if(second > 0) remainTime += second + " giây";
+		return remainTime;
+	}
+	
 	public void close_Frame()
 	{
 		this.dispose();

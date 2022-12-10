@@ -44,6 +44,9 @@ public class DownloadTask {
 
 	private JProgressBar[] jProgressBars;
 	private speed_Download speed_Download;
+	
+	private long previousTimeLine;
+	private long downloadTime = 0;
 
 	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, JProgressBar[] jProgressBars,speed_Download speed_Download) {
 		this.TaskID = TaskID;
@@ -57,7 +60,7 @@ public class DownloadTask {
 		else this.ThreadCount = ThreadCount;
 	}
 	
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, long FileSize, int ThreadCount, int DownloadStatus, long createDate) {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, long FileSize, int ThreadCount, int DownloadStatus, long createDate, long downloadTime) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
@@ -68,6 +71,7 @@ public class DownloadTask {
 		this.FileSize = FileSize;
 		this.ThreadCount = ThreadCount;
 		this.TaskStatus = DownloadStatus;
+		this.downloadTime = downloadTime;
 	}
 
 	public void setTargetFile(String saveDir, String saveName) {
@@ -242,13 +246,16 @@ public class DownloadTask {
 
 	public void startTask() {
 		try {
-
+			
 			if(TaskStatus == Values.DOWNLOADING || TaskStatus == Values.ASSEMBLING) return;
+			
+			previousTimeLine = System.currentTimeMillis();
 			
 			TaskStatus = Values.DOWNLOADING;
 			this.speed_Download.set_Check(Values.DOWNLOADING);
 			
-			if(ListRunnable.size() == 0 || finished) {			
+			if(ListRunnable.size() == 0 || finished) {	
+				downloadTime = 0;
 				if (!resumeProgress()) {
 					if(FileSize < 0) singleDownload();
 					else splitDownload(ThreadCount);
@@ -346,10 +353,12 @@ public class DownloadTask {
 		}        	
 
 		File desF;
+		FileType = getFileType();
 		if(FileType == "") {
 			desF = new File(SaveDirectory + File.separator + SaveFile);
 			if(desF.exists() && desF.length() == 0) desF.delete();
 			FileType = getFileType();
+			System.out.println(FileType);
 			SaveFile += FileType;
 		}
 		desF = new File(SaveDirectory + File.separator + SaveFile);
@@ -375,6 +384,8 @@ public class DownloadTask {
 		System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
 		TaskStatus = Values.FINISHED;
 
+		downloadTime += System.currentTimeMillis() - previousTimeLine;
+		
 		//Xoá thư mục tạm thời
 		new File(ListRunnable.get(0).getSaveDir()).delete();
 		
@@ -483,6 +494,10 @@ public class DownloadTask {
 		}
 		return -1;
 	}
+	
+	public long getDownloadTime() {
+		return downloadTime;
+	}
 
 	public void pause() throws IOException {
 		if(TaskStatus == Values.DOWNLOADING) {
@@ -502,6 +517,7 @@ public class DownloadTask {
 		}
 		if(this.speed_Download != null) this.speed_Download.set_Check(Values.PAUSED);
 		finished = false;
+		downloadTime += System.currentTimeMillis() - previousTimeLine;
 	}
 	
 	public void pauseAllThread() {

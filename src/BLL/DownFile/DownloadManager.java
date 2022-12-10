@@ -131,10 +131,11 @@ public class DownloadManager {
 				int ThreadCount = Integer.parseInt(reader.readLine());
 				int DownloadStatus = Integer.parseInt(reader.readLine());
 				Long createDate = Long.parseLong(reader.readLine());
+				Long downloadTime = Long.parseLong(reader.readLine());
 
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
-						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate);
+						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime);
 				addTask(task);
 			}
 			reader.close();
@@ -171,7 +172,8 @@ public class DownloadManager {
 				     i.getFileSize() + newLine +
 				     i.getThreadCount() + newLine +
 				     i.getDownloadStatus() + newLine +
-				     i.getCreateDate() + newLine;			
+				     i.getCreateDate() + newLine + 
+				     i.getDownloadTime() + newLine;			
 			}
 			writer.write(s);
 //			System.out.println(s);
