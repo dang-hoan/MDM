@@ -16,6 +16,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import javax.swing.JProgressBar;
@@ -311,6 +313,7 @@ public class DownloadTask {
 			
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(saveF, true));
 			boolean Seeked = false;
+			
 			for(int i = 0; i < ThreadCount; i++) {
 				DownloadRunnable r = ListRunnable.get(i);
 				File file = new File(r.getSaveDir(), r.getSaveFile());
@@ -635,6 +638,70 @@ public class DownloadTask {
 		this.speed_Download = speed_Download;
 	}
 	
+	public boolean checkFile(String type, String checksum) {
+		try {
+			switch(type) {
+				case "All":{
+					MessageDigest md5 = MessageDigest.getInstance("MD5");
+					MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+					MessageDigest sha256 = MessageDigest.getInstance("SHA256");
+					if(checksum.equals(calChecksum(getChecksum(md5)))) return true;
+					if(checksum.equals(calChecksum(getChecksum(sha1)))) return true;
+					if(checksum.equals(calChecksum(getChecksum(sha256)))) return true;
+					break;
+				}
+				case "MD5":{
+					MessageDigest md5 = MessageDigest.getInstance("MD5");
+					if(checksum.equals(calChecksum(getChecksum(md5)))) return true;				
+					break;
+				}
+				case "SHA-1":{
+					MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+					if(checksum.equals(calChecksum(getChecksum(sha1)))) return true;	
+					break;
+				}
+				case "SHA-256":{
+					MessageDigest sha256 = MessageDigest.getInstance("SHA256");
+					if(checksum.equals(calChecksum(getChecksum(sha256)))) return true;	
+					break;
+				}
+			}
+		}catch(NoSuchAlgorithmException e) {
+			return false;			
+		}
+		return false;
+	}
+
+	private MessageDigest getChecksum(MessageDigest md5) {
+		try {
+			File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
+			if(saveF.exists() == false) {
+				saveF = new File(SaveDirectory + File.separator + SaveFile);
+				if(saveF.exists() == false) return null;
+			}
+			
+			BufferedInputStream is = new BufferedInputStream(new FileInputStream(saveF));
+			int s; byte[] buf = new byte[1024*1024];
+			while((s = is.read(buf, 0, buf.length)) != -1) {
+				md5.update(buf, 0, s);
+			}		
+			is.close();	
+			return md5;
+		}catch(IOException e) {
+			return null;
+		}
+	}
+	
+	public String calChecksum(MessageDigest md5) {
+		String result = "";
+	    byte[] b = md5.digest();
+	
+	    for (int i=0; i < b.length; i++) {
+	        result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 );
+	    }
+	   
+	    return result;
+	}
 }
 
 //test

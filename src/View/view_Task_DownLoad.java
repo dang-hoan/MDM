@@ -22,6 +22,7 @@ import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
 
 public class view_Task_DownLoad extends JFrame {
 	
@@ -223,15 +224,24 @@ public class view_Task_DownLoad extends JFrame {
 
 		jlb_Speed = new JLabel("New label");
 		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
-		gl_panel_1.setHorizontalGroup(gl_panel_1.createParallelGroup(Alignment.LEADING).addGap(0, 225, Short.MAX_VALUE)
-				.addGroup(gl_panel_1.createSequentialGroup().addContainerGap().addComponent(lblTc)
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addComponent(jlb_Speed, GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE).addContainerGap()));
-		gl_panel_1.setVerticalGroup(gl_panel_1.createParallelGroup(Alignment.LEADING).addGap(0, 38, Short.MAX_VALUE)
-				.addGroup(Alignment.TRAILING,
-						gl_panel_1.createSequentialGroup().addContainerGap(13, Short.MAX_VALUE).addGroup(gl_panel_1
-								.createParallelGroup(Alignment.BASELINE).addComponent(lblTc).addComponent(jlb_Speed))
-								.addContainerGap()));
+		gl_panel_1.setHorizontalGroup(
+			gl_panel_1.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_1.createSequentialGroup()
+					.addGap(2)
+					.addComponent(lblTc)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(jlb_Speed, GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
+					.addContainerGap())
+		);
+		gl_panel_1.setVerticalGroup(
+			gl_panel_1.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panel_1.createSequentialGroup()
+					.addContainerGap(13, Short.MAX_VALUE)
+					.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblTc)
+						.addComponent(jlb_Speed))
+					.addContainerGap())
+		);
 		panel_1.setLayout(gl_panel_1);
 
 		JPanel panel_2 = new JPanel();
@@ -298,51 +308,65 @@ public class view_Task_DownLoad extends JFrame {
 			}
 		});
 		btn_Huy.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/x.png")));
+		
+		JButton btn_Play_1 = new JButton("Verify File");
+		btn_Play_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new VerifyFile(task.getTaskID()).setVisible(true);
+			}
+		});
+		btn_Play_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GroupLayout gl_panel_2_1 = new GroupLayout(panel_2_1);
 		gl_panel_2_1.setHorizontalGroup(
 			gl_panel_2_1.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2_1.createSequentialGroup()
-					.addGap(173)
+					.addGap(67)
+					.addComponent(btn_Play_1, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btn_Play, GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
 					.addComponent(btn_Pause, GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
 					.addComponent(btn_Huy, GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(179, Short.MAX_VALUE))
+					.addContainerGap(181, Short.MAX_VALUE))
 		);
 		gl_panel_2_1.setVerticalGroup(
 			gl_panel_2_1.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_panel_2_1.createSequentialGroup()
-					.addContainerGap(42, Short.MAX_VALUE)
-					.addGroup(gl_panel_2_1.createParallelGroup(Alignment.LEADING, false)
-						.addComponent(btn_Huy, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(btn_Play, GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
-						.addComponent(btn_Pause, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+					.addContainerGap(19, Short.MAX_VALUE)
+					.addGroup(gl_panel_2_1.createParallelGroup(Alignment.LEADING)
+						.addComponent(btn_Play_1, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+						.addGroup(gl_panel_2_1.createParallelGroup(Alignment.LEADING, false)
+							.addComponent(btn_Huy, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(btn_Play, GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+							.addComponent(btn_Pause, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
 					.addContainerGap())
 		);
 		panel_2_1.setLayout(gl_panel_2_1);
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
-				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
-					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 225, GroupLayout.PREFERRED_SIZE)
-					.addGap(18)
-					.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
-					.addContainerGap())
+				.addComponent(panel_2_1, GroupLayout.DEFAULT_SIZE, 576, Short.MAX_VALUE)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 566, Short.MAX_VALUE)
+					.addContainerGap()
+					.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
 					.addContainerGap())
-				.addComponent(panel_2_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 576, Short.MAX_VALUE)
+				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 566, Short.MAX_VALUE)
+					.addContainerGap())
+				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+					.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
+					.addContainerGap())
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
 					.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
 					.addComponent(panel_2_1, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE))
 		);
 

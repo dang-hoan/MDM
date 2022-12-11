@@ -56,6 +56,10 @@ public class DownloadManager {
 		Tasks.put(downloadTask.getTaskID(), downloadTask);
 	}
 
+	public boolean checkFile(int TaskID, String type, String checksum) {
+		return Tasks.get(TaskID).checkFile(type, checksum);
+	}
+	
 	public DownloadTask getTask(int TaskID) {
 		return Tasks.get(TaskID);
 	}
