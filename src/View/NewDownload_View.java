@@ -109,7 +109,7 @@ public class NewDownload_View extends JFrame {
             protected void updateFieldState() {
             	String txt = txtURL.getText();
 			    txtFileName.setText(Utils.getFileName(txt));
-            	if(!txt.equals("") && !txtFileName.equals("")) labNotice.setText("");
+            	if(!txt.equals("") && !txtFileName.getText().equals("")) labNotice.setText("");
             }
 		};
 		txtURL.getDocument().addDocumentListener(dl);

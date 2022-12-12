@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import BLL.DownFile.DownloadManager;
 
@@ -25,10 +27,8 @@ public class VerifyFile extends JFrame {
 	private JTextField txtChecksum;
 	private JComboBox<?> cbbType;
 	private JLabel labNotice;
-	private int IDTask;
 
 	public VerifyFile(int IDTask) {
-		this.IDTask = IDTask;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 178);
 		setLocationRelativeTo(null);
@@ -46,6 +46,26 @@ public class VerifyFile extends JFrame {
 		txtChecksum.setBounds(29, 49, 372, 20);
 		contentPane.add(txtChecksum);
 		txtChecksum.setColumns(10);
+		DocumentListener dl = new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateFieldState();				
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateFieldState();		
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateFieldState();		
+			}
+            protected void updateFieldState() {
+            	if(!txtChecksum.getText().equals("")) labNotice.setText("");
+            }
+		};
+		txtChecksum.getDocument().addDocumentListener(dl);
 		
 		JButton btnVerify = new JButton("Verify");
 		btnVerify.addActionListener(new ActionListener() {
@@ -54,7 +74,6 @@ public class VerifyFile extends JFrame {
 					labNotice.setText("You haven't entered checksum field!");
 					return;
 				}
-				else labNotice.setText("");
 				
 				Boolean result = DownloadManager.getInstance().checkFile(IDTask, cbbType.getSelectedItem().toString(), txtChecksum.getText());		
 				

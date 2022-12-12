@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JProgressBar;
 
@@ -640,29 +641,37 @@ public class DownloadTask {
 	
 	public boolean checkFile(String type, String checksum) {
 		try {
+			List<MessageDigest> md = new ArrayList<>();
 			switch(type) {
 				case "All":{
-					MessageDigest md5 = MessageDigest.getInstance("MD5");
-					MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-					MessageDigest sha256 = MessageDigest.getInstance("SHA256");
-					if(checksum.equals(calChecksum(getChecksum(md5)))) return true;
-					if(checksum.equals(calChecksum(getChecksum(sha1)))) return true;
-					if(checksum.equals(calChecksum(getChecksum(sha256)))) return true;
+					md.add(MessageDigest.getInstance("MD5"));
+					md.add(MessageDigest.getInstance("SHA1"));
+					md.add(MessageDigest.getInstance("SHA256"));
+					if(getChecksum(md)) {
+						for(int i = 0; i < md.size(); i++)
+							if(checksum.equals(calcChecksum(md.get(i)))) return true;
+					}
 					break;
 				}
 				case "MD5":{
-					MessageDigest md5 = MessageDigest.getInstance("MD5");
-					if(checksum.equals(calChecksum(getChecksum(md5)))) return true;				
+					md.add(MessageDigest.getInstance("MD5"));
+					if(getChecksum(md)) {
+						if(checksum.equals(calcChecksum(md.get(0)))) return true;
+					}
 					break;
 				}
 				case "SHA-1":{
-					MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-					if(checksum.equals(calChecksum(getChecksum(sha1)))) return true;	
+					md.add(MessageDigest.getInstance("SHA-1"));
+					if(getChecksum(md)) {
+						if(checksum.equals(calcChecksum(md.get(0)))) return true;
+					}
 					break;
 				}
 				case "SHA-256":{
-					MessageDigest sha256 = MessageDigest.getInstance("SHA256");
-					if(checksum.equals(calChecksum(getChecksum(sha256)))) return true;	
+					md.add(MessageDigest.getInstance("SHA-256"));
+					if(getChecksum(md)) {
+						if(checksum.equals(calcChecksum(md.get(0)))) return true;
+					}
 					break;
 				}
 			}
@@ -672,29 +681,30 @@ public class DownloadTask {
 		return false;
 	}
 
-	private MessageDigest getChecksum(MessageDigest md5) {
+	private boolean getChecksum(List<MessageDigest> md) {
 		try {
 			File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
 			if(saveF.exists() == false) {
 				saveF = new File(SaveDirectory + File.separator + SaveFile);
-				if(saveF.exists() == false) return null;
+				if(saveF.exists() == false) return false;
 			}
 			
 			BufferedInputStream is = new BufferedInputStream(new FileInputStream(saveF));
 			int s; byte[] buf = new byte[1024*1024];
 			while((s = is.read(buf, 0, buf.length)) != -1) {
-				md5.update(buf, 0, s);
+				for(int i = 0; i < md.size(); i++)
+					md.get(i).update(buf, 0, s);
 			}		
 			is.close();	
-			return md5;
+			return true;
 		}catch(IOException e) {
-			return null;
+			return false;
 		}
 	}
 	
-	public String calChecksum(MessageDigest md5) {
+	public String calcChecksum(MessageDigest md) {
 		String result = "";
-	    byte[] b = md5.digest();
+	    byte[] b = md.digest();
 	
 	    for (int i=0; i < b.length; i++) {
 	        result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 );
