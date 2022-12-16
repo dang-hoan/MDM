@@ -2,11 +2,13 @@ package BLL;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.util.Locale;
 
 public class Utils {
 	private Utils() {
@@ -109,5 +111,125 @@ public class Utils {
 			builder.append(c);
 		}
 		return builder.toString();
+	}
+	
+	public static String readLine(InputStream in) throws IOException {
+		String result = "";
+		while (true) {
+			int x = in.read();
+			if (x == -1)
+				throw new IOException(
+						"Unexpected EOF while reading header line");
+			if (x == '\n')
+				return result;
+			if (x != '\r')
+				result += (char) x;
+		}
+	}
+	
+//	public static ParsedHookData parse(byte[] b) throws UnsupportedEncodingException {
+//		ParsedHookData data = new ParsedHookData();
+//		Map<String, String> cookies = new HashMap<>();
+//		data.requestHeaders = new HeaderCollection();
+//		data.responseHeaders = new HeaderCollection();
+//		String strBuf = new String(b, "utf-8");
+//		String[] arr = strBuf.split("\r\n");
+//		for (int i = 0; i < arr.length; i++) {
+//			String str = arr[i];
+//			if (!str.contains("=")) {
+//				continue;
+//			}
+//			String ln = str;
+//			int index = ln.indexOf("=");
+//			String key = ln.substring(0, index).trim().toLowerCase();
+//			String val = ln.substring(index + 1).trim();
+//			if (key.equals("url")) {
+//				data.setUrl(val);
+//			} else if (key.equals("file")) {
+//				val = XDMUtils.getFileName(val);
+//				data.setFile(val);
+//			} else if (key.equals("req")) {
+//				index = val.indexOf(":");
+//				if (index > 0) {
+//					String headerName = val.substring(0, index).trim().toLowerCase();
+//					String headerValue = val.substring(index + 1).trim();
+//					if (headerName.equals("range") && (!headerValue.startsWith("bytes=0-"))) {
+//						data.setPartialResponse(true);
+//					}
+//					if (!isBlockedHeader(headerName)) {
+//						data.requestHeaders.addHeader(headerName, headerValue);
+//					}
+//					if (headerName.equals("cookie")) {
+//						parseCookies(headerValue, cookies);
+//					}
+//					System.out.println(ln);
+//				}
+//			} else if (key.equals("res")) {
+//				index = val.indexOf(":");
+//				if (index > 0) {
+//					String headerName = val.substring(0, index).trim().toLowerCase();
+//					String headerValue = val.substring(index + 1).trim();
+//					data.responseHeaders.addHeader(headerName, headerValue);
+//				}
+//			} else if (key.equals("cookie")) {
+//				index = val.indexOf(":");
+//				if (index > 0) {
+//					String cookieName = val.substring(0, index).trim();
+//					String cookieValue = val.substring(index + 1).trim();
+//					cookies.put(cookieName, cookieValue);
+//					// System.out.println("********Adding cookie " + val);
+//
+//				}
+//			}
+//		}
+//		if (data.responseHeaders.containsHeader("content-length")
+//				|| data.responseHeaders.containsHeader("content-range")) {
+//			data.contentLength = NetUtils.getContentLength(data.responseHeaders);
+//		}
+//		if (data.responseHeaders.containsHeader("content-type")) {
+//			data.contentType = NetUtils.getCleanContentType(data.responseHeaders.getValue("content-type"));
+//		}
+//		if (!data.requestHeaders.containsHeader("user-agent")) {
+//			if (data.responseHeaders.containsHeader("realua")) {
+//				data.requestHeaders.addHeader("user-agent", data.responseHeaders.getValue("realua"));
+//			}
+//		}
+//
+//		for (String cookieKeys : cookies.keySet()) {
+//			data.requestHeaders.addHeader("Cookie", cookieKeys + "=" + cookies.get(cookieKeys));
+//		}
+//
+//		try {
+//			data.setExt(XDMUtils.getExtension(XDMUtils.getFileName(data.getUrl())));
+//		} catch (Exception e) {
+//		}
+//		return data;
+//	}
+	
+	public static final int detectOS() {
+		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+		if (os.contains("mac") || os.contains("darwin")
+				|| os.contains("os x")) {
+			return Values.MAC;
+		} else if (os.contains("linux")) {
+			return Values.LINUX;
+		} else if (os.contains("windows")) {
+			return Values.WINDOWS;
+		} else {
+			return -1;
+		}
+	}
+	
+	public static File getJarFile() {
+		try {
+			System.out.println("path jar: " + MDM.class.getProtectionDomain().getCodeSource()
+					.getLocation().toURI().getPath());
+			return new File(MDM.class.getProtectionDomain().getCodeSource()
+					.getLocation().toURI().getPath());
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

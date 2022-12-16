@@ -45,19 +45,19 @@ public class DownloadTask {
 	private long indexInSubFile = 0;
 	private boolean finished = true;
 
-	private JProgressBar[] jProgressBars;
-	private speed_Download speed_Download;
+//	private JProgressBar[] jProgressBars;
+//	private speed_Download speed_Download;
 	
 	private long previousTimeLine;
 	private long downloadTime = 0;
 
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, JProgressBar[] jProgressBars,speed_Download speed_Download) {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		setTargetFile(saveDirectory, saveName);
 		System.out.println("TaskID: " + TaskID);		
-		this.jProgressBars = jProgressBars;
-		this.speed_Download = speed_Download;
+//		this.jProgressBars = jProgressBars;
+//		this.speed_Download = speed_Download;
 		this.FileSize = getFileLength(url);
 		if(FileSize == -1) this.ThreadCount = 1;
 		else this.ThreadCount = ThreadCount;
@@ -193,7 +193,7 @@ public class DownloadTask {
 			DownloadRunnable runnable = new DownloadRunnable(
 					Url, dir.getAbsolutePath(), SaveFile + "_" + (i+1),
 					startPos, endPos,
-					TaskID, i+1, this.jProgressBars[i],this.speed_Download);
+					TaskID, i+1);
 			ListRunnable.add(runnable);
 		}
 	}	
@@ -206,7 +206,7 @@ public class DownloadTask {
 		DownloadRunnable runnable = new DownloadRunnable(
 				Url, dir.getAbsolutePath(), SaveFile,
 				0, -1,
-				TaskID, 1, this.jProgressBars[0],this.speed_Download);
+				TaskID, 1);
 		ListRunnable.add(runnable);
 	}
 
@@ -233,7 +233,7 @@ public class DownloadTask {
 				DownloadRunnable runnable = new DownloadRunnable(
 						Url, saveDir, saveFile,
 						startPosition, currentPosition, endPosition,
-						TaskID, ThreadID,this.jProgressBars[i],this.speed_Download);
+						TaskID, ThreadID);
 				ListRunnable.add(runnable);
 			}
 			this.indexInSubFile = Integer.parseInt(reader.readLine());
@@ -255,7 +255,7 @@ public class DownloadTask {
 			previousTimeLine = System.currentTimeMillis();
 			
 			TaskStatus = Values.DOWNLOADING;
-			this.speed_Download.set_Check(Values.DOWNLOADING);
+//			this.speed_Download.set_Check(Values.DOWNLOADING);
 			
 			if(ListRunnable.size() == 0 || finished) {	
 				downloadTime = 0;
@@ -307,7 +307,7 @@ public class DownloadTask {
 		try {
 			System.out.println("assemble " + ThreadCount + ", " + completedThread);
 			
-			this.speed_Download.set_Check(Values.ASSEMBLING);
+//			this.speed_Download.set_Check(Values.ASSEMBLING);
 			
 			File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
 			if(saveF.exists() == false) saveF.createNewFile();
@@ -384,7 +384,7 @@ public class DownloadTask {
 			saveF.renameTo(desF);
 		}    		
 		
-		this.speed_Download.set_Check(Values.FINISHED);
+//		this.speed_Download.set_Check(Values.FINISHED);
 		System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
 		TaskStatus = Values.FINISHED;
 
@@ -519,7 +519,7 @@ public class DownloadTask {
 				e.printStackTrace();
 			}
 		}
-		if(this.speed_Download != null) this.speed_Download.set_Check(Values.PAUSED);
+//		if(this.speed_Download != null) this.speed_Download.set_Check(Values.PAUSED);
 		finished = false;
 		downloadTime += System.currentTimeMillis() - previousTimeLine;
 	}
@@ -632,11 +632,11 @@ public class DownloadTask {
 	}
 	
 	public void setJProgressBar(JProgressBar[] jProgressBars) {
-		this.jProgressBars = jProgressBars;
+//		this.jProgressBars = jProgressBars;
 	}
 	
 	public void setSpeed_Download(speed_Download speed_Download) {
-		this.speed_Download = speed_Download;
+//		this.speed_Download = speed_Download;
 	}
 	
 	public boolean checkFile(String type, String checksum) {

@@ -40,11 +40,11 @@ public class DownloadManager {
 	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg
 	
 	public DownloadTask addTask(String url, String saveDirectory, String saveName, 
-			int ThreadCount, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload) {
+			int ThreadCount, Boolean now) {
 		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
 			ThreadCount = Values.DEFAULT_THREAD_COUNT;
 		}
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount,jProgressBars,speedDownload);
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount);
 		addTask(downloadTask);
 		
 		if(now == true) downloadTask.startTask();
