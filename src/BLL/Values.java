@@ -17,6 +17,9 @@ public class Values {
 	public static final int CANCELED = 5;
 	public static final int ASSEMBLING = 6;
 	
+	public static final double[] ZOOM_LEVEL_VALUES = { -1, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5,
+			5.0 };
+	
 	public static String State(int i)
 	{
 		switch(i)

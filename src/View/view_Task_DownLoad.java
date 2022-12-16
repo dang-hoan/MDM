@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import java.awt.Color;
 
 public class view_Task_DownLoad extends JFrame {
 	
@@ -33,6 +34,8 @@ public class view_Task_DownLoad extends JFrame {
 	
 	private speed_Download speed_Download;
 	private JProgressBar[] array_JProgressBar;
+	
+	private JLabel labNotice;
 	
 	private JPanel contentPane;
 	private JLabel jlb_NameFile;
@@ -167,6 +170,7 @@ public class view_Task_DownLoad extends JFrame {
 						if(time.equals("")) time = "gần 1 giây";
 						jlb_Speed.setText("Hoàn thành, " + "tổng thời gian tải: " + time);
 						jlb_NameFile.setText(task.getSaveName());
+						labNotice.setText("");
 						_Main_View.ReloadView();
 						break;
 					}
@@ -312,7 +316,14 @@ public class view_Task_DownLoad extends JFrame {
 		JButton btn_Play_1 = new JButton("Verify File");
 		btn_Play_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new VerifyFile(task.getTaskID()).setVisible(true);
+				if(task.getDownloadStatus() != Values.FINISHED) {
+					labNotice.setText("The file hasn't been downloaded yet!");
+					return;
+				}
+				else {
+					labNotice.setText("");
+					new VerifyFile(task.getTaskID()).setVisible(true);
+				}
 			}
 		});
 		btn_Play_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -343,6 +354,10 @@ public class view_Task_DownLoad extends JFrame {
 					.addContainerGap())
 		);
 		panel_2_1.setLayout(gl_panel_2_1);
+		
+		labNotice = new JLabel("");
+		labNotice.setForeground(Color.RED);
+		labNotice.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
@@ -351,12 +366,17 @@ public class view_Task_DownLoad extends JFrame {
 					.addContainerGap()
 					.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
 					.addContainerGap())
-				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+				.addGroup(gl_contentPane.createSequentialGroup()
 					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 566, Short.MAX_VALUE)
 					.addContainerGap())
-				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
-					.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addContainerGap())
+				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(labNotice, GroupLayout.PREFERRED_SIZE, 244, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(322, Short.MAX_VALUE))
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -364,9 +384,11 @@ public class view_Task_DownLoad extends JFrame {
 					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
 					.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGap(18)
 					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+					.addComponent(labNotice)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(panel_2_1, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE))
 		);
 
@@ -395,5 +417,4 @@ public class view_Task_DownLoad extends JFrame {
 		
 		add_array_JProgressBar(task.getThreadCount());
 	}
-
 }

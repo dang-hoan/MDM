@@ -1,5 +1,5 @@
 package View;
-import java.awt.EventQueue;
+
 import java.awt.HeadlessException;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
@@ -37,19 +37,6 @@ public class Main_View extends JFrame {
 	private JPanel contentPane; 
 	JScrollPane scrollPaneListView = new JScrollPane();
 	JList<CompactTask> listView = new JList<>();
-	
-	public static void main(String[] args) throws IOException {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Main_View frame = new Main_View();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	public Main_View() {
 		addWindowListener(new WindowAdapter() {
@@ -94,7 +81,7 @@ public class Main_View extends JFrame {
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView();					
+					newDownloadView("");					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
 				} 
@@ -164,7 +151,7 @@ public class Main_View extends JFrame {
 		bNewDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView();		
+					newDownloadView("");		
 					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
@@ -226,7 +213,7 @@ public class Main_View extends JFrame {
 		under_panel.add(bSettings);
 		contentPane.setLayout(gl_contentPane);
 	}
-	public void ReloadView()
+	public synchronized void ReloadView()
 	{
 		DefaultListModel<CompactTask> model = new DefaultListModel<>();
 		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
@@ -293,11 +280,13 @@ public class Main_View extends JFrame {
 		listView.setModel(model);
 		listView.setCellRenderer(new TaskRenderer());
 	}
-	public void newDownloadView()
+	public void newDownloadView(String url)
 	{
 		try {
-			new NewDownload_View(this).setVisible(true);;
-			
+//			NewDownload_View ndv = new NewDownload_View(this, url);
+//			ndv.setAlwaysOnTop(true);
+//			ndv.setVisible(true);
+			new NewDownload_View(this, url).setVisible(true);
 		} catch (HeadlessException e) {
 			e.printStackTrace();
 		} catch (UnsupportedFlavorException e) {

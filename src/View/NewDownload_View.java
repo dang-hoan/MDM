@@ -46,16 +46,13 @@ public class NewDownload_View extends JFrame {
 	private JComboBox<?> cbNumber;
 	private String folder = new File(System.getProperty("user.home"), "Downloads").getAbsolutePath();
 	DownloadManager downloadManager = DownloadManager.getInstance();
-	private Main_View _Main_View;
 
-	public NewDownload_View(Main_View _Main_View ) throws HeadlessException, UnsupportedFlavorException, IOException {
+	public NewDownload_View(Main_View _Main_View, String url) throws HeadlessException, UnsupportedFlavorException, IOException {
 		setTitle("NEW_DOWNLOAD");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setSize(485, 267);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(null);
-		
-		this._Main_View = _Main_View;
 		
 		btnChoseFile = new JButton("");
 		btnChoseFile.addActionListener(new ActionListener() {
@@ -114,14 +111,14 @@ public class NewDownload_View extends JFrame {
 		};
 		txtURL.getDocument().addDocumentListener(dl);
 
-		String s;
 		try {
-			s = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
-			.getData(DataFlavor.stringFlavor);
+			if(url == "") 
+				url = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+		
 		}catch(Exception e){
-			s = "";
+			url = "";
 		}
-		txtURL.setText(s);
+		txtURL.setText(url);
 		getContentPane().add(txtURL);
 		
 		labURL = new JLabel("URL:");
