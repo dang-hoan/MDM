@@ -269,7 +269,6 @@ public class Utils {
 					.getLocation().toURI().getPath());
 			return new File(MDM.class.getProtectionDomain().getCodeSource()
 					.getLocation().toURI().getPath());
-			
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}

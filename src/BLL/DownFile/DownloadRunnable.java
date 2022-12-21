@@ -53,7 +53,7 @@ public class DownloadRunnable implements Runnable {
 		
 		this.speed_Download=speed_Download;
 		this.jProgressBar=jProgressBar;
-		this.jProgressBar.setMinimum(0);
+		this.jProgressBar.setMinimum((int)(100*this.StartPosition/this.EndPosition));
 		
 		this.jProgressBar.setMaximum(100);
 		
@@ -69,7 +69,7 @@ public class DownloadRunnable implements Runnable {
 		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID,jProgressBar,speed_Download);
 		this.CurrentPosition = CurrentPosition;
 		
-		this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
+//		this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
 	}
 	
 	public void start() {

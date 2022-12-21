@@ -207,6 +207,12 @@ public class DownloadManager {
 			Task.cancel();
 		}
 	}
+	
+	public void deleteTask(int TaskID) throws IOException {
+		if (Tasks.containsKey(TaskID)) {
+			Tasks.remove(TaskID);
+		}
+	}
 
 	public String getDataDir() {
 		return DataDir;

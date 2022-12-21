@@ -242,7 +242,7 @@ public class DownloadTask {
 				ListRunnable.add(runnable);
 			}
 			this.indexInSubFile = Integer.parseInt(reader.readLine());
-//			createDate = Long.parseLong(reader.readLine());
+			createDate = Long.parseLong(reader.readLine());
 			reader.close();
 			return true;
 		}catch (Exception e) {
@@ -631,7 +631,7 @@ public class DownloadTask {
 			s += indexInSubFile + newLine;
 			writer.write(s);	
 			createDate = System.currentTimeMillis();
-//			writer.write(createDate + newLine);
+			writer.write(createDate + newLine);
 			writer.close();
 		} catch (Exception e) {
 			try {
@@ -684,6 +684,18 @@ public class DownloadTask {
 	
 	public void setSpeed_Download(speed_Download speed_Download) {
 		this.speed_Download = speed_Download;
+	}
+	
+	public void set_Status(int status)
+	{
+		if(status<1&&status>7)
+		{
+			return;
+		}
+		else
+		{
+			this.TaskStatus= status;
+		}
 	}
 	
 	public boolean checkFile(String type, String checksum) {

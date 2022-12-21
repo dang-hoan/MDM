@@ -1,14 +1,19 @@
 package View;
 
+import java.awt.Desktop;
 import java.awt.HeadlessException;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
@@ -23,9 +28,12 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingUtilities;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -37,6 +45,7 @@ public class Main_View extends JFrame {
 	private JPanel contentPane; 
 	JScrollPane scrollPaneListView = new JScrollPane();
 	JList<CompactTask> listView = new JList<>();
+	JPopupMenu jPopupMenu;
 
 	public Main_View() {
 		addWindowListener(new WindowAdapter() {
@@ -180,11 +189,14 @@ public class Main_View extends JFrame {
 		JButton bPauseDownload = new JButton("");
 		bPauseDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					DownloadManager.getInstance().pauseTask(listView.getSelectedIndex());
-					
-				} catch (IOException e1) {
-					e1.printStackTrace();
+				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				if (task.getDownloadStatus() == Values.DOWNLOADING) {
+					try {
+						task.pause();
+						
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -195,11 +207,16 @@ public class Main_View extends JFrame {
 		JButton bStartDownload = new JButton("");
 		bStartDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new view_Task_DownLoad(listView.getSelectedIndex(),getthis());
-				
-//				Lấy TaskID của file mà người dùng chọn r tạo mới view_Task_Download để tải
-//				view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(TaskID);
-//				viewTaskDownload.setVisible(true);
+				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				if(task.getDownloadStatus()==Values.FINISHED)
+				{
+					System.out.println("Đã tải thành công");
+				}
+				else
+				{
+					view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(listView.getSelectedValue().getId(), getthis());
+					viewTaskDownload.setVisible(true);
+				}
 
 			}
 		});
@@ -212,6 +229,8 @@ public class Main_View extends JFrame {
 		bSettings.setBounds(288, 0, 62, 65);
 		under_panel.add(bSettings);
 		contentPane.setLayout(gl_contentPane);
+		jPopupMenu = new JPopupMenu();
+		create_Jpopupmenu();
 	}
 	public synchronized void ReloadView()
 	{
@@ -219,23 +238,28 @@ public class Main_View extends JFrame {
 		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
 		{
 			try {
-				DownloadTask task = DownloadManager.getInstance().getTask(i);
-				String str_name = task.getSaveName();
-				URL urlicon = null;
-				String str_status = Values.State(task.getDownloadStatus());
-				String str_size = new String();
-				double totalSize = task.getFileSize();
-				if(totalSize == -1) totalSize = task.getCurrentSize();
-				double downloadedSize = task.getCurrentSize();
-				
-				String[] donvi = {"B", "KB", "MB", "GB", "TB"};
-				int total = 0, download = 0;
-				while(totalSize/1024 > 1 && total < donvi.length) {
-					totalSize /= 1024; total++;
-				}
-				while(downloadedSize/1024 > 1 && download < donvi.length) {
-					downloadedSize /= 1024; download++;
-				}
+				DownloadTask task = DownloadManager.getInstance().getTask(i);				
+				if (task != null)
+				{
+					int id = task.getTaskID();
+					String str_name = task.getSaveName();
+					URL urlicon = null;
+					String str_status = Values.State(task.getDownloadStatus());
+					String str_size = new String();
+					double totalSize = task.getFileSize();
+					if (totalSize == -1) totalSize = task.getCurrentSize();
+					double downloadedSize = task.getCurrentSize();
+
+					String[] donvi = { "B", "KB", "MB", "GB", "TB" };
+					int total = 0, download = 0;
+					while (totalSize / 1024 > 1 && total < donvi.length) {
+						totalSize /= 1024;
+						total++;
+					}
+					while (downloadedSize / 1024 > 1 && download < donvi.length) {
+						downloadedSize /= 1024;
+						download++;
+					}
 //				
 //				String donvi = "B";
 //				if (totalSize/1024 > 1)
@@ -257,28 +281,45 @@ public class Main_View extends JFrame {
 //					donvi = "GB";
 //				}
 				
+					
 				switch (task.getDownloadStatus()) {
-				case 1:
-					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/ready.png"); break;
-				case 2: 
-					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/dloading.png"); break;
-				case 3: //pause
-					str_size = String.format("%.2f%s / %.2f%s",downloadedSize, donvi[download], totalSize, donvi[total]);
-					urlicon =Main_View.class.getResource("/View/icon/dloading.png"); break;
-				case 4:
+				case Values.READY:
+					str_size = "";
+					urlicon = Main_View.class.getResource("/View/icon/ready.png");
+					break;
+				case Values.DOWNLOADING:
+				case Values.ASSEMBLING:
+					str_size = "";
+					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+					break;
+				case Values.PAUSED: 
+					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
+							donvi[total]);
+					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+					break;
+				case Values.FINISHED:
 					str_size = String.format("%.2f %s", totalSize, donvi[total]);
-					urlicon = Main_View.class.getResource("/View/icon/completed.png"); break;
-				case 5: 
-					str_size = ""; urlicon = Main_View.class.getResource("/View/icon/canceled.png"); break;
+					urlicon = Main_View.class.getResource("/View/icon/completed.png");
+					break;
+				case Values.CANCELED:
+					str_size = "";
+					urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+					break;
 				}
-				
+
 				String str_date = Values.dateFormat.format(task.getCreateDate());
-				model.addElement(new CompactTask(str_name, urlicon, str_status, str_size, str_date));
-			} 
-			catch (Exception e) { e.printStackTrace(); }
+				model.addElement(new CompactTask(id, str_name, urlicon, str_status, str_size, str_date));
+				// i vừa là index cũng vừa là id của task
+				// vì ở trên ta đã getTask(i) rồi, nên chắc chắn i == task.getId
+				// nên ko cần tạo biến id = task.getId, bởi vì i chính là ID
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		listView.setModel(model);
 		listView.setCellRenderer(new TaskRenderer());
+		add_Even_Mouse_JList();
 	}
 	public void newDownloadView(String url)
 	{
@@ -298,5 +339,179 @@ public class Main_View extends JFrame {
 	public Main_View getthis()
 	{
 		return this;
+	}
+	public void open_File(String save_Directory, String save_File) {
+		System.out.println(save_Directory + File.separator + save_File);
+		File file = new File(save_Directory + File.separator + save_File);
+		try {
+			if (file.exists()) {
+				Process pro = Runtime.getRuntime()
+						.exec("rundll32 url.dll,FileProtocolHandler " + save_Directory + File.separator + save_File);
+				pro.waitFor();
+			} else {
+				System.out.println("file does not exist");
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	public void create_Jpopupmenu() {
+		JMenuItem open = new JMenuItem("Open");
+		open.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				open_File(task.getSaveDirectory(), task.getSaveName());
+			}
+		});
+		JMenuItem openfolder = new JMenuItem("Open Folder");
+		openfolder.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				open_Folder(task.getSaveDirectory());
+			}
+		});
+		JMenuItem pause = new JMenuItem("Pause");
+		pause.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				if (task.getDownloadStatus() == Values.DOWNLOADING || 
+					task.getDownloadStatus() == Values.ASSEMBLING) {
+					try {
+						task.pause();
+					} 
+					catch (IOException e1) { e1.printStackTrace(); }
+				}
+
+			}
+		});
+		JMenuItem resume = new JMenuItem("Resume");
+		resume.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				if(task.getDownloadStatus()==Values.FINISHED)
+				{
+					System.out.println("Đã tải thành công");
+				}
+				else
+				{
+					view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(listView.getSelectedValue().getId(), getthis());
+					viewTaskDownload.setVisible(true);
+				}
+			}
+		});
+		JMenuItem delete = new JMenuItem("Delete Download");
+		delete.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					DownloadManager.getInstance().deleteTask(listView.getSelectedValue().getId());
+				} 
+				catch (IOException e1) { e1.printStackTrace(); }
+				ReloadView();
+			}
+		});
+		JMenuItem properties = new JMenuItem("Properties");
+		properties.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				String Message = "File Name : " + task.getSaveName();
+				Message += "\nLocaiton : " + task.getSaveDirectory();
+				Message += "\nSize : "+convert_Size(task);
+				JOptionPane.showMessageDialog(getthis(), Message, "Properties", 
+												JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		jPopupMenu.add(open);
+		jPopupMenu.add(openfolder);
+
+		jPopupMenu.add(pause);
+		jPopupMenu.add(resume);
+		jPopupMenu.add(delete);
+		jPopupMenu.add(properties);
+	}
+
+	public void add_Even_Mouse_JList() {
+		listView.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+
+				if (e.isPopupTrigger()) {
+					int tmp = listView.locationToIndex(e.getPoint());
+					listView.setSelectedIndex(tmp);
+					show_Popup_Jlist(e);
+				}
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					if (e.getClickCount() == 2) {
+						DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+						if (task.getDownloadStatus() == Values.FINISHED) {
+							open_File(task.getSaveDirectory(), task.getSaveName());
+						}
+					}
+
+				}
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) { }
+
+			@Override
+			public void mouseExited(MouseEvent e) { }
+
+			@Override
+			public void mouseEntered(MouseEvent e) { }
+
+			@Override
+			public void mouseClicked(MouseEvent e) { }
+		});
+	}
+
+	public void show_Popup_Jlist(MouseEvent e) {
+
+		jPopupMenu.show(listView, e.getX(), e.getY());
+	}
+
+	public void open_Folder(String save_Directory) {
+		File directory = new File(save_Directory);
+		try {
+			Desktop.getDesktop().open(directory);
+		} 
+		catch (IOException e) { e.printStackTrace(); }
+	}
+	public String convert_Size(DownloadTask task)
+	{
+		double totalSize = task.getFileSize();
+		if (totalSize == -1)
+			totalSize = task.getCurrentSize();
+		double downloadedSize = task.getCurrentSize();
+
+		String[] donvi = { "B", "KB", "MB", "GB", "TB" };
+		int total = 0, download = 0;
+		while (totalSize / 1024 > 1 && total < donvi.length) {
+			totalSize /= 1024;
+			total++;
+		}
+		while (downloadedSize / 1024 > 1 && download < donvi.length) {
+			downloadedSize /= 1024;
+			download++;
+		}
+		String str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
+				donvi[total]);
+		return str_size;
+
 	}
 }
