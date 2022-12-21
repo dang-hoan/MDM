@@ -22,6 +22,7 @@ public class DownloadManager {
 	private String DataDir = System.getProperty("user.home") + File.separator + ".mdm";
 	private static DownloadManager instance;
 	private Hashtable<Integer, DownloadTask> Tasks = new Hashtable<Integer, DownloadTask>();
+	private Hashtable<Integer, DownloadTask[]> VideoTasks = new Hashtable<Integer, DownloadTask[]>();
 
 	private DownloadManager() {
 	}
