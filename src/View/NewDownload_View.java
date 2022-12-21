@@ -140,7 +140,7 @@ public class NewDownload_View extends JFrame {
 				if(check()) {
 					try {
 						new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
-//						NewDownload_View.this.dispose();
+						NewDownload_View.this.dispose();
 						_Main_View.ReloadView();
 						
 					} catch (Exception e1) {

@@ -8,6 +8,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.util.Locale;
+
+import BLL.Monitoring.HeaderCollection;
 
 public class Utils {
 	private Utils() {
@@ -204,4 +207,80 @@ public class Utils {
 //		}
 //		return data;
 //	}
+	
+	public static long getContentLength(HeaderCollection headers) {
+		try {
+			String clen = headers.getValue("content-length");
+			if (clen != null) {
+				return Long.parseLong(clen);
+			} else {
+				clen = headers.getValue("content-range");
+				if (clen != null) {
+					String str = clen.split(" ")[1];
+					str = str.split("/")[0];
+					String arr[] = str.split("-");
+					return Long.parseLong(arr[1]) - Long.parseLong(arr[0]) + 1;
+				} else {
+					return -1;
+				}
+			}
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	
+	public static String getCleanContentType(String contentType) {
+		if (contentType == null || contentType.length() < 1)
+			return contentType;
+		int index = contentType.indexOf(";");
+		if (index > 0) {
+			contentType = contentType.substring(0, index).trim().toLowerCase();
+		}
+		return contentType;
+	}
+	
+	public static String getExtension(String file) {
+		int index = file.lastIndexOf(".");
+		if (index > 0) {
+			String ext = file.substring(index);
+			return ext;
+		} else {
+			return null;
+		}
+	}
+	
+	public static final int detectOS() {
+		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+		if (os.contains("mac") || os.contains("darwin")
+				|| os.contains("os x")) {
+			return Values.MAC;
+		} else if (os.contains("linux")) {
+			return Values.LINUX;
+		} else if (os.contains("windows")) {
+			return Values.WINDOWS;
+		} else {
+			return -1;
+		}
+	}
+	
+	public static File getJarFile() {
+		try {
+			System.out.println("path jar: " + MDM.class.getProtectionDomain().getCodeSource()
+					.getLocation().toURI().getPath());
+			return new File(MDM.class.getProtectionDomain().getCodeSource()
+					.getLocation().toURI().getPath());
+			
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static String getNativePath() {
+		return "src" + File.separator + "Extension" + File.separator + "native-messaging";
+	}
+	
+	public static String getFFmpegPath() {
+		return "lib" + File.separator;
+	}
 }

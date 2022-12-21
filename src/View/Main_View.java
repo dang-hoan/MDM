@@ -283,10 +283,10 @@ public class Main_View extends JFrame {
 	public void newDownloadView(String url)
 	{
 		try {
-//			NewDownload_View ndv = new NewDownload_View(this, url);
-//			ndv.setAlwaysOnTop(true);
-//			ndv.setVisible(true);
-			new NewDownload_View(this, url).setVisible(true);
+			NewDownload_View ndv = new NewDownload_View(this, url);
+			ndv.setAlwaysOnTop(true);
+			ndv.setVisible(true);
+//			new NewDownload_View(this, url).setVisible(true);
 		} catch (HeadlessException e) {
 			e.printStackTrace();
 		} catch (UnsupportedFlavorException e) {

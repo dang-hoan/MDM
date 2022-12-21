@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 import javax.swing.JProgressBar;
 
 import BLL.Values;
+import BLL.VideoConversion.FFmpeg;
 
 public class DownloadManager {
 	private String DataFile = "downloads.tmp";
@@ -40,11 +42,11 @@ public class DownloadManager {
 	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg
 	
 	public DownloadTask addTask(String url, String saveDirectory, String saveName, 
-			int ThreadCount, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload) {
+			int ThreadCount, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload, boolean fileNeedMerge) {
 		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
 			ThreadCount = Values.DEFAULT_THREAD_COUNT;
 		}
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount,jProgressBars,speedDownload);
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount,jProgressBars,speedDownload,fileNeedMerge);
 		addTask(downloadTask);
 		
 		if(now == true) downloadTask.startTask();
@@ -136,10 +138,11 @@ public class DownloadManager {
 				int DownloadStatus = Integer.parseInt(reader.readLine());
 				Long createDate = Long.parseLong(reader.readLine());
 				Long downloadTime = Long.parseLong(reader.readLine());
+				boolean fileNeedMerge = Boolean.parseBoolean(reader.readLine());
 
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
-						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime);
+						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, fileNeedMerge);
 				addTask(task);
 			}
 			reader.close();
@@ -163,7 +166,7 @@ public class DownloadManager {
 		String newLine = System.getProperty("line.separator");
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), Charset.forName("UTF-8")));
-			writer.write(Integer.toString(Tasks.size()));		//Số file
+			writer.write(Integer.toString(Tasks.size()));		//Save file
 			writer.newLine();
 			String s = "";
 			for(DownloadTask i : Tasks.values()) 
@@ -177,7 +180,8 @@ public class DownloadManager {
 				     i.getThreadCount() + newLine +
 				     i.getDownloadStatus() + newLine +
 				     i.getCreateDate() + newLine + 
-				     i.getDownloadTime() + newLine;			
+				     i.getDownloadTime() + newLine +			
+				     i.isFileNeedMerge() + newLine;			
 			}
 			writer.write(s);
 //			System.out.println(s);
@@ -218,6 +222,10 @@ public class DownloadManager {
 
 	public String getReadableDownloadSize() {
 		return DownloadUtils.getReadableSize(getTotalDownloadedSize());
+	}
+	
+	public int mergeFile(String path1, String path2, String fileName) {
+		return new FFmpeg(Arrays.asList(path1, path2), fileName).convert();
 	}
 		
 }

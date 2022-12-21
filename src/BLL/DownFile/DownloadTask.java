@@ -35,6 +35,7 @@ public class DownloadTask {
 	private String SaveFile;
 	private String ProgressFile;			//Lưu tiến trình tải
 	private String ProgressFolder;
+	private boolean fileNeedMerge = false;
 	
 	private long FileSize;
 	private String FileType;
@@ -51,7 +52,7 @@ public class DownloadTask {
 	private long previousTimeLine;
 	private long downloadTime = 0;
 
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, JProgressBar[] jProgressBars,speed_Download speed_Download) {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, JProgressBar[] jProgressBars,speed_Download speed_Download, boolean fileNeedMerge) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		setTargetFile(saveDirectory, saveName);
@@ -61,9 +62,12 @@ public class DownloadTask {
 		this.FileSize = getFileLength(url);
 		if(FileSize == -1) this.ThreadCount = 1;
 		else this.ThreadCount = ThreadCount;
+		this.fileNeedMerge = fileNeedMerge;
 	}
 	
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, String progressFile, String progressFolder, long FileSize, int ThreadCount, int DownloadStatus, long createDate, long downloadTime) {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName
+			, String progressFile, String progressFolder, long FileSize, int ThreadCount
+			, int DownloadStatus, long createDate, long downloadTime, boolean fileNeedMerge) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
@@ -75,6 +79,7 @@ public class DownloadTask {
 		this.ThreadCount = ThreadCount;
 		this.TaskStatus = DownloadStatus;
 		this.downloadTime = downloadTime;
+		this.fileNeedMerge = fileNeedMerge;
 	}
 
 	public void setTargetFile(String saveDir, String saveName) {
@@ -210,7 +215,7 @@ public class DownloadTask {
 		ListRunnable.add(runnable);
 	}
 
-	private boolean resumeProgress() throws IOException {   //Khôi phục công việc các luồng	
+	private boolean resumeProgress() throws IOException {   //Khôi phục công việc của các luồng
 		File file = new File(DownloadManager.getInstance().getDataDir(), ProgressFile);
 		if(file.exists() == false) {
 			completedThread = 0;
@@ -348,6 +353,40 @@ public class DownloadTask {
 	}
 
 	public void moveFile() {
+		if(fileNeedMerge) {
+			System.out.println("need merge^^^^^^^^^^^^^^");
+			
+			//Cập nhật kiểu file nếu chưa có
+			FileType = getFileType();
+			if(FileType == "") {
+				File desF = new File(SaveDirectory + File.separator + SaveFile);
+				if(desF.exists() && desF.length() == 0) desF.delete();
+				FileType = getFileType();
+				System.out.println(FileType);
+				SaveFile += FileType;
+			}
+			
+			//Cập nhật tên file nếu tên đã tồn tại trong thư mục đích
+			File desF = new File(SaveDirectory + File.separator + SaveFile);
+			if(desF.exists() && desF.length() == 0) desF.delete();
+			else {
+				if(desF.length() != 0) {
+					int index = SaveFile.lastIndexOf(".");
+					String saveName = (index != -1)?SaveFile.substring(0, index):SaveFile;
+					int i = 1;
+					while(desF.exists() == true) {
+						SaveFile = saveName + "(" + Integer.toString(i) + ")" + FileType;
+						desF = new File(SaveDirectory + File.separator + SaveFile);
+						i += 1;
+					}
+				}
+			}			
+
+			this.speed_Download.set_Check(Values.FINISHED);
+			TaskStatus = Values.FINISHED;
+			downloadTime += System.currentTimeMillis() - previousTimeLine;
+			return; //Thoát mà k move file
+		}
 		File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
 		File saveDir = new File(SaveDirectory);
 		if (saveDir.exists() == false) {
@@ -446,7 +485,11 @@ public class DownloadTask {
 		return new File(SaveDirectory + File.separator + SaveFile);
 	}
 
-	public long getDownloadedSize() { //Kích thước đã tải
+	public String getFilePath() {
+		return DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder + File.separator + SaveFile;
+	}
+	
+	public long getDownloadedSize() {
 		long size = 0;
 		for(DownloadRunnable r : ListRunnable) {
 			size += r.getCurrentPosition() - r.getStartPosition();
@@ -502,18 +545,22 @@ public class DownloadTask {
 	public long getDownloadTime() {
 		return downloadTime;
 	}
+	
+	public boolean isFileNeedMerge() {
+		return fileNeedMerge;
+	}
 
 	public void pause() throws IOException {
 		if(TaskStatus == Values.DOWNLOADING) {
 			TaskStatus = Values.PAUSED;
-			pauseAllThread();					// Khi các luồng con còn đang tải
+			pauseAllThread();					// Khi các luồng con đang tải
 		}
 		if(TaskStatus == Values.ASSEMBLING) {
 			TaskStatus = Values.PAUSED;
 			Thread current = Thread.currentThread();
-			current.interrupt(); 				// Khi đang ghép file	
+			current.interrupt(); 				// Khi đang ghép file
 			try {
-				current.join();					// Đợi cho luồng đã dừng xong r đã làm chuyện khác
+				current.join();					// Đợi cho các luồng thực hiện xong
 				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -529,7 +576,7 @@ public class DownloadTask {
 			ListRunnable.get(i).pause();
 		}
 		
-		//Đợi cho các luồng đã dừng xong r đã làm chuyện khác
+		//Đợi cho các luồng thực hiện xong r đã làm chuyện khác
 		for(int i = 0; i < ListRunnable.size(); i++)
 			try {
 				ListRunnable.get(i).join();
