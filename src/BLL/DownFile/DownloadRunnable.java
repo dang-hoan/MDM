@@ -154,7 +154,7 @@ public class DownloadRunnable implements Runnable {
 			is.close();
 			os.close();
 //			System.out.println("Cur "+ this.CurrentPosition + " End :" + this.EndPosition+ " Star :" + this.StartPosition +"Thread"+ this.t);
-			DownloadManager.getInstance().getTask(TaskID).notify(ThreadID);
+			DownloadManager.getInstance().getTask(TaskID, speed_Download).notify(ThreadID);
 		}
 		catch (IOException | URISyntaxException e) {
 			e.printStackTrace();

@@ -29,8 +29,8 @@ public class FFmpeg {
 					return FF_NOT_FOUND;
 				}
 			}	
-//			ffmpeg -i videoFile.mp4 -i audioFile.au -y -acodec copy -vcodec copy mergedFile.mp4 
-			Process proc = Runtime.getRuntime().exec(ffFile.getAbsolutePath() + " -i "  + inputFiles.get(0) + " -i "  + inputFiles.get(1) + " -y -acodec copy -vcodec copy "  + outputFile);
+//			ffmpeg -i videoFile.mp4 -i audioFile.au -acodec copy -vcodec copy mergedFile.mp4 -y
+			Process proc = Runtime.getRuntime().exec(new String[] {"\"" + ffFile.getAbsolutePath() + "\"", "-i", "\"" + inputFiles.get(0) + "\"", "-i", "\"" + inputFiles.get(1) + "\"", "-acodec", "copy", "-vcodec", "copy", "\"" + outputFile + "\"", "-y"});
 			ffExitCode = proc.waitFor();
 			
 			if(ffExitCode == 0) {

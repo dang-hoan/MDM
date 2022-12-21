@@ -281,13 +281,7 @@ public class view_Task_DownLoad extends JFrame {
 		btn_Play = new JButton("");
 		btn_Play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					downloadManager.startTask(task.getTaskID());
-					get_Speed();
-					
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+				downloadManager.startTask(task.getTaskID());
 			}
 		});
 		btn_Play.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/play.png")));

@@ -120,7 +120,7 @@ public class NewDownload_View_Video extends JFrame {
 		getContentPane().add(labNumber);
 
 		List<String> item = new ArrayList<String>();
-		for(int i = Values.MIN_THREAD_COUNT; i <= Values.MAX_THREAD_COUNT; i++)
+		for(int i = 2; i <= Values.MAX_THREAD_COUNT; i++)
 			item.add(Integer.toString(i));
 		
 		cbNumber = new JComboBox<>(item.toArray());

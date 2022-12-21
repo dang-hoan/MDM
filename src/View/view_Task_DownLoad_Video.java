@@ -21,6 +21,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
@@ -45,6 +46,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 	private JLabel jlb_NameFile;
 	private JLabel jlb_Speed;
 	
+	private String FileName;
 	private int ThreadCount;
 	private int completeFile = 0;
 	private Main_View _Main_View;
@@ -99,10 +101,17 @@ public class view_Task_DownLoad_Video extends JFrame {
 			this.array_JProgressBar2 = new JProgressBar[size2];
 		}
 		
-		this.task = downloadManager.addTask(url[0], folder, FileName, size1, false, this.array_JProgressBar,this.speed_Download, true);
-		this.task2 = downloadManager.addTask(url[1], folder, FileName, size2, false, this.array_JProgressBar2,this.speed_Download2, true);
+//		this.task = downloadManager.addTask(url[0], folder, FileName, size1, false, this.array_JProgressBar,this.speed_Download, true);
+//		this.task2 = downloadManager.addTask(url[1], folder, FileName, size2, false, this.array_JProgressBar2,this.speed_Download2, true);
+		
+		DownloadTask[] v = downloadManager.addTask(url[0], url[1], folder, FileName.substring(0, FileName.lastIndexOf(".")), 
+				size1, size2, false, array_JProgressBar, speed_Download,
+				array_JProgressBar2, speed_Download2);
+		this.task = v[0];
+		this.task2 = v[1];
 		
 		this._Main_View = _Main_View;
+		this.FileName = FileName;
 		
 		ThreadCount = number_Thread;
 		initComponent();		
@@ -113,7 +122,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 	public void start_Download() {
 		try {
 			downloadManager.startTask(task.getTaskID());
-			downloadManager.startTask(task2.getTaskID());
+//			downloadManager.startTask(task2.getTaskID());
 			get_Speed();
 			
 		} catch (Exception e) {
@@ -222,7 +231,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 				if(completeFile == 2) {
 					System.out.println("merge...............");
 					jlb_Speed.setText("Đang ghép âm thanh vào video...");
-					int result = DownloadManager.getInstance().mergeFile(task.getFilePath(), task2.getFilePath(), task.getDownloadFile().getAbsolutePath());
+					int result = DownloadManager.getInstance().mergeFile(task.getFilePath(), task2.getFilePath(), task.getSaveDirectory() + File.separator + FileName);
 		
 					switch(result) {
 						case FFmpeg.FF_NOT_FOUND:{
@@ -340,8 +349,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 		JButton btn_Play = new JButton("");
 		btn_Play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				start_Download();
-				get_Speed();
+				downloadManager.startTask(task.getTaskID());
 			}
 		});
 		btn_Play.setIcon(new ImageIcon(view_Task_DownLoad_Video.class.getResource("/View/icon/play.png")));
@@ -351,7 +359,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.pauseTask(task.getTaskID());
-					downloadManager.pauseTask(task2.getTaskID());
+//					downloadManager.pauseTask(task2.getTaskID());
 					_Main_View.ReloadView();
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -366,7 +374,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.cancelTask(task.getTaskID());
-					downloadManager.cancelTask(task2.getTaskID());
+//					downloadManager.cancelTask(task2.getTaskID());
 					_Main_View.ReloadView();
 					close_Frame();
 					

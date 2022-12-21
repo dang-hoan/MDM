@@ -682,6 +682,10 @@ public class DownloadTask {
 		this.jProgressBars = jProgressBars;
 	}
 	
+	public speed_Download getSpeed_Download() {
+		return this.speed_Download;
+	}
+	
 	public void setSpeed_Download(speed_Download speed_Download) {
 		this.speed_Download = speed_Download;
 	}

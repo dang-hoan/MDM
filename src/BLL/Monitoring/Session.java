@@ -168,7 +168,7 @@ public class Session implements Runnable {
 			if (type == null) {
 				type = "";
 			}
-			//link rÃ¡c
+			//link rác
 			if (type.contains("f4f") || type.contains("m4s") || type.contains("mp2t") || data.getUrl().contains("fcs")
 					|| data.getUrl().contains("abst") || data.getUrl().contains("f4x")
 					|| data.getUrl().contains(".fbcdn") || data.getUrl().contains("http://127.0.0.1:9614")) {
@@ -292,10 +292,11 @@ public class Session implements Runnable {
 //						System.out.println("URL la: " + di.url + "\n" + info.url);//hình ảnh và âm thanh
 						String videoURL = di.url;
 						String audioURL = info.url;
+						String fileName = data.getFile() + "." + getYtDashFormat(info.mime, di.mime);
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								NewDownload_View_Video window = new NewDownload_View_Video(MDM.mv, videoURL, audioURL, "file");
+								NewDownload_View_Video window = new NewDownload_View_Video(MDM.mv, videoURL, audioURL, fileName);
 								window.setAlwaysOnTop(true);
 								window.setVisible(true);
 							}
@@ -479,6 +480,20 @@ public class Session implements Runnable {
 //			BrowserMonitor.getInstance().updateSettingsAndStatus();
 		} finally {
 			setResponseOk(response);
+		}
+	}
+	
+	private String getYtDashFormat(String videoContentType, String audioContentType) {
+		if (videoContentType == null) {
+			videoContentType = "";
+		}
+		if (audioContentType == null) {
+			audioContentType = "";
+		}
+		if (videoContentType.contains("mp4") && audioContentType.contains("mp4")) {
+			return "mp4";
+		} else {
+			return "mkv";
 		}
 	}
 
