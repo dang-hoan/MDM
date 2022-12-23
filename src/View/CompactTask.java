@@ -2,16 +2,16 @@ package View;
 
 import java.net.URL;
 
-public class CompactTask 
+public class CompactTask
 {
 	private int id;
-	private String name;	
+	private String name;
 	private URL icon;
 	private String status;
 	private String size;
 	private String datetime;
-	
-	public CompactTask(int id, String name, URL icon, String status, String size, String datetime) 
+
+	public CompactTask(int id, String name, URL icon, String status, String size, String datetime)
 	{
 		this.name = name;
 		this.icon = icon;

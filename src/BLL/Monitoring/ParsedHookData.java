@@ -20,8 +20,7 @@ public class ParsedHookData {
 		List<ParsedHookData> list = new ArrayList<>();
 		String strBuf = new String(b, "utf-8");
 		String[] arr = strBuf.split("\r\n\r\n");
-		for (int i = 0; i < arr.length; i++) {
-			String str = arr[i];
+		for (String str : arr) {
 			list.add(ParsedHookData.parse(str.getBytes()));
 		}
 		return list;
@@ -34,8 +33,7 @@ public class ParsedHookData {
 		data.responseHeaders = new HeaderCollection();
 		String strBuf = new String(b, "utf-8");
 		String[] arr = strBuf.split("\r\n");
-		for (int i = 0; i < arr.length; i++) {
-			String str = arr[i];
+		for (String str : arr) {
 			if (!str.contains("=")) {
 				continue;
 			}
@@ -115,7 +113,7 @@ public class ParsedHookData {
 			try {
 				String[] s = str.trim().split("=");
 				cookieMap.put(s[0].trim(), s[1].trim());
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -123,8 +121,8 @@ public class ParsedHookData {
 	}
 
 	private static boolean isBlockedHeader(String name) {
-		for (int i = 0; i < blockedHeaders.length; i++) {
-			if (name.startsWith(blockedHeaders[i])) {
+		for (String blockedHeader : blockedHeaders) {
+			if (name.startsWith(blockedHeader)) {
 				return true;
 			}
 		}

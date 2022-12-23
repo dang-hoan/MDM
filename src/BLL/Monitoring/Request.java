@@ -14,24 +14,24 @@ public class Request {
 	public void read(InputStream in) throws IOException {
 		String reqLine = Utils.readLine(in);
 		System.out.println("first line: " + reqLine); // dòng đầu tiên có dạng POST /download HTTP/1.1
-		
+
 		if (reqLine == null || reqLine.length() < 1) {
 			throw new IOException("Invalid request line: " + reqLine);
 		}
 
-		String[] arr = reqLine.split(" "); 
+		String[] arr = reqLine.split(" ");
 		if (arr.length != 3) {
 			throw new IOException("Invalid request: " + reqLine);
 		}
 		this.action = arr[1];
-		this.method = arr[0].toLowerCase().equals("post") ? 1 : 2;		
+		this.method = arr[0].toLowerCase().equals("post") ? 1 : 2;
 //		System.out.println("action: " + action + ", method: " + method);
-		
-		this.headers = new HeaderCollection();		
+
+		this.headers = new HeaderCollection();
 		headers.loadFromStream(in);
 		String header = headers.getValue("Content-Length");
-		
-		if (header != null) {		
+
+		if (header != null) {
 			long len = Long.parseLong(header);
 			body = new byte[(int) len];
 			int off = 0;

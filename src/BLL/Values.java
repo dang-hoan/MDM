@@ -9,19 +9,19 @@ public class Values {
 	public static int MIN_THREAD_COUNT = 1;
 	public static int MAX_THREAD_COUNT = 100;
 	public static final int DEFAULT_KEEP_ALIVE_TIME = 0;
-	
+
 	public static final int READY = 1;
 	public static final int DOWNLOADING = 2;
 	public static final int PAUSED = 3;
 	public static final int ASSEMBLING = 4;
 	public static final int FINISHED = 5;
 	public static final int CANCELED = 6;
-	
+
 	public static final double[] ZOOM_LEVEL_VALUES = { -1, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5,
 			5.0 };
-	
+
 	public static final int WINDOWS = 10, MAC = 20, LINUX = 30;
-	
+
 	public static String State(int i)
 	{
 		switch(i)
@@ -36,6 +36,6 @@ public class Values {
 		}
 		return ("");
 	}
-	
+
 	public static SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss Z 'on' dd-MM-yyyy", Locale.getDefault());
 }

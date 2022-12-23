@@ -25,26 +25,26 @@ public class Session implements Runnable {
 	private OutputStream outStream;
 	private Request request;
 	private Response response;
-//	private URL[] 
-	
+//	private URL[]
+
 	public Session(Socket socket) {
 		this.sock = socket;
 		this.request = new Request();
 		this.response = new Response();
 		System.out.println("New session");
 	}
-	
+
 	public void start() {
 		Thread t = new Thread(this);
 		t.setDaemon(true);
 		t.start();
-	}	
-	
+	}
+
 	@Override
 	public void run() {
 		serviceRequest();
-	}	
-	
+	}
+
 	private void serviceRequest() {
 		try {
 			inStream = sock.getInputStream();
@@ -60,10 +60,10 @@ public class Session implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		close(); //close stream and socket
 	}
-	
+
 	private void close() {
 		try {
 			inStream.close();
@@ -80,12 +80,12 @@ public class Session implements Runnable {
 		} catch (Exception e) {
 		}
 	}
-	
+
 	private void processRequest(Request request, Response res) throws IOException {
 		String action = request.getAction();
 		if (action.equals("/download")) {
 			onDownload(request, response);
-		} 
+		}
 		else if (action.equals("/video")) {
 			System.out.println("/video");
 			onVideo(request, response);
@@ -96,22 +96,22 @@ public class Session implements Runnable {
 		}
 		else if (action.equals("/cmd")) {
 //			onCmd(request, response);
-		} 
+		}
 		else if (action.startsWith("/clear")) {
 			onVideoClear(request, response);
 		}
 		else if (action.equals("/quit")) {
 //			onQuit(request, response);
-		} 
+		}
 		else if (action.startsWith("/preview")) {
 //			onPreview(request, response);
-		} 
+		}
 		else {
 			throw new IOException("invalid action " + action);
 //			System.out.println("invalid action " + action);
 		}
 	}
-	
+
 	private void onDownload(Request request, Response res) throws UnsupportedEncodingException {
 		try {
 			byte[] b = request.getBody();
@@ -120,7 +120,7 @@ public class Session implements Runnable {
 			System.out.println("=====================================");
 			System.out.print(body);
 			System.out.println("=====================================");
-			
+
 			String url = body.substring(body.indexOf('=')+1, body.indexOf('\r', body.indexOf('=')));
 //			if(url.equals("https://th.bing.com/th/id/R.c4f4387256bfddf88a3184c0bc483edf?rik=R52ZpQXS%2byfU0w&riu=http%3a%2f%2fwww.pixelstalk.net%2fwp-content%2fuploads%2f2016%2f05%2fDownload-Free-HD-Wallpapers-Backgrounds-Desktop.jpg&ehk=HSd9cpNYuuWalQrTbbf5A5Wj6y0jy3fuAOfhrRaO%2fIk%3d&risl=&pid=ImgRaw&r=0")) System.out.println("say yes yes");
 //			else System.out.println("say good bye");
@@ -130,7 +130,7 @@ public class Session implements Runnable {
 					MDM.mv.newDownloadView(url);
 				}
 			});
-			
+
 //			ParsedHookData data = ParsedHookData.parse(b);
 //			if (data.getUrl() != null && data.getUrl().length() > 0) {
 //				HttpMetadata metadata = new HttpMetadata();
@@ -144,7 +144,7 @@ public class Session implements Runnable {
 			setResponseOk(res);
 		}
 	}
-	
+
 	private void setResponseOk(Response res) {
 		res.setCode(200);
 		res.setMessage("OK");
@@ -153,7 +153,7 @@ public class Session implements Runnable {
 		headers.setValue("Cache-Control", "max-age=0, no-cache, must-revalidate");
 		res.setHeaders(headers);
 	}
-	
+
 	private void onVideo(Request request, Response res) throws UnsupportedEncodingException {
 		try {
 			System.out.println("video received");
@@ -182,7 +182,7 @@ public class Session implements Runnable {
 			setResponseOk(res);
 		}
 	}
-	
+
 	private void onVideoRetrieve(Request request, Response res) throws UnsupportedEncodingException {
 //		try {
 			String content = new String(request.getBody(), "utf-8");
@@ -283,12 +283,12 @@ public class Session implements Runnable {
 				info.headers = data.getRequestHeaders();
 
 				System.out.println("processing yt mime: " + mime + " id: " + id + " clen: " + clen + " itag: " + itag);
-				
+
 				if (YtUtil.addToQueue(info)) {
 					DASH_INFO di = YtUtil.getDASHPair(info);
 
 					if (di != null) {
-						System.out.println("+++updating adding");			
+						System.out.println("+++updating adding");
 //						System.out.println("URL la: " + di.url + "\n" + info.url);//hình ảnh và âm thanh
 						String videoURL = di.url;
 						String audioURL = info.url;
@@ -348,12 +348,7 @@ public class Session implements Runnable {
 				manifestfile = downloadMenifest(data);
 				return true;
 			}
-			if (url.contains("player.vimeo.com") && contentType.toLowerCase().contains("json")) {
-				System.out.println("Downloading video manifest");
-				manifestfile = downloadMenifest(data);
-				return true;
-			}
-			if (url.contains("instagram.com/p/")) {
+			if ((url.contains("player.vimeo.com") && contentType.toLowerCase().contains("json")) || url.contains("instagram.com/p/")) {
 				System.out.println("Downloading video manifest");
 				manifestfile = downloadMenifest(data);
 				return true;
@@ -415,16 +410,22 @@ public class Session implements Runnable {
 
 //		XDMApp.getInstance().addMedia(metadata, file, sz);
 	}
-	
+
 	private File downloadMenifest(ParsedHookData data) {
 //		JavaHttpClient client = null;
 //		OutputStream out = null;
 		try {
 			System.out.println("downloading manifest: " + data.getUrl());
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					MDM.mv.newDownloadView(data.getUrl());
+				}
+			});
 //			client = new JavaHttpClient(data.getUrl());
 			Iterator<HttpHeader> headers = data.getRequestHeaders().getAll();
 			boolean hasAccept = false;
-			List<String> cookieList = new ArrayList<String>();
+			List<String> cookieList = new ArrayList<>();
 			while (headers.hasNext()) {
 				HttpHeader header = headers.next();
 				//System.err.println(header.getName() + " " + header.getValue());
@@ -471,7 +472,7 @@ public class Session implements Runnable {
 		}
 		return null;
 	}
-	
+
 	private void onVideoClear(Request request, Response response) {
 		try {
 			YtUtil.videoQueue.clear();
@@ -482,7 +483,7 @@ public class Session implements Runnable {
 			setResponseOk(response);
 		}
 	}
-	
+
 	private String getYtDashFormat(String videoContentType, String audioContentType) {
 		if (videoContentType == null) {
 			videoContentType = "";

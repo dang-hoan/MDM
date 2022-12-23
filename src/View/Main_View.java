@@ -3,46 +3,45 @@ package View;
 import java.awt.Desktop;
 import java.awt.HeadlessException;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
 
-import javax.imageio.ImageIO;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.SwingUtilities;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
 @SuppressWarnings("serial")
 public class Main_View extends JFrame {
 
-	private JPanel contentPane; 
+	private JPanel contentPane;
 	JScrollPane scrollPaneListView = new JScrollPane();
 	JList<CompactTask> listView = new JList<>();
 	JPopupMenu jPopupMenu;
@@ -53,7 +52,7 @@ public class Main_View extends JFrame {
 			public void windowClosing(WindowEvent e) {
 				try {
 					DownloadManager.getInstance().shutdown();
-					
+
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -63,78 +62,80 @@ public class Main_View extends JFrame {
 				try {
 					new TrayClass().show();
 					DownloadManager.getInstance().resumeTasks();
-					ReloadView();					
+//					new view_Task_DownLoad_Video(0, Main_View.this).setVisible(true);; //test video
+					ReloadView();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
 		setTitle("PBL4_MAX_SPEED_DOWNLOAD");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setSize(700, 400);
 		setLocationRelativeTo(null);
 		//icon
 		try {
 			this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/View/icon/app.png")));
-			
+
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
+
 		JMenu mnNewMenu = new JMenu("File");
 		menuBar.add(mnNewMenu);
-		
+
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("New Download");
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView("");					
+					newDownloadView("");
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
-				} 
+				}
 			}
 		});
 		mntmNewMenuItem_1.setMnemonic(KeyEvent.VK_N);
 		mnNewMenu.add(mntmNewMenuItem_1);
-		
+
 		JMenuItem mntmNewMenuItem = new JMenuItem("Delete Download");
 		mnNewMenu.add(mntmNewMenuItem);
-		
+
 		JMenu mnNewMenu_1 = new JMenu("Document");
 		menuBar.add(mnNewMenu_1);
-		
+
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("All");
 		mnNewMenu_1.add(mntmNewMenuItem_2);
-		
+
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Video");
 		mnNewMenu_1.add(mntmNewMenuItem_3);
-		
+
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Music");
 		mnNewMenu_1.add(mntmNewMenuItem_4);
-		
+
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Picture");
 		mnNewMenu_1.add(mntmNewMenuItem_5);
-		
+
 		JMenu mnNewMenu_2 = new JMenu("Download");
 		menuBar.add(mnNewMenu_2);
-		
+
 		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Downloading");
 		mnNewMenu_2.add(mntmNewMenuItem_6);
-		
+
 		JMenuItem mntmNewMenuItem_7 = new JMenuItem("Downloaded");
 		mnNewMenu_2.add(mntmNewMenuItem_7);
-		
+
 		JMenu mnNewMenu_3 = new JMenu("Tools");
 		menuBar.add(mnNewMenu_3);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-		
+
 		JPanel under_panel = new JPanel();
-		
+
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -151,17 +152,18 @@ public class Main_View extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(under_panel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE))
 		);
-	
+
 		scrollPaneListView.setViewportView(listView);
-		
+
 		under_panel.setLayout(null);
-		
+
 		JButton bNewDownload = new JButton("");
 		bNewDownload.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView("");		
-					
+					newDownloadView("");
+
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
 				}
@@ -170,13 +172,14 @@ public class Main_View extends JFrame {
 		bNewDownload.setBounds(0, 0, 62, 65);
 		under_panel.add(bNewDownload);
 		bNewDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/plus.png")));
-		
+
 		JButton bCancelDownload = new JButton("");
 		bCancelDownload.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					DownloadManager.getInstance().cancelTask(Values.Task_ID_COUNTER-1);
-					
+
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -185,15 +188,16 @@ public class Main_View extends JFrame {
 		bCancelDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/x.png")));
 		bCancelDownload.setBounds(72, 0, 62, 65);
 		under_panel.add(bCancelDownload);
-		
+
 		JButton bPauseDownload = new JButton("");
 		bPauseDownload.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
 				if (task.getDownloadStatus() == Values.DOWNLOADING) {
 					try {
 						task.pause();
-						
+
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -203,9 +207,10 @@ public class Main_View extends JFrame {
 		bPauseDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/pause.png")));
 		bPauseDownload.setBounds(144, 0, 62, 65);
 		under_panel.add(bPauseDownload);
-		
+
 		JButton bStartDownload = new JButton("");
 		bStartDownload.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
 				if(task.getDownloadStatus()==Values.FINISHED)
@@ -223,7 +228,7 @@ public class Main_View extends JFrame {
 		bStartDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/play.png")));
 		bStartDownload.setBounds(216, 0, 62, 65);
 		under_panel.add(bStartDownload);
-		
+
 		JButton bSettings = new JButton("");
 		bSettings.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/gear.png")));
 		bSettings.setBounds(288, 0, 62, 65);
@@ -238,7 +243,7 @@ public class Main_View extends JFrame {
 		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
 		{
 			try {
-				DownloadTask task = DownloadManager.getInstance().getTask(i);				
+				DownloadTask task = DownloadManager.getInstance().getTask(i);
 				if (task != null)
 				{
 					int id = task.getTaskID();
@@ -260,7 +265,7 @@ public class Main_View extends JFrame {
 						downloadedSize /= 1024;
 						download++;
 					}
-//				
+//
 //				String donvi = "B";
 //				if (totalSize/1024 > 1)
 //				{
@@ -280,8 +285,8 @@ public class Main_View extends JFrame {
 //					downloadedSize /= 1024;
 //					donvi = "GB";
 //				}
-				
-					
+
+
 				switch (task.getDownloadStatus()) {
 				case Values.READY:
 					str_size = "";
@@ -292,7 +297,7 @@ public class Main_View extends JFrame {
 					str_size = "";
 					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 					break;
-				case Values.PAUSED: 
+				case Values.PAUSED:
 					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 							donvi[total]);
 					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
@@ -381,11 +386,11 @@ public class Main_View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
-				if (task.getDownloadStatus() == Values.DOWNLOADING || 
+				if (task.getDownloadStatus() == Values.DOWNLOADING ||
 					task.getDownloadStatus() == Values.ASSEMBLING) {
 					try {
 						task.pause();
-					} 
+					}
 					catch (IOException e1) { e1.printStackTrace(); }
 				}
 
@@ -415,7 +420,7 @@ public class Main_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					DownloadManager.getInstance().deleteTask(listView.getSelectedValue().getId());
-				} 
+				}
 				catch (IOException e1) { e1.printStackTrace(); }
 				ReloadView();
 			}
@@ -424,13 +429,13 @@ public class Main_View extends JFrame {
 		properties.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
 				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
 				String Message = "File Name : " + task.getSaveName();
 				Message += "\nLocaiton : " + task.getSaveDirectory();
 				Message += "\nSize : "+convert_Size(task);
-				JOptionPane.showMessageDialog(getthis(), Message, "Properties", 
+				JOptionPane.showMessageDialog(getthis(), Message, "Properties",
 												JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
@@ -489,7 +494,7 @@ public class Main_View extends JFrame {
 		File directory = new File(save_Directory);
 		try {
 			Desktop.getDesktop().open(directory);
-		} 
+		}
 		catch (IOException e) { e.printStackTrace(); }
 	}
 	public String convert_Size(DownloadTask task)

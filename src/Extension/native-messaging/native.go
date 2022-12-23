@@ -30,8 +30,8 @@ type VidListItem struct{
 	Info 	string `json:"info"`
 }
 
-//XDMNotification serialized message structure
-type XDMNotification struct{
+//MDMNotification serialized message structure
+type MDMNotification struct{
 	Enabled 		bool			`json:"enabled"`
 	BlockedHosts 	[]string		`json:"blockedHosts"`
 	VideoUrls 		[]string		`json:"videoUrls"`
@@ -133,7 +133,7 @@ func writeNativeMessage(message string) {
 	}
 }
 */
-func createOrOpenXDM(message string){
+func createOrOpenMDM(message string){
 	//log.WriteString("Processing message: "+message+"\n");
 	valid:=false
 	var header string
@@ -192,9 +192,9 @@ func parseVideoList(text string)[]VidListItem{
 	return list
 }
 
-//ParseMessage parse XDM message
-func ParseMessage(bytes []byte)XDMNotification{
-	message:=XDMNotification{}
+//ParseMessage parse MDM message
+func ParseMessage(bytes []byte)MDMNotification{
+	message:=MDMNotification{}
 	text:=string(bytes)
 	for _, str := range strings.Split(text,"\n") {
 		line:=strings.TrimSpace(str)
@@ -268,7 +268,7 @@ func main() {
 	go watchForSettingsChange()
 	for {
 		message := readNativeMessage()
-		createOrOpenXDM(message)
+		createOrOpenMDM(message)
 		//writeNativeMessage(message)
 	}
 }

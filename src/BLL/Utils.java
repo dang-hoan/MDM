@@ -30,12 +30,12 @@ public class Utils {
 		File dir = new File(dirPath);
 		dir.mkdirs();
 		File newFile = new File(dirPath + File.separator + fileName);
-		if (newFile.exists() == false) {
+		if (!newFile.exists()) {
 			newFile.createNewFile();
 		}
 		return newFile;
 	}
-	
+
 	public static long getFileLength(String fileUrl) {
 		try {
 			URI uri = new URI(fileUrl);
@@ -43,12 +43,12 @@ public class Utils {
 			URLConnection connection = url.openConnection();
 			connection.setRequestProperty("Accept-Encoding", "identity");
 			return connection.getContentLengthLong();
-			
+
 		}catch(IOException | URISyntaxException e) {
 			return -1;
 		}
 	}
-	
+
 	public static boolean validateURL(String url) {
 		try {
 			url = url.toLowerCase();
@@ -62,12 +62,10 @@ public class Utils {
 			return false;
 		}
 	}
-	
+
 	public static String getFileName(String uri) {
 		try {
-			if (uri == null)
-				return "FILE";
-			if (uri.equals("/") || uri.length() < 1) {
+			if ((uri == null) || uri.equals("/") || uri.length() < 1) {
 				return "FILE";
 			}
 			int x = uri.lastIndexOf("/");
@@ -114,7 +112,7 @@ public class Utils {
 		}
 		return builder.toString();
 	}
-	
+
 	public static String readLine(InputStream in) throws IOException {
 		String result = "";
 		while (true) {
@@ -128,7 +126,7 @@ public class Utils {
 				result += (char) x;
 		}
 	}
-	
+
 //	public static ParsedHookData parse(byte[] b) throws UnsupportedEncodingException {
 //		ParsedHookData data = new ParsedHookData();
 //		Map<String, String> cookies = new HashMap<>();
@@ -207,7 +205,7 @@ public class Utils {
 //		}
 //		return data;
 //	}
-	
+
 	public static long getContentLength(HeaderCollection headers) {
 		try {
 			String clen = headers.getValue("content-length");
@@ -228,7 +226,7 @@ public class Utils {
 			return -1;
 		}
 	}
-	
+
 	public static String getCleanContentType(String contentType) {
 		if (contentType == null || contentType.length() < 1)
 			return contentType;
@@ -238,7 +236,7 @@ public class Utils {
 		}
 		return contentType;
 	}
-	
+
 	public static String getExtension(String file) {
 		int index = file.lastIndexOf(".");
 		if (index > 0) {
@@ -248,7 +246,7 @@ public class Utils {
 			return null;
 		}
 	}
-	
+
 	public static final int detectOS() {
 		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
 		if (os.contains("mac") || os.contains("darwin")
@@ -262,7 +260,7 @@ public class Utils {
 			return -1;
 		}
 	}
-	
+
 	public static File getJarFile() {
 		try {
 			System.out.println("path jar: " + MDM.class.getProtectionDomain().getCodeSource()
@@ -274,11 +272,11 @@ public class Utils {
 		}
 		return null;
 	}
-	
+
 	public static String getNativePath() {
 		return "src" + File.separator + "Extension" + File.separator + "native-messaging";
 	}
-	
+
 	public static String getFFmpegPath() {
 		return "lib" + File.separator;
 	}

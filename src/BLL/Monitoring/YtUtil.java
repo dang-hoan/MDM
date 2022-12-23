@@ -1,6 +1,7 @@
 package BLL.Monitoring;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class YtUtil {
 	static DASH_INFO lastVid;
@@ -11,7 +12,7 @@ public class YtUtil {
 
 	static Object lockObject = new Object();
 
-	static ArrayList<DASH_INFO> videoQueue = new ArrayList<DASH_INFO>(), audioQueue = new ArrayList<DASH_INFO>();
+	static ArrayList<DASH_INFO> videoQueue = new ArrayList<>(), audioQueue = new ArrayList<>();
 
 	public static boolean addToQueue(DASH_INFO info) {
 		synchronized (lockObject) {
@@ -82,9 +83,9 @@ public class YtUtil {
 	}
 
 	private static HashMap<Integer, String> itags;
-	
+
 	static {
-		itags = new HashMap<Integer, String>();
+		itags = new HashMap<>();
 		itags.put(5, "240p");
 		itags.put(6, "270p");
 		itags.put(13, "Small");
@@ -149,7 +150,7 @@ public class YtUtil {
 	}
 
 	public static String getInfoFromITAG(int itag) {
-		return (String) itags.get(itag);
+		return itags.get(itag);
 	}
 
 }

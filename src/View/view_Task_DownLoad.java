@@ -1,8 +1,23 @@
 package View;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import BLL.Utils;
@@ -11,38 +26,24 @@ import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
 import BLL.DownFile.speed_Download;
 
-import javax.imageio.ImageIO;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.awt.event.ActionEvent;
-import java.awt.Font;
-import java.awt.Color;
-
 public class view_Task_DownLoad extends JFrame {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private DownloadManager downloadManager = DownloadManager.getInstance();
 	private DownloadTask task;
-	
+
 	private speed_Download speed_Download;
 	private JProgressBar[] array_JProgressBar;
-	
+
 	private JLabel labNotice;
-	
+
 	private JPanel contentPane;
 	private JLabel jlb_NameFile;
 	private JLabel jlb_Speed;
-	
+
 	private Main_View _Main_View;
-	
+
 	private JButton btn_Play;
 	private JButton btn_Pause;
 	private JButton btn_Huy;
@@ -57,8 +58,8 @@ public class view_Task_DownLoad extends JFrame {
    /**
      * Create the frame.
      */
-	public view_Task_DownLoad(int TaskID, Main_View _Main_View) 
-	{		
+	public view_Task_DownLoad(int TaskID, Main_View _Main_View)
+	{
 		System.out.println("t id:"+TaskID);
 		this.task = downloadManager.getTask(TaskID);
 		if(task.getFileSize() == -1) {
@@ -67,12 +68,12 @@ public class view_Task_DownLoad extends JFrame {
 		else {
 			this.array_JProgressBar = new JProgressBar[task.getThreadCount()];
 		}
-		
+
 		this.speed_Download = new speed_Download();
 		initComponent();
 
 		task.setSpeed_Download(this.speed_Download);
-		task.setJProgressBar(this.array_JProgressBar);	
+		task.setJProgressBar(this.array_JProgressBar);
 		this._Main_View=_Main_View;
 		this.setVisible(true);
 		start_Download();
@@ -82,28 +83,28 @@ public class view_Task_DownLoad extends JFrame {
 	 * @wbp.parser.constructor
 	 */
 	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread, Main_View _Main_View) {
-		
+
 		this.speed_Download = new speed_Download();
-		
+
 		if(Utils.getFileLength(url) == -1)
 			this.array_JProgressBar = new JProgressBar[1];
 		else
 			this.array_JProgressBar = new JProgressBar[number_Thread];
-		
+
 		this.task = downloadManager.addTask(url, folder, FileName, number_Thread, false, this.array_JProgressBar,this.speed_Download, false);
-		
+
 		this._Main_View = _Main_View;
-		
-		initComponent();		
+
+		initComponent();
 		this.setVisible(true);
-		start_Download();	
+		start_Download();
 	}
 
 	public void start_Download() {
 		try {
 			downloadManager.startTask(task.getTaskID());
 			get_Speed();
-			
+
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, e.getStackTrace(), "Thông báo lỗi", JOptionPane.ERROR_MESSAGE);
 		}
@@ -111,24 +112,24 @@ public class view_Task_DownLoad extends JFrame {
 	public void add_array_JProgressBar(int ThreadCount)
 	{
 		int tmp = (this.getWidth()-25)/ThreadCount;
-		if(array_JProgressBar.length==1)
+		if(task.getFileSize() == -1)
 		{
 			array_JProgressBar[0] = new JProgressBar();
 			array_JProgressBar[0].setBounds(5, 100, tmp, 20);
 			array_JProgressBar[0].setIndeterminate(true);
 			array_JProgressBar[0].setStringPainted(true);
 			array_JProgressBar[0].setString("DOWNLOADING...");
-			getContentPane().add(this.array_JProgressBar[0]);	
+			getContentPane().add(this.array_JProgressBar[0]);
 		}
 		else
 		{
 			for(int i= 0;i<array_JProgressBar.length;i++)
 			{
-			
+
 				array_JProgressBar[i] = new JProgressBar();
 				array_JProgressBar[i].setBounds(tmp*i+5, 100, tmp, 20);
 				array_JProgressBar[i].setStringPainted(true);
-				getContentPane().add(this.array_JProgressBar[i]);	
+				getContentPane().add(this.array_JProgressBar[i]);
 			}
 		}
 
@@ -145,7 +146,7 @@ public class view_Task_DownLoad extends JFrame {
 					if(speed_Download.get_Check()==Values.DOWNLOADING)
 					{
 						long tmp = speed_Download.Get_Seze_1s();
-						
+
 						String s = ""; int MB = 1024*1024, KB = 1024;
 						if (tmp < 0)
 							s = "---";
@@ -156,16 +157,16 @@ public class view_Task_DownLoad extends JFrame {
 						} else {
 							s = String.format("%d B", (int) tmp);
 						}
-						
+
 						String remainTime = "";
 						if(task.getFileSize() > 0) {
 							long second = (tmp != 0)? (task.getFileSize()-task.getDownloadedSize())/tmp : 0;
 							remainTime = calculateTime(second);
 							if(remainTime != "") remainTime = " còn " + remainTime;
 						}
-						
+
 						jlb_Speed.setText(s+"/s" + remainTime);
-						
+
 						speed_Download.set_Size_Download();
 						Thread.sleep(1000);
 					}
@@ -196,12 +197,12 @@ public class view_Task_DownLoad extends JFrame {
 		};
 		thread.start();
 	}
-	
+
 	public String calculateTime(long second) {
 		String remainTime = "";
 		long hour = 0, minute = 0;
 		if(second > 3600) {		// > 1 giờ
-			hour = second/3600; 
+			hour = second/3600;
 			minute = (second%3600)/60;
 		} else if(second > 60) {// > 1 phút
 			minute = second/60;
@@ -212,15 +213,15 @@ public class view_Task_DownLoad extends JFrame {
 		if(second > 0) remainTime += second + " giây";
 		return remainTime;
 	}
-	
+
 	public void close_Frame()
 	{
 		this.dispose();
 	}
-	
+
 	public void initComponent() {
 		setTitle("Task Download");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 600, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -280,6 +281,7 @@ public class view_Task_DownLoad extends JFrame {
 
 		btn_Play = new JButton("");
 		btn_Play.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				downloadManager.startTask(task.getTaskID());
 			}
@@ -288,6 +290,7 @@ public class view_Task_DownLoad extends JFrame {
 
 		btn_Pause = new JButton("");
 		btn_Pause.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.pauseTask(task.getTaskID());
@@ -301,21 +304,23 @@ public class view_Task_DownLoad extends JFrame {
 
 		btn_Huy = new JButton("");
 		btn_Huy.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.cancelTask(task.getTaskID());
 					_Main_View.ReloadView();
 					close_Frame();
-					
+
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
 		btn_Huy.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/x.png")));
-		
+
 		btn_Verify = new JButton("Verify File");
 		btn_Verify.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(task.getDownloadStatus() != Values.FINISHED) {
 					labNotice.setText("The file hasn't been downloaded yet!");
@@ -328,7 +333,7 @@ public class view_Task_DownLoad extends JFrame {
 			}
 		});
 		btn_Verify.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		
+
 		btn_OK = new JButton("OK");
 		btn_OK.addActionListener(new ActionListener() {
 			@Override
@@ -368,7 +373,7 @@ public class view_Task_DownLoad extends JFrame {
 					.addContainerGap())
 		);
 		panel_2_1.setLayout(gl_panel_2_1);
-		
+
 		labNotice = new JLabel("");
 		labNotice.setForeground(Color.RED);
 		labNotice.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -421,15 +426,15 @@ public class view_Task_DownLoad extends JFrame {
 						.addContainerGap()));
 		panel.setLayout(gl_panel);
 		contentPane.setLayout(gl_contentPane);
-		
+
 		try {
 			this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/View/icon/app.png")));
-			
+
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
 		btn_OK.setEnabled(false);
-		
+
 		add_array_JProgressBar(task.getThreadCount());
 	}
 	public void disable_Button() {

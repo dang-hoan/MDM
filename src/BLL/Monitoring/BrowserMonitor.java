@@ -7,14 +7,14 @@ import java.net.Socket;
 
 public class BrowserMonitor implements Runnable{
 	private static BrowserMonitor _this;
-	
+
 	public static BrowserMonitor getInstance() {
 		if (_this == null) {
 			_this = new BrowserMonitor();
 		}
 		return _this;
 	}
-	
+
 	public void start() {
 		Thread t = new Thread(this);
 		t.start();
@@ -42,7 +42,7 @@ public class BrowserMonitor implements Runnable{
 		try {
 			serverSock.close();
 		} catch (Exception e) {
-			
+
 		}
 	}
 }

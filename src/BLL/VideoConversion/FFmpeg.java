@@ -28,28 +28,28 @@ public class FFmpeg {
 				if (!ffFile.exists()) {
 					return FF_NOT_FOUND;
 				}
-			}	
+			}
 //			ffmpeg -i videoFile.mp4 -i audioFile.au -acodec copy -vcodec copy mergedFile.mp4 -y
 			Process proc = Runtime.getRuntime().exec(new String[] {"\"" + ffFile.getAbsolutePath() + "\"", "-i", "\"" + inputFiles.get(0) + "\"", "-i", "\"" + inputFiles.get(1) + "\"", "-acodec", "copy", "-vcodec", "copy", "\"" + outputFile + "\"", "-y"});
 			ffExitCode = proc.waitFor();
-			
+
 			if(ffExitCode == 0) {
 				System.out.println("merge audio and video success");
 				new File(inputFiles.get(0)).delete();
-				new File(inputFiles.get(1)).delete();	
+				new File(inputFiles.get(1)).delete();
 				new File(inputFiles.get(0)).getParentFile().delete();
 				new File(inputFiles.get(1)).getParentFile().delete();
 			}
 			else
 				System.out.println("merge audio and video fail");
-			
+
 			return ffExitCode == 0 ? FF_SUCCESS : FF_CONVERSION_FAILED;
 		} catch (RuntimeException | InterruptedException | IOException e) {
 			return FF_LAUNCH_ERROR;
 		}
 	}
-	
+
 	//còn vài phần phục vụ cho việc lấy tiến trình ghép file, có thể thêm vào sau...
 
-	
+
 }

@@ -15,6 +15,8 @@
     var lastPopup;
     var videoList = [];
     var mimeList = [];
+    var hasNativeMessagingHost = false;
+    var port = undefined;
 
     var log = function (msg) {
         if (debug) {
@@ -22,6 +24,19 @@
                 log(msg);
             } catch (e) {
                 log(e + "");
+            }
+        }
+    }
+
+    function postNativeMessage(message) {
+        if (hasNativeMessagingHost && port) {
+            log(JSON.stringify(message));
+            try {
+                port.postMessage(message);
+            } catch (err) {
+                log(err);
+                hasNativeMessagingHost = false;
+                port = undefined;
             }
         }
     }
@@ -92,7 +107,9 @@
     };
 
     var sendUrlsToMDM = function (urls) {
-        sendRecUrl(urls, 0, "");
+        if (urls && urls.length > 0) {
+                sendRecUrl(urls, 0, "");
+        }
     };
 
     var sendUrlToMDM = function (url) {
@@ -308,35 +325,35 @@
         return false;
     };
 
-    // var syncMDM = function () {
-    //     var xhr = new XMLHttpRequest();
-    //     xhr.onreadystatechange = function () {
-    //         if (xhr.readyState == XMLHttpRequest.DONE) {
-    //             if (xhr.status == 200) {
-    //                 var data = JSON.parse(xhr.responseText);
-    //                 monitoring = data.enabled;
-    //                 blockedHosts = data.blockedHosts;
-    //                 videoUrls = data.videoUrls;
-    //                 fileExts = data.fileExts;
-    //                 vidExts = data.vidExts;
-    //                 isMDMUp = true;
-    //                 videoList = data.vidList;
-    //                 if (data.mimeList) {
-    //                     mimeList = data.mimeList;
-    //                 }
-    //                 updateBrowserAction();
-    //             }
-    //             else {
-    //                 isMDMUp = false;
-    //                 monitoring = false;
-    //                 updateBrowserAction();
-    //             }
-    //         }
-    //     };
+    var syncMDM = function () {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                if (xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    monitoring = data.enabled;
+                    blockedHosts = data.blockedHosts;
+                    videoUrls = data.videoUrls;
+                    fileExts = data.fileExts;
+                    vidExts = data.vidExts;
+                    isMDMUp = true;
+                    videoList = data.vidList;
+                    if (data.mimeList) {
+                        mimeList = data.mimeList;
+                    }
+                    updateBrowserAction();
+                }
+                else {
+                    isMDMUp = false;
+                    monitoring = false;
+                    updateBrowserAction();
+                }
+            }
+        };
 
-    //     xhr.open('GET', MDMHost + "/sync", true);
-    //     xhr.send(null);
-    // };
+        xhr.open('GET', MDMHost + "/sync", true);
+        xhr.send(null);
+    };
 
     var getFileFromUrl = function (str) {
         return ustr = parseUrl(str).pathname;
@@ -390,17 +407,8 @@
             setBrowserActionIcon("app-blocked.png");
             return;
         }
-        if (monitoring) {
-            if (disabled) {
-                setBrowserActionIcon("app-disabled.png");
-            } else {
-                setBrowserActionIcon("app.png");
-            }
-            setBrowserActionPopUp("status.html");
-        } else {
-            setBrowserActionIcon("app-disabled.png");
-            setBrowserActionPopUp("disabled.html");
-        }
+        setBrowserActionPopUp(monitoring ? "status.html" : "disabled.html");
+        setBrowserActionIcon(monitoring && !disabled ? "app.png" : "app-disabled.png");
 
         if (videoList && videoList.length > 0) {
             chrome.browserAction.setBadgeText({ text: videoList.length + "" });
@@ -558,26 +566,75 @@
         /*
         On startup, connect to the "native" app.
         */
-       port = chrome.runtime.connectNative("com.mdm");
-
+    //    port = chrome.runtime.connectNative("com.mdm");
+    connectToNativeMessagingHost().catch(err => {
+        //play nice with older MDM versions
+        setInterval(function () { syncMDM(); }, 5000);
+    });
+    function connectToNativeMessagingHost() {
+        return new Promise((resolve, reject) => {
+            try {
+                log("Connecting to native messaging host: com.mdm");
+                port = chrome.runtime.connectNative("com.mdm");
+                log("Connected to native messaging host");
+                port.onDisconnect.addListener(function () {
+                    log("Disconnected from native messaging host!");
+                    hasNativeMessagingHost = false;
+                    isMDMUp = false;
+                    updateBrowserAction();
+                    port = undefined;
+                    reject("disconnected from native host");
+                });
+                port.onMessage.addListener((data) => {
+                    log(JSON.stringify(data));
+                    if (data.appExited) {
+                        postNativeMessage({});
+                        isMDMUp = false;
+                        hasNativeMessagingHost = false;
+                    } else {
+                        monitoring = data.enabled;
+                        blockedHosts = data.blockedHosts;
+                        videoUrls = data.videoUrls;
+                        fileExts = data.fileExts;
+                        vidExts = data.vidExts;
+                        isMDMUp = true;
+                        hasNativeMessagingHost = true;
+                        videoList = data.vidList;
+                        if (data.mimeList) {
+                            mimeList = data.mimeList;
+                        }
+                        if (data.videoUrlsWithPostReq) {
+                            videoUrlsWithPostReq = data.videoUrlsWithPostReq;
+                        }
+                    }
+                    updateBrowserAction();
+                    resolve(true);
+                });
+            } catch (err) {
+                log("Error while creating native messaging host");
+                log(err);
+                reject("unable to connect to native host");
+            }
+        });
+    }
        /*
        Listen for messages from the app.
        */
-       port.onMessage.addListener((data) => {
-                   monitoring = data.enabled;
-                   blockedHosts = data.blockedHosts;
-                   videoUrls = data.videoUrls;
-                   fileExts = data.fileExts;
-                   vidExts = data.vidExts;
-                   isMDMUp = true;
-                   videoList = data.vidList;
-                   if (data.mimeList) {
-                       mimeList = data.mimeList;
-                   }
-                   updateBrowserAction();
+    //    port.onMessage.addListener((data) => {
+    //                monitoring = data.enabled;
+    //                blockedHosts = data.blockedHosts;
+    //                videoUrls = data.videoUrls;
+    //                fileExts = data.fileExts;
+    //                vidExts = data.vidExts;
+    //                isMDMUp = true;
+    //                videoList = data.vidList;
+    //                if (data.mimeList) {
+    //                    mimeList = data.mimeList;
+    //                }
+    //                updateBrowserAction();
 
-           log("Received: " + data);
-       });
+    //        log("Received: " + data);
+    //    });
 
        /*
        On start up send the app a message.

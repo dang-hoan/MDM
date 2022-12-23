@@ -1,10 +1,7 @@
 {
   "name": "com.mdm",
-  "description": "Native messaging host for Max download manager",
-  "path": "native.exe",
+  "description": "Native messaging host for Xtreme Download Manager",
+  "path": "native_host.exe",
   "type": "stdio",
-  "allowed_extensions": [ "browser-mon@xdman.sourceforge.net" ],
-  "allowed_origins":[
-    "chrome-extension://dholefpnmilogpgldenhknjhhbdgfcap/"
-  ]
+  "allowed_origins": [ "chrome-extension://ogcijeogilmnohjiomiiclbfblcifkim/","chrome-extension://dkckaoghoiffdbomfbbodbbgmhjblecj/" ]
 }

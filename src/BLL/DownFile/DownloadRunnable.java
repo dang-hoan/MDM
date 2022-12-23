@@ -19,14 +19,14 @@ public class DownloadRunnable implements Runnable {
 	private String FileUrl;
 	private String SaveDirectory;
 	private String SaveFileName;
-	
+
 	private long StartPosition;
 	private long CurrentPosition;
 	private long EndPosition;
-	
+
 	public final int TaskID;
 	public final int ThreadID;
-	
+
 	private JProgressBar jProgressBar;
 	private speed_Download speed_Download;
 
@@ -35,7 +35,7 @@ public class DownloadRunnable implements Runnable {
 //		// -1 is meanningless
 //		Task_ID = -1;
 //	}
-	
+
 	public DownloadRunnable(String FileUrl,
 			String SaveDirectory, String SaveFileName, long StartPosition,
 			long EndPosition, int TaskID, int ThreadID, JProgressBar jProgressBar,speed_Download speed_Download) {
@@ -43,44 +43,44 @@ public class DownloadRunnable implements Runnable {
 		this.FileUrl = FileUrl;
 		this.SaveDirectory = SaveDirectory;
 		this.SaveFileName = SaveFileName;
-		
+
 		this.StartPosition = StartPosition;
 		this.EndPosition = EndPosition;
 		this.CurrentPosition = this.StartPosition;
-		
+
 		this.TaskID = TaskID;
 		this.ThreadID = ThreadID;
-		
+
 		this.speed_Download=speed_Download;
 		this.jProgressBar=jProgressBar;
 		this.jProgressBar.setMinimum((int)(100*this.StartPosition/this.EndPosition));
-		
+
 		this.jProgressBar.setMaximum(100);
-		
+
 		this.jProgressBar.setValue((int) (100*CurrentPosition/EndPosition));
 
 	}
 
 	public DownloadRunnable(
-			String FileUrl, String SaveDirectory, String SaveFileName, 
+			String FileUrl, String SaveDirectory, String SaveFileName,
 			long StartPosition,	long CurrentPosition, long EndPosition,
 			int TaskID, int ThreadID,JProgressBar jProgressBar,speed_Download speed_Download) {
-		
+
 		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID,jProgressBar,speed_Download);
 		this.CurrentPosition = CurrentPosition;
-		
+
 //		this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
 	}
-	
+
 	public void start() {
 		t = new Thread(this);
 		t.start();
 	}
-	
+
 	public void pause() {
 		if(t != null) t.interrupt();
 	}
-	
+
 	public void join() throws InterruptedException {
 		if(t != null) t.join();
 	}
@@ -90,12 +90,12 @@ public class DownloadRunnable implements Runnable {
 		File targetFile;
 		synchronized (this) {//LA
 			File dir = new File(SaveDirectory);
-			if (dir.exists() == false) {
+			if (!dir.exists()) {
 				dir.mkdirs();
 			}
-			
+
 			targetFile = new File(SaveDirectory, SaveFileName);
-			if (targetFile.exists() == false) {
+			if (!targetFile.exists()) {
 				try {
 					targetFile.createNewFile();
 				} catch (IOException e) {
@@ -109,13 +109,13 @@ public class DownloadRunnable implements Runnable {
 				+ EndPosition);
 
 		byte[] buf = new byte[BUFFER_SIZE];
-		try {			
+		try {
 			URI uri = new URI(FileUrl);
 //			String userInfo = uri.getRawUserInfo();
 //			if(userInfo != null && userInfo.length() > 0)
 //			    userInfo = Base64.getEncoder().encodeToString(userInfo.getBytes());
-			
-			URL url = uri.toURL();		
+
+			URL url = uri.toURL();
 			URLConnection urlConnection = url.openConnection();
 
 			if(EndPosition != -1) urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
@@ -124,7 +124,7 @@ public class DownloadRunnable implements Runnable {
 
 			BufferedInputStream is = new BufferedInputStream(urlConnection.getInputStream());
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile, true));
-			
+
 			if(EndPosition == -1 && CurrentPosition > 0) is.skip(CurrentPosition);
 
 			while (CurrentPosition <= EndPosition || EndPosition == -1) {
@@ -145,7 +145,7 @@ public class DownloadRunnable implements Runnable {
 				else {
 					os.write(buf, 0, len);
 					CurrentPosition += len;
-					
+
 					this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
 					this.speed_Download.plus_Size_DownLoad_1s(len);
 				}
@@ -160,7 +160,7 @@ public class DownloadRunnable implements Runnable {
 			e.printStackTrace();
 		}
 		this.jProgressBar.setValue(jProgressBar.getMaximum());
-		
+
 		//System.out.println("Cur "+ this.CurrentPosition + " End :" + this.EndPosition+ " Star :" + this.StartPosition +"Thread"+ this.t);
 	}
 
@@ -194,7 +194,7 @@ public class DownloadRunnable implements Runnable {
 	public int getThreadID() {
 		return ThreadID;
 	}
-	
+
 	public long getStartPosition() {
 		return StartPosition;
 	}
@@ -206,11 +206,11 @@ public class DownloadRunnable implements Runnable {
 	public long getEndPosition() {
 		return EndPosition;
 	}
-	
+
 	public String getSaveDir() {
 		return SaveDirectory;
 	}
-	
+
 	public String getSaveFile() {
 		return SaveFileName;
 	}

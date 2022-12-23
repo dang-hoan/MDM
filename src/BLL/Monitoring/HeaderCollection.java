@@ -1,21 +1,22 @@
 package BLL.Monitoring;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import BLL.Utils;
-
-import java.io.*;
 
 public class HeaderCollection {
 	private List<HttpHeader> headers;
 
 	public HeaderCollection() {
-		headers = new ArrayList<HttpHeader>();
+		headers = new ArrayList<>();
 	}
 
 	public String getValue(String name) {
-		for (int i = 0; i < headers.size(); i++) {
-			HttpHeader header = headers.get(i);
+		for (HttpHeader header : headers) {
 			if (header.getName().equalsIgnoreCase(name)) {
 				return header.getValue();
 			}
@@ -24,8 +25,7 @@ public class HeaderCollection {
 	}
 
 	public boolean containsHeader(String name) {
-		for (int i = 0; i < headers.size(); i++) {
-			HttpHeader header = headers.get(i);
+		for (HttpHeader header : headers) {
 			if (header.getName().equalsIgnoreCase(name)) {
 				return true;
 			}
@@ -34,7 +34,7 @@ public class HeaderCollection {
 	}
 
 	public Iterator<HttpHeader> getHeaders(String name) {
-		List<HttpHeader> list = new ArrayList<HttpHeader>();
+		List<HttpHeader> list = new ArrayList<>();
 		for (int i = 0; i < headers.size(); i++) {
 			HttpHeader header = headers.get(i);
 			if (header.getName().equalsIgnoreCase(name)) {
@@ -60,8 +60,7 @@ public class HeaderCollection {
 
 	public void setValue(String name, String value) {
 		boolean found = false;
-		for (int i = 0; i < headers.size(); i++) {
-			HttpHeader header = headers.get(i);
+		for (HttpHeader header : headers) {
 			if (header.getName().equalsIgnoreCase(name)) {
 				header.setValue(value);
 				found = true;
@@ -81,8 +80,7 @@ public class HeaderCollection {
 	}
 
 	public void appendToBuffer(StringBuffer buf) {
-		for (int i = 0; i < headers.size(); i++) {
-			HttpHeader header = headers.get(i);
+		for (HttpHeader header : headers) {
 			buf.append(header.getName() + ": " + header.getValue() + "\r\n");
 		}
 	}

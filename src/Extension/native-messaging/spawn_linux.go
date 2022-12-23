@@ -17,5 +17,5 @@ func SpawnProcess() {
 
 	path=filepath.Dir(path)
 
-	exec.Command(path+"/jre/bin/java","-jar",path+"/xdman.jar").Start()
+	exec.Command(path+"/jre/bin/java","-jar",path+"/mdm.jar").Start()
 }

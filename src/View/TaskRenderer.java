@@ -1,11 +1,20 @@
 package View;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
 public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask>
@@ -17,10 +26,10 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 	JLabel lbsize;
 	JLabel lbdate;
 	JPanel pnicon, pnText, pnInfor;
-	
-	public TaskRenderer() 
+
+	public TaskRenderer()
 	{
-		setLayout(new BorderLayout(5,5));	
+		setLayout(new BorderLayout(5,5));
 		lbname = new JLabel();
 		lbstate = new JLabel();
 		lbsize = new JLabel();
@@ -38,7 +47,7 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 	}
 	@Override
 	public Component getListCellRendererComponent(JList<? extends CompactTask> list,
-			CompactTask value, int index, boolean isSelected, boolean cellHasFocus) 
+			CompactTask value, int index, boolean isSelected, boolean cellHasFocus)
 	{
 		Icon img = load(value.getIcon(), 40, 40);
 		lbicon.setIcon(img);
@@ -46,14 +55,14 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 		lbstate.setText(value.getStatus());
 		lbsize.setText(value.getSize());
 		lbdate.setText(value.getDatetime());
-		
+
 		lbicon.setOpaque(true);
 		pnicon.setOpaque(true);
 		lbname.setOpaque(true);
 		lbstate.setOpaque(true);
 		lbsize.setOpaque(true);
 		lbdate.setOpaque(true);
-		
+
 		if (isSelected)
 		{
 			lbicon.setBackground(list.getSelectionBackground());
@@ -74,23 +83,23 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 			lbdate.setBackground(list.getBackground());
 				   setBackground(list.getBackground());
 		}
-		
+
 		return this;
 	}
 	// can chinh image
 	public Icon load(URL linkImage, int k, int m)/*linkImage là tên icon, k kích thước chiều rộng mình muốn,
 													m chiều dài và hàm này trả về giá trị là 1 icon.*/
-	{  
-		try 
+	{
+		try
 		{
 	        BufferedImage image = ImageIO.read(linkImage);//đọc ảnh dùng BufferedImage
-	        
+
 	        int x = k;
 	        int y = m;
 	        int ix = image.getWidth();
 	        int iy = image.getHeight();
 	        int dx = 0, dy = 0;
-	 
+
 	        if (x / y > ix / iy) {
 	            dy = y;
 	            dx = dy * ix / iy;
@@ -98,7 +107,7 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 	            dx = x;
 	            dy = dx * iy / ix;
 	        }
-	        return new ImageIcon(image.getScaledInstance(dx, dy, BufferedImage.SCALE_SMOOTH));
+	        return new ImageIcon(image.getScaledInstance(dx, dy, Image.SCALE_SMOOTH));
 	    } catch (IOException e) { e.printStackTrace(); }
 	    return null;
 	}
