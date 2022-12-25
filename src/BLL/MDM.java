@@ -20,8 +20,8 @@ public class MDM {
 
 		System.setProperty("sun.java2d.uiScale.enabled", "true");
 		System.setProperty("sun.java2d.uiScale", String.format("%.2f", Values.ZOOM_LEVEL_VALUES[5]));
-		mv = new Main_View();
-		mv.setVisible(true);
+		mv = Main_View.getInstance();
+		mv.setVisible(true);	
 		BrowserMonitor.getInstance().start();
 	}
 

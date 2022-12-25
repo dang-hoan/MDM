@@ -45,8 +45,16 @@ public class Main_View extends JFrame {
 	JScrollPane scrollPaneListView = new JScrollPane();
 	JList<CompactTask> listView = new JList<>();
 	JPopupMenu jPopupMenu;
+	private static Main_View _Main_View;
 
-	public Main_View() {
+	public static Main_View getInstance() {
+		if (_Main_View == null) {
+			_Main_View = new Main_View();
+		}
+		return _Main_View;
+	}
+
+	private Main_View() {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {

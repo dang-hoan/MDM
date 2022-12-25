@@ -118,7 +118,7 @@ public class view_Task_DownLoad extends JFrame {
 			array_JProgressBar[0].setBounds(5, 100, tmp, 20);
 			array_JProgressBar[0].setIndeterminate(true);
 			array_JProgressBar[0].setStringPainted(true);
-			array_JProgressBar[0].setString("DOWNLOADING...");
+			array_JProgressBar[0].setString("Đang tải xuống...");
 			getContentPane().add(this.array_JProgressBar[0]);
 		}
 		else
@@ -180,6 +180,11 @@ public class view_Task_DownLoad extends JFrame {
 						jlb_NameFile.setText(task.getSaveName());
 						labNotice.setText("");
 						disable_Button();
+						if(array_JProgressBar.length==1)
+						{
+							array_JProgressBar[0].setIndeterminate(false);
+							array_JProgressBar[0].setString("Hoàn Thành");
+							}
 						_Main_View.ReloadView();
 						break;
 					}
@@ -284,6 +289,11 @@ public class view_Task_DownLoad extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				downloadManager.startTask(task.getTaskID());
+				if(array_JProgressBar.length==1)
+				{
+					array_JProgressBar[0].setIndeterminate(true);
+					array_JProgressBar[0].setString("Đang tải xuống");
+				}
 			}
 		});
 		btn_Play.setIcon(new ImageIcon(view_Task_DownLoad.class.getResource("/View/icon/play.png")));
@@ -294,6 +304,11 @@ public class view_Task_DownLoad extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.pauseTask(task.getTaskID());
+					if(array_JProgressBar.length==1)
+					{
+						array_JProgressBar[0].setIndeterminate(false);
+						array_JProgressBar[0].setString("Tạm dừng");
+					}
 					_Main_View.ReloadView();
 				} catch (IOException e1) {
 					e1.printStackTrace();

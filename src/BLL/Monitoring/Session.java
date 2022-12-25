@@ -18,6 +18,8 @@ import javax.swing.SwingUtilities;
 import BLL.MDM;
 import BLL.Utils;
 import View.NewDownload_View_Video;
+import View.VideoPopupitem;
+import View.Video_Popup;
 
 public class Session implements Runnable {
 	private Socket sock;
@@ -296,9 +298,14 @@ public class Session implements Runnable {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								NewDownload_View_Video window = new NewDownload_View_Video(MDM.mv, videoURL, audioURL, fileName);
-								window.setAlwaysOnTop(true);
-								window.setVisible(true);
+								Video_Popup popup = Video_Popup.getInstance();
+								popup.add_model(new VideoPopupitem(videoURL, audioURL, fileName));
+								if(!popup.isVisible())
+								{
+									popup.setAlwaysOnTop(true);
+									popup.setVisible(true);
+								}
+								System.out.println("a1b1c1");
 							}
 						});
 //						XDMApp.getInstance().addMedia(dm, file, YtUtil.getInfoFromITAG(info.video ? info.itag : di.itag)
