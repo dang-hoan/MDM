@@ -85,7 +85,7 @@ public class view_Task_DownLoad extends JFrame {
 
 		this.speed_Download = new speed_Download();
 
-		if( size == -1)
+		if(size == -1)
 			this.array_JProgressBar = new JProgressBar[1];
 		else
 			this.array_JProgressBar = new JProgressBar[number_Thread];
@@ -180,11 +180,11 @@ public class view_Task_DownLoad extends JFrame {
 						jlb_NameFile.setText(task.getSaveName());
 						labNotice.setText("");
 						disable_Button();
-						if(array_JProgressBar.length==1)
+						if(task.getFileSize()==-1)
 						{
 							array_JProgressBar[0].setIndeterminate(false);
 							array_JProgressBar[0].setString("Hoàn Thành");
-							}
+						}
 						_Main_View.ReloadView();
 						break;
 					}
@@ -289,7 +289,7 @@ public class view_Task_DownLoad extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				downloadManager.startTask(task.getTaskID());
-				if(array_JProgressBar.length==1)
+				if(task.getFileSize() == -1)
 				{
 					array_JProgressBar[0].setIndeterminate(true);
 					array_JProgressBar[0].setString("Đang tải xuống");
@@ -304,7 +304,7 @@ public class view_Task_DownLoad extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.pauseTask(task.getTaskID());
-					if(array_JProgressBar.length==1)
+					if(task.getFileSize() == -1)
 					{
 						array_JProgressBar[0].setIndeterminate(false);
 						array_JProgressBar[0].setString("Tạm dừng");

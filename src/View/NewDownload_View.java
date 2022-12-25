@@ -26,7 +26,6 @@ import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import BLL.MDM;
 import BLL.Utils;
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
