@@ -37,7 +37,7 @@ public class NewDownload_View_Video extends JFrame {
 	private String folder = new File(System.getProperty("user.home"), "Downloads").getAbsolutePath();
 	DownloadManager downloadManager = DownloadManager.getInstance();
 
-	public NewDownload_View_Video(Main_View _Main_View, String urlVideo, String urlAudio, String FileName) {
+	public NewDownload_View_Video(Main_View _Main_View, VideoPopupitem videoItem) {
 		setTitle("NEW_DOWNLOAD");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setSize(485, 224);
@@ -75,7 +75,7 @@ public class NewDownload_View_Video extends JFrame {
 
 		txtFileName = new JTextArea();
 		txtFileName.setBounds(128, 37, 255, 22);
-		txtFileName.setText(FileName.equals("")?Utils.getFileName(urlVideo):FileName);
+		txtFileName.setText(videoItem.getFile_Name().equals("")?Utils.getFileName(videoItem.getUrl_Video()):videoItem.getFile_Name());
 		getContentPane().add(txtFileName);
 
 		labFileName = new JLabel("File name:");
@@ -92,7 +92,7 @@ public class NewDownload_View_Video extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						new view_Task_DownLoad_Video(new String[] {urlVideo, urlAudio}, folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
+						new view_Task_DownLoad_Video(videoItem, folder, Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
 						NewDownload_View_Video.this.dispose();
 						_Main_View.ReloadView();
 

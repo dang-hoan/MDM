@@ -21,10 +21,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import BLL.MDM;
 import BLL.Utils;
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
@@ -43,10 +45,10 @@ public class NewDownload_View extends JFrame {
 	private JLabel labNumber;
 	private JComboBox<?> cbNumber;
 	private String folder = new File(System.getProperty("user.home"), "Downloads").getAbsolutePath();
-	private long lenght_Size_File;
+	private long size;
 	DownloadManager downloadManager = DownloadManager.getInstance();
 
-	public NewDownload_View(Main_View _Main_View, String url) throws HeadlessException, UnsupportedFlavorException, IOException {
+	public NewDownload_View(Main_View _Main_View, String url, long length) throws HeadlessException, UnsupportedFlavorException, IOException {
 		setTitle("NEW_DOWNLOAD");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setSize(485, 267);
@@ -104,10 +106,19 @@ public class NewDownload_View extends JFrame {
 				updateFieldState();
 			}
             protected void updateFieldState() {
-            	String txt = txtURL.getText();
-			    txtFileName.setText(Utils.getFileName(txt));
-            	if(!txt.equals("") && !txtFileName.getText().equals("")) labNotice.setText("");
-            	lenght_Size_File=Utils.getFileLength(txt);
+            	SwingUtilities.invokeLater(new Runnable() {
+        			@Override
+        			public void run() {
+                    	String txt = txtURL.getText();
+        			    txtFileName.setText(Utils.getFileName(txt));
+        			    
+                    	if(check()) {
+        	            	if(!txt.equals("") && !txtFileName.getText().equals("")) labNotice.setText("");
+        	            	if(length == -2) size=Utils.getFileLength(txt); //chưa kết nối tới server lần nào
+        	            	size = length;
+                    	}
+        			}
+        		});
             }
 		};
 		txtURL.getDocument().addDocumentListener(dl);
@@ -141,7 +152,7 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View,lenght_Size_File);
+						new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View,size);
 						NewDownload_View.this.dispose();
 						_Main_View.ReloadView();
 

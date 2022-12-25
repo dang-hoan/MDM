@@ -69,7 +69,7 @@ public class DownloadRunnable implements Runnable {
 		this(FileUrl, SaveDirectory, SaveFileName, StartPosition, EndPosition, TaskID, ThreadID,jProgressBar,speed_Download);
 		this.CurrentPosition = CurrentPosition;
 
-//		this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
+		this.jProgressBar.setValue((int)(100*CurrentPosition/EndPosition));
 	}
 
 	public void start() {
@@ -89,7 +89,7 @@ public class DownloadRunnable implements Runnable {
 	@Override
 	public void run() {
 		File targetFile;
-		synchronized (this) {//LA
+		synchronized (this) {
 			File dir = new File(SaveDirectory);
 			if (!dir.exists()) {
 				dir.mkdirs();
@@ -154,15 +154,13 @@ public class DownloadRunnable implements Runnable {
 
 			is.close();
 			os.close();
-//			System.out.println("Cur "+ this.CurrentPosition + " End :" + this.EndPosition+ " Star :" + this.StartPosition +"Thread"+ this.t);
+			this.jProgressBar.setValue(jProgressBar.getMaximum());
 			DownloadManager.getInstance().getTask(TaskID, speed_Download).notify(ThreadID);
 		}
 		catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
-		this.jProgressBar.setValue(jProgressBar.getMaximum());
 
-		//System.out.println("Cur "+ this.CurrentPosition + " End :" + this.EndPosition+ " Star :" + this.StartPosition +"Thread"+ this.t);
 	}
 
 //	public DownloadRunnable split() {

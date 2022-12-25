@@ -52,14 +52,15 @@ public class DownloadTask {
 	private long previousTimeLine;
 	private long downloadTime = 0;
 
-	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, JProgressBar[] jProgressBars,speed_Download speed_Download, boolean fileNeedMerge) {
+	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName, int ThreadCount, long size, JProgressBar[] jProgressBars,speed_Download speed_Download, boolean fileNeedMerge) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		setTargetFile(saveDirectory, saveName);
 		System.out.println("TaskID: " + TaskID);
 		this.jProgressBars = jProgressBars;
 		this.speed_Download = speed_Download;
-		this.FileSize = getFileLength(url);
+		if(size == -2) this.FileSize = getFileLength(url);	
+		else this.FileSize = size;
 		if(FileSize == -1) this.ThreadCount = 1;
 		else this.ThreadCount = ThreadCount;
 		this.fileNeedMerge = fileNeedMerge;
@@ -288,7 +289,6 @@ public class DownloadTask {
 						}
 					else jProgressBars[runnable.getThreadID()-1].setValue(100);
 				}
-//			SpeedTimer.scheduleAtFixedRate(SpeedMonitor, 0, 1000);
 
 		}
 		catch(IOException e) {
@@ -564,12 +564,12 @@ public class DownloadTask {
 			TaskStatus = Values.PAUSED;
 			Thread current = Thread.currentThread();
 			current.interrupt(); 				// Khi đang ghép file
-			try {
-				current.join();					// Đợi cho các luồng thực hiện xong
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				current.join();					// Đợi cho các luồng thực hiện xong
+//
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
 		}
 		if(this.speed_Download != null) this.speed_Download.set_Check(Values.PAUSED);
 		finished = false;
@@ -582,13 +582,13 @@ public class DownloadTask {
 		}
 
 		//Đợi cho các luồng thực hiện xong r đã làm chuyện khác
-		for (DownloadRunnable element : ListRunnable)
-			try {
-				element.join();
-
-			} catch (InterruptedException e) {
-				continue;
-			}
+//		for (DownloadRunnable element : ListRunnable)
+//			try {
+//				element.join();
+//
+//			} catch (InterruptedException e) {
+//				continue;
+//			}
 	}
 
 	public void shutdown() throws IOException {

@@ -20,7 +20,6 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
-import BLL.Utils;
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
@@ -82,22 +81,23 @@ public class view_Task_DownLoad extends JFrame {
 	/**
 	 * @wbp.parser.constructor
 	 */
-	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread, Main_View _Main_View,long lenght_Size_File) {
+	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread, Main_View _Main_View,long size) {
 
 		this.speed_Download = new speed_Download();
 
-		if( lenght_Size_File == -1)
+		if( size == -1)
 			this.array_JProgressBar = new JProgressBar[1];
 		else
 			this.array_JProgressBar = new JProgressBar[number_Thread];
 
-		this.task = downloadManager.addTask(url, folder, FileName, number_Thread, false, this.array_JProgressBar,this.speed_Download, false);
+		this.task = downloadManager.addTask(url, folder, FileName, number_Thread, size, false, this.array_JProgressBar,this.speed_Download, false);
 
 		this._Main_View = _Main_View;
 
 		initComponent();
 		this.setVisible(true);
 		start_Download();
+		
 	}
 
 	public void start_Download() {

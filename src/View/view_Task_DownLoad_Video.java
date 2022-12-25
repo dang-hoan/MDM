@@ -90,7 +90,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 	/**
 	 * @wbp.parser.constructor
 	 */
-	public view_Task_DownLoad_Video(String[] url, String folder, String FileName, int number_Thread, Main_View _Main_View) {
+	public view_Task_DownLoad_Video(VideoPopupitem videoItem, String folder, int number_Thread, Main_View _Main_View) {
 
 		this.speed_Download = new speed_Download();
 		this.speed_Download2 = new speed_Download();
@@ -98,6 +98,8 @@ public class view_Task_DownLoad_Video extends JFrame {
 
 		int size1 = number_Thread/2;
 		int size2 = number_Thread-size1;
+		
+		String[] url = new String[] {videoItem.getUrl_Video(), videoItem.getUrl_Audio()};
 
 		if(Utils.getFileLength(url[0]) == -1) {
 			this.array_JProgressBar = new JProgressBar[1];
@@ -109,10 +111,8 @@ public class view_Task_DownLoad_Video extends JFrame {
 			this.array_JProgressBar2 = new JProgressBar[size2];
 		}
 
-		if(FileName.lastIndexOf(".") == -1) FileName += ".mkv";
-		YTVideo v = downloadManager.addTask(url[0], url[1], folder, FileName.substring(0, FileName.lastIndexOf(".")),
-				FileName, size1, size2, false, array_JProgressBar, speed_Download,
-				array_JProgressBar2, speed_Download2);
+		
+		YTVideo v = downloadManager.addVideo(videoItem, folder, size1, size2, false, array_JProgressBar, speed_Download, array_JProgressBar2, speed_Download2);
 		this.v = v;
 
 		this._Main_View = _Main_View;

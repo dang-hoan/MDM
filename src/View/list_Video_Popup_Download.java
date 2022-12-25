@@ -93,7 +93,7 @@ public class list_Video_Popup_Download extends JFrame {
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					if (e.getClickCount() == 2) {
 						VideoPopupitem popupitem = list.getSelectedValue();
-						NewDownload_View_Video window = new NewDownload_View_Video(Main_View.getInstance(), popupitem.getUrl_Video(), popupitem.getUrl_Audio(), popupitem.getFile_Name());
+						NewDownload_View_Video window = new NewDownload_View_Video(Main_View.getInstance(), popupitem);
 						window.setAlwaysOnTop(true);
 						window.setVisible(true);
 					}

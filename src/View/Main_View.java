@@ -101,7 +101,7 @@ public class Main_View extends JFrame {
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView("");					
+					newDownloadView("", -2);					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
 				} 
@@ -171,7 +171,7 @@ public class Main_View extends JFrame {
 		bNewDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView("");		
+					newDownloadView("", -2);		
 					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
@@ -186,7 +186,7 @@ public class Main_View extends JFrame {
 		bCancelDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					DownloadManager.getInstance().cancelTask(Values.Task_ID_COUNTER-1);
+					DownloadManager.getInstance().cancelTask(listView.getSelectedValue().getId());
 					
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -333,10 +333,10 @@ public class Main_View extends JFrame {
 		listView.setCellRenderer(new TaskRenderer());
 		add_Even_Mouse_JList();
 	}
-	public void newDownloadView(String url)
+	public void newDownloadView(String url, long length)
 	{
 		try {
-			NewDownload_View ndv = new NewDownload_View(this, url);
+			NewDownload_View ndv = new NewDownload_View(this, url, length);
 			ndv.setAlwaysOnTop(true);
 			ndv.setVisible(true);
 //			new NewDownload_View(this, url).setVisible(true);

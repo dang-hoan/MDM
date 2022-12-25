@@ -17,7 +17,6 @@ import javax.swing.SwingUtilities;
 
 import BLL.MDM;
 import BLL.Utils;
-import View.NewDownload_View_Video;
 import View.VideoPopupitem;
 import View.Video_Popup;
 
@@ -89,9 +88,7 @@ public class Session implements Runnable {
 			onDownload(request, response);
 		}
 		else if (action.equals("/video")) {
-			System.out.println("/video");
 			onVideo(request, response);
-//			onDownload(request, response);
 		}
 		else if (action.startsWith("/item")) {
 			onVideoRetrieve(request, response);
@@ -108,6 +105,9 @@ public class Session implements Runnable {
 		else if (action.startsWith("/preview")) {
 //			onPreview(request, response);
 		}
+		else if (action.toLowerCase().startsWith("/sync")) {
+			System.out.println("sync");
+		}
 		else {
 			throw new IOException("invalid action " + action);
 //			System.out.println("invalid action " + action);
@@ -123,25 +123,16 @@ public class Session implements Runnable {
 			System.out.print(body);
 			System.out.println("=====================================");
 
-			String url = body.substring(body.indexOf('=')+1, body.indexOf('\r', body.indexOf('=')));
-//			if(url.equals("https://th.bing.com/th/id/R.c4f4387256bfddf88a3184c0bc483edf?rik=R52ZpQXS%2byfU0w&riu=http%3a%2f%2fwww.pixelstalk.net%2fwp-content%2fuploads%2f2016%2f05%2fDownload-Free-HD-Wallpapers-Backgrounds-Desktop.jpg&ehk=HSd9cpNYuuWalQrTbbf5A5Wj6y0jy3fuAOfhrRaO%2fIk%3d&risl=&pid=ImgRaw&r=0")) System.out.println("say yes yes");
-//			else System.out.println("say good bye");
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					MDM.mv.newDownloadView(url);
-				}
-			});
+			ParsedHookData data = ParsedHookData.parse(b);
+			if (data.getUrl() != null && data.getUrl().length() > 0) {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						MDM.mv.newDownloadView(data.getUrl(), data.getContentLength());
+					}
+				});
+			}
 
-//			ParsedHookData data = ParsedHookData.parse(b);
-//			if (data.getUrl() != null && data.getUrl().length() > 0) {
-//				HttpMetadata metadata = new HttpMetadata();
-//				metadata.setUrl(data.getUrl());
-//				metadata.setHeaders(data.getRequestHeaders());
-//				metadata.setSize(data.getContentLength());
-//				String file = data.getFile();
-//				MDM.mv.newDownloadView(data.getUrl());
-//			}
 		} finally {
 			setResponseOk(res);
 		}
@@ -299,7 +290,7 @@ public class Session implements Runnable {
 							@Override
 							public void run() {
 								Video_Popup popup = Video_Popup.getInstance();
-								popup.add_model(new VideoPopupitem(videoURL, audioURL, fileName));
+								popup.add_model(new VideoPopupitem(videoURL, audioURL, di.clen, info.clen, fileName));
 								if(!popup.isVisible())
 								{
 									popup.setAlwaysOnTop(true);
@@ -411,7 +402,7 @@ public class Session implements Runnable {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				MDM.mv.newDownloadView(data.getUrl());
+				MDM.mv.newDownloadView(data.getUrl(), data.getContentLength());
 			}
 		});
 
@@ -426,7 +417,7 @@ public class Session implements Runnable {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					MDM.mv.newDownloadView(data.getUrl());
+					MDM.mv.newDownloadView(data.getUrl(), data.getContentLength());
 				}
 			});
 //			client = new JavaHttpClient(data.getUrl());

@@ -16,6 +16,7 @@ import javax.swing.JProgressBar;
 
 import BLL.Values;
 import BLL.VideoConversion.FFmpeg;
+import View.VideoPopupitem;
 
 public class DownloadManager {
 	private String DataFile = "downloads.tmp";
@@ -43,11 +44,11 @@ public class DownloadManager {
 	//https://wallup.net/wp-content/uploads/2019/09/296096-sunset-mountains-ocean-landscapes-nature-travel-hdr-photography-blue-skies-skies-cloud.jpg
 
 	public DownloadTask addTask(String url, String saveDirectory, String saveName,
-			int ThreadCount, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload, boolean fileNeedMerge) {
+			int ThreadCount, long size, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload, boolean fileNeedMerge) {
 		if(ThreadCount > Values.MAX_THREAD_COUNT || ThreadCount < Values.MIN_THREAD_COUNT) {
 			ThreadCount = Values.DEFAULT_THREAD_COUNT;
 		}
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount,jProgressBars,speedDownload,fileNeedMerge);
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER++, url, saveDirectory, saveName, ThreadCount, size,jProgressBars,speedDownload,fileNeedMerge);
 		addTask(downloadTask);
 
 		if(now) downloadTask.startTask();
@@ -55,14 +56,42 @@ public class DownloadManager {
 		return downloadTask;
 	}
 
-	public YTVideo addTask(String url, String url2, String saveDirectory, String saveName, String file,
-			int ThreadCount, int ThreadCount2, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload,
+	public YTVideo addTask(String url, String url2, String saveDirectory, String saveName,
+			int ThreadCount, int ThreadCount2, long size1, long size2, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload,
 			JProgressBar[] jProgressBars2, speed_Download speedDownload2) {
-		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER, url, saveDirectory, saveName, ThreadCount,jProgressBars,speedDownload, true);
-		DownloadTask downloadTask2 = new DownloadTask(Values.Task_ID_COUNTER++, url2, saveDirectory, saveName, ThreadCount2,jProgressBars2,speedDownload2, true);
+		
+		if(saveName.lastIndexOf(".") == -1) saveName += ".mkv";
+		String FileName = saveName.substring(0, saveName.lastIndexOf("."));
+		
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER, url, saveDirectory, FileName, ThreadCount, size1,jProgressBars,speedDownload, true);
+		DownloadTask downloadTask2 = new DownloadTask(Values.Task_ID_COUNTER++, url2, saveDirectory, FileName, ThreadCount2, size2,jProgressBars2,speedDownload2, true);
 
-		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, file, 0);
+
+		
+		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, saveName, 0);
 		addTask(v);
+
+		if(now) {
+			downloadTask.startTask();
+			downloadTask2.startTask();
+		}
+
+		return v;
+	}
+	
+	public YTVideo addVideo(VideoPopupitem videoItem, String saveDirectory, int size1, int size2, Boolean now, JProgressBar[] jProgressBars, speed_Download speedDownload,
+			JProgressBar[] jProgressBars2, speed_Download speedDownload2) {
+		
+		String saveName = videoItem.getFile_Name();
+		if(saveName.lastIndexOf(".") == -1) saveName += ".mkv";
+		String FileName = saveName.substring(0, saveName.lastIndexOf("."));
+		
+		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER, videoItem.getUrl_Video(), saveDirectory, FileName, size1, videoItem.getLen1(),jProgressBars,speedDownload, true);
+		DownloadTask downloadTask2 = new DownloadTask(Values.Task_ID_COUNTER++, videoItem.getUrl_Audio(), saveDirectory, FileName, size2, videoItem.getLen2(),jProgressBars2,speedDownload2, true);
+		
+		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, saveName, 0);
+		addTask(v);
+		videoItem.setFile_Name(saveName);
 
 		if(now) {
 			downloadTask.startTask();
