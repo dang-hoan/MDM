@@ -82,11 +82,11 @@ public class view_Task_DownLoad extends JFrame {
 	/**
 	 * @wbp.parser.constructor
 	 */
-	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread, Main_View _Main_View) {
+	public view_Task_DownLoad(String url, String folder, String FileName, int number_Thread, Main_View _Main_View,long lenght_Size_File) {
 
 		this.speed_Download = new speed_Download();
 
-		if(Utils.getFileLength(url) == -1)
+		if( lenght_Size_File == -1)
 			this.array_JProgressBar = new JProgressBar[1];
 		else
 			this.array_JProgressBar = new JProgressBar[number_Thread];
