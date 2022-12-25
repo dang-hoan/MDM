@@ -29,6 +29,7 @@ import javax.swing.event.DocumentListener;
 import BLL.Utils;
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
+import BLL.DownFile.DownloadTask;
 
 @SuppressWarnings("serial")
 public class NewDownload_View extends JFrame {
@@ -44,7 +45,7 @@ public class NewDownload_View extends JFrame {
 	private JLabel labNumber;
 	private JComboBox<?> cbNumber;
 	private String folder = new File(System.getProperty("user.home"), "Downloads").getAbsolutePath();
-	private long size;
+	private long size = -2;
 	DownloadManager downloadManager = DownloadManager.getInstance();
 
 	public NewDownload_View(Main_View _Main_View, String url, long length) throws HeadlessException, UnsupportedFlavorException, IOException {
@@ -113,8 +114,9 @@ public class NewDownload_View extends JFrame {
         			    
                     	if(check()) {
         	            	if(!txt.equals("") && !txtFileName.getText().equals("")) labNotice.setText("");
+
         	            	if(length == -2) size=Utils.getFileLength(txt); //chưa kết nối tới server lần nào
-        	            	size = length;
+        	            	else size = length;
                     	}
         			}
         		});
@@ -143,7 +145,7 @@ public class NewDownload_View extends JFrame {
 		getContentPane().add(labFileName);
 
 		bDownload = new JButton("DOWNLOAD NOW");
-		bDownload.setBounds(90, 182, 147, 23);
+		bDownload.setBounds(194, 182, 147, 23);
 		bDownload.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		getContentPane().add(bDownload);
 		bDownload.addActionListener(new ActionListener() {
@@ -151,9 +153,11 @@ public class NewDownload_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
-						new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View,size);
-						NewDownload_View.this.dispose();
-						_Main_View.ReloadView();
+						if(isURLExist()) {
+							new view_Task_DownLoad(txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View,size);
+							NewDownload_View.this.dispose();
+							_Main_View.ReloadView();
+						}
 
 					} catch (Exception e1) {
 						e1.printStackTrace();
@@ -164,7 +168,7 @@ public class NewDownload_View extends JFrame {
 		});
 
 		bCancel = new JButton("CANCEL");
-		bCancel.setBounds(288, 182, 89, 23);
+		bCancel.setBounds(372, 182, 89, 23);
 		bCancel.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		getContentPane().add(bCancel);
 
@@ -186,6 +190,19 @@ public class NewDownload_View extends JFrame {
 		cbNumber.setBounds(139, 125, 51, 22);
 		cbNumber.setSelectedItem(Integer.toString(Values.DEFAULT_THREAD_COUNT));
 		getContentPane().add(cbNumber);
+		
+		JButton btnDownloadLater = new JButton("DOWNLOAD LATER");
+		btnDownloadLater.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DownloadTask task = new DownloadTask(Values.Task_ID_COUNTER++, txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), size, null, null, false);
+				DownloadManager.getInstance().addTask(task);
+				dispose();
+				_Main_View.ReloadView();
+			}
+		});
+		btnDownloadLater.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		btnDownloadLater.setBounds(10, 182, 157, 23);
+		getContentPane().add(btnDownloadLater);
 
 		bCancel.addActionListener(new ActionListener() {
 			@Override
@@ -219,6 +236,13 @@ public class NewDownload_View extends JFrame {
 			}
 		}
 		labNotice.setText("");
+		return true;
+	}
+	public boolean isURLExist() {
+		if(!Utils.isURLExist(txtURL.getText())) {
+			labNotice.setText("URL is not exist!");
+			return false;
+		}
 		return true;
 	}
 }

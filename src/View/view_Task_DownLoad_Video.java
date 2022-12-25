@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -171,7 +170,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 				while(true)
 				{
 				try {
-					if(speed_Download.get_Check()==Values.DOWNLOADING || speed_Download2.get_Check() == Values.DOWNLOADING)
+					if(v.getDownloadStatus() == Values.DOWNLOADING)
 					{
 						long tmp = speed_Download.Get_Seze_1s() + speed_Download2.Get_Seze_1s();
 
@@ -188,7 +187,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 
 						String remainTime = "";
 						if(v.getT()[0].getFileSize() > 0) {
-							long second = (tmp != 0)? (v.getT()[0].getFileSize()+v.getT()[1].getFileSize()-v.getT()[0].getDownloadedSize()-v.getT()[1].getDownloadedSize())/tmp : 0;
+							long second = (tmp != 0)? (v.getFileSize()-v.getDownloadedSize())/tmp : 0;
 							remainTime = calculateTime(second);
 							if(remainTime != "") remainTime = " còn " + remainTime;
 						}
@@ -199,21 +198,10 @@ public class view_Task_DownLoad_Video extends JFrame {
 						speed_Download2.set_Size_Download();
 						Thread.sleep(1000);
 					}
-					if(v.getCompletedFile() == 1) {
-						if(speed_Download.get_Check() == Values.ASSEMBLING || speed_Download2.get_Check() == Values.ASSEMBLING) {
-							jlb_Speed.setText("Đang ghép file...");
-						}
-						if(speed_Download.get_Check() == Values.FINISHED && speed_Download2.get_Check() == Values.FINISHED) {
-							v.setCompletedFile(2);
-							break;
-						}
+					if(v.getDownloadStatus() == Values.ASSEMBLING) {
+						jlb_Speed.setText("Đang ghép file...");
 					}
-					else {
-						if(speed_Download.get_Check() == Values.FINISHED || speed_Download2.get_Check() == Values.FINISHED) {
-							v.setCompletedFile(v.getCompletedFile() + 1);
-						}
-					}
-					if(speed_Download.get_Check() == Values.PAUSED) {
+					if(v.getDownloadStatus() == Values.PAUSED) {
 						jlb_Speed.setText("Đã dừng");
 						if(v.getT()[0].getFileSize()==-1)
 						{
@@ -221,25 +209,15 @@ public class view_Task_DownLoad_Video extends JFrame {
 							array_JProgressBar[0].setString("Đã dừng");
 						}
 					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					speed_Download.set_Size_Download();
-				}
-				}
-
-//				String time = calculateTime((task.getDownloadTime() + task2.getDownloadTime())/1000);
-//				if(time.equals("")) time = "gần 1 giây";
-//				jlb_Speed.setText("Hoàn thành, " + "tổng thời gian tải: " + time);
-//				jlb_NameFile.setText(task.getSaveName());
-//				labNotice.setText("");
-
-
-				if(v.getCompletedFile() == 2) {
-					System.out.println("merge...............");
-					jlb_Speed.setText("Đang ghép âm thanh vào video...");
-					int result = DownloadManager.getInstance().mergeFile(v.getT()[0].getFilePath(), v.getT()[1].getFilePath(), v.getT()[0].getSaveDirectory() + File.separator + v.getFileName());
-
-					switch(result) {
+					if(v.getDownloadStatus() == Values.CANCELED) {
+						return;
+					}
+					if(v.getDownloadStatus() == Values.MERGING) {
+//						System.out.println("merge...............");
+						jlb_Speed.setText("Đang ghép âm thanh vào video...");
+					}
+						
+					switch(v.getDownloadStatus()) {
 						case FFmpeg.FF_NOT_FOUND:{
 							jlb_Speed.setText("Không tìm thấy ffmpeg, hãy cài đặt ffmpeg và thử lại!");
 							if(v.getT()[0].getFileSize()==-1)
@@ -247,7 +225,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
-							break;
+							return;
 						}
 						case FFmpeg.FF_LAUNCH_ERROR:{
 							jlb_Speed.setText("Lỗi khi chạy ffmpeg!");
@@ -256,10 +234,10 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
-							break;
+							return;
 						}
 						case FFmpeg.FF_SUCCESS:{
-							String time = calculateTime((v.getT()[0].getDownloadTime() + v.getT()[1].getDownloadTime())/1000);
+							String time = calculateTime(v.getDownloadTime()/1000);
 							if(time.equals("")) time = "gần 1 giây";
 							jlb_Speed.setText("Hoàn thành, " + "tổng thời gian tải: " + time);
 							if(v.getT()[0].getFileSize()==-1)
@@ -270,9 +248,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 							jlb_NameFile.setText(v.getFileName());
 							labNotice.setText("");
 							_Main_View.ReloadView();
-							v.getT()[0].cleanUp();
-							v.getT()[1].cleanUp();
-							break;
+							return;
 						}
 						case FFmpeg.FF_CONVERSION_FAILED:{
 							jlb_Speed.setText("Ghép âm thanh vào video không thành công!");
@@ -281,10 +257,13 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
-							break;
+							return;
 						}
-					}
-
+						}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					speed_Download.set_Size_Download();
+				}
 				}
 
 			}
@@ -299,6 +278,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 		if(second > 3600) {		// > 1 giờ
 			hour = second/3600;
 			minute = (second%3600)/60;
+			second = second - hour*3600 - minute*60;
 		} else if(second > 60) {// > 1 phút
 			minute = second/60;
 			second = second%60;

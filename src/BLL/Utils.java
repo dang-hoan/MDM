@@ -3,6 +3,7 @@ package BLL;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -59,6 +60,20 @@ public class Utils {
 			}
 			return false;
 		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public static boolean isURLExist(String txtUrl) {
+		try {
+			URL url = new URL(txtUrl);
+			HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+			huc.setRequestMethod("HEAD");
+			int responseCode = huc.getResponseCode();
+			 
+			if(responseCode == HttpURLConnection.HTTP_NOT_FOUND) return false;
+			return true;
+		}catch(IOException e) {
 			return false;
 		}
 	}

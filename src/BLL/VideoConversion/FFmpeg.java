@@ -8,7 +8,7 @@ import BLL.Utils;
 import BLL.DownFile.DownloadManager;
 
 public class FFmpeg {
-	public final static int FF_NOT_FOUND = 10, FF_LAUNCH_ERROR = 20, FF_CONVERSION_FAILED = 30, FF_SUCCESS = 0;
+	public final static int FF_NOT_FOUND = 31, FF_LAUNCH_ERROR = 32, FF_CONVERSION_FAILED = 33, FF_SUCCESS = 34;
 	private List<String> inputFiles;
 	private String outputFile;
 	private int ffExitCode;

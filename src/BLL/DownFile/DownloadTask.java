@@ -262,6 +262,7 @@ public class DownloadTask {
 
 			TaskStatus = Values.DOWNLOADING;
 			this.speed_Download.set_Check(Values.DOWNLOADING);
+			DownloadManager.getInstance().doNext("setStatus", TaskID);
 
 			if(ListRunnable.size() == 0 || finished) {
 				downloadTime = 0;
@@ -319,6 +320,7 @@ public class DownloadTask {
 			System.out.println("assemble " + ThreadCount + ", " + completedThread);
 
 			this.speed_Download.set_Check(Values.ASSEMBLING);
+			DownloadManager.getInstance().doNext("setStatus", TaskID);
 
 			File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
 			if(!saveF.exists()) saveF.createNewFile();
@@ -375,22 +377,12 @@ public class DownloadTask {
 			//Cập nhật tên file nếu tên đã tồn tại trong thư mục đích
 			File desF = new File(SaveDirectory + File.separator + SaveFile);
 			if(desF.exists() && desF.length() == 0) desF.delete();
-			else {
-				if(desF.length() != 0) {
-					int index = SaveFile.lastIndexOf(".");
-					String saveName = (index != -1)?SaveFile.substring(0, index):SaveFile;
-					int i = 1;
-					while(desF.exists()) {
-						SaveFile = saveName + "(" + Integer.toString(i) + ")" + FileType;
-						desF = new File(SaveDirectory + File.separator + SaveFile);
-						i += 1;
-					}
-				}
-			}
 
 			this.speed_Download.set_Check(Values.FINISHED);
 			TaskStatus = Values.FINISHED;
+			DownloadManager.getInstance().doNext("setStatus", TaskID);
 			downloadTime += System.currentTimeMillis() - previousTimeLine;
+			DownloadManager.getInstance().doNext("merge", TaskID);
 			return; //Thoát mà k move file
 		}
 		File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
@@ -428,12 +420,13 @@ public class DownloadTask {
 			else desF.delete();
 			saveF.renameTo(desF);
 		}
-
+		
+		downloadTime += System.currentTimeMillis() - previousTimeLine;
 		this.speed_Download.set_Check(Values.FINISHED);
 		System.out.println("\n--------Complete file " + SaveFile + " download--------\n");
 		TaskStatus = Values.FINISHED;
 
-		downloadTime += System.currentTimeMillis() - previousTimeLine;
+		
 
 		//Xoá thư mục tạm thời
 		deleteOldFile();
@@ -550,6 +543,10 @@ public class DownloadTask {
 	public long getDownloadTime() {
 		return downloadTime;
 	}
+	
+	public void setDownloadTime(long downloadTime) {
+		this.downloadTime = downloadTime;
+	}
 
 	public boolean isFileNeedMerge() {
 		return fileNeedMerge;
@@ -571,7 +568,10 @@ public class DownloadTask {
 //				e.printStackTrace();
 //			}
 		}
-		if(this.speed_Download != null) this.speed_Download.set_Check(Values.PAUSED);
+		if(this.speed_Download != null) {
+			this.speed_Download.set_Check(Values.PAUSED);
+			DownloadManager.getInstance().doNext("setStatus", TaskID);
+		}
 		finished = false;
 		downloadTime += System.currentTimeMillis() - previousTimeLine;
 	}
@@ -652,6 +652,7 @@ public class DownloadTask {
 		if(TaskStatus == Values.CANCELED || TaskStatus == Values.FINISHED) return;
 		pause();
     	TaskStatus = Values.CANCELED;
+    	DownloadManager.getInstance().doNext("setStatus", TaskID);
 		ListRunnable.clear();
 		deleteAllFile();
     	System.out.println("Task ID: " + TaskID + " is canceled!");

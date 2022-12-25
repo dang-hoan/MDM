@@ -17,7 +17,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import BLL.Utils;
 import BLL.Values;
@@ -36,6 +39,7 @@ public class NewDownload_View_Video extends JFrame {
 	private JComboBox<?> cbNumber;
 	private String folder = new File(System.getProperty("user.home"), "Downloads").getAbsolutePath();
 	DownloadManager downloadManager = DownloadManager.getInstance();
+	private JButton btnDownloadLater;
 
 	public NewDownload_View_Video(Main_View _Main_View, VideoPopupitem videoItem) {
 		setTitle("NEW_DOWNLOAD");
@@ -76,6 +80,31 @@ public class NewDownload_View_Video extends JFrame {
 		txtFileName = new JTextArea();
 		txtFileName.setBounds(128, 37, 255, 22);
 		txtFileName.setText(videoItem.getFile_Name().equals("")?Utils.getFileName(videoItem.getUrl_Video()):videoItem.getFile_Name());
+		DocumentListener dl = new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateFieldState();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateFieldState();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateFieldState();
+			}
+            protected void updateFieldState() {
+            	SwingUtilities.invokeLater(new Runnable() {
+        			@Override
+        			public void run() {
+                    	videoItem.setFile_Name(txtFileName.getText());
+        			}
+        		});
+            }
+		};
+		txtFileName.getDocument().addDocumentListener(dl);
 		getContentPane().add(txtFileName);
 
 		labFileName = new JLabel("File name:");
@@ -84,7 +113,7 @@ public class NewDownload_View_Video extends JFrame {
 		getContentPane().add(labFileName);
 
 		bDownload = new JButton("DOWNLOAD NOW");
-		bDownload.setBounds(100, 138, 147, 23);
+		bDownload.setBounds(204, 138, 147, 23);
 		bDownload.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		getContentPane().add(bDownload);
 		bDownload.addActionListener(new ActionListener() {
@@ -105,7 +134,7 @@ public class NewDownload_View_Video extends JFrame {
 		});
 
 		bCancel = new JButton("CANCEL");
-		bCancel.setBounds(298, 138, 89, 23);
+		bCancel.setBounds(372, 138, 89, 23);
 		bCancel.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		getContentPane().add(bCancel);
 
@@ -127,6 +156,21 @@ public class NewDownload_View_Video extends JFrame {
 		cbNumber.setBounds(149, 81, 51, 22);
 		cbNumber.setSelectedItem(Integer.toString(Values.DEFAULT_THREAD_COUNT));
 		getContentPane().add(cbNumber);
+		
+		btnDownloadLater = new JButton("DOWNLOAD LATER");
+		btnDownloadLater.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int ThreadCount = Integer.parseInt(String.valueOf(cbNumber.getSelectedItem()));
+				int size1 = ThreadCount/2;
+				int size2 = ThreadCount - size1;
+				downloadManager.addVideo(videoItem, folder, size1, size2, false, null, null, null, null);
+				dispose();
+				_Main_View.ReloadView();
+			}
+		});
+		btnDownloadLater.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		btnDownloadLater.setBounds(10, 138, 170, 23);
+		getContentPane().add(btnDownloadLater);
 
 		bCancel.addActionListener(new ActionListener() {
 			@Override

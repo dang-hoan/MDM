@@ -9,14 +9,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import BLL.Values;
+
 public class YTVideo {
 	private DownloadTask[] t;
 	private String FileName;
-	private int completedFile;
-	public YTVideo(DownloadTask[] t, String FileName, int completedFile) {
+	private long downloadTime = 0;
+	private int DownloadStatus = Values.READY; 
+	
+	public YTVideo(DownloadTask[] t, String FileName) {
 		this.t = t;
 		this.FileName = FileName;
-		this.completedFile = completedFile;
+	}
+	public YTVideo(DownloadTask[] t, String FileName, long downloadTime, int DownloadStatus) {
+		this.t = t;
+		this.FileName = FileName;
+		this.downloadTime = downloadTime;
+		this.DownloadStatus = DownloadStatus;
 	}
 	public DownloadTask[] getT() {
 		return t;
@@ -30,11 +39,20 @@ public class YTVideo {
 	public void setFileName(String fileName) {
 		FileName = fileName;
 	}
-	public int getCompletedFile() {
-		return completedFile;
+	public int getDownloadStatus() {
+		return DownloadStatus;
 	}
-	public void setCompletedFile(int completedFile) {
-		this.completedFile = completedFile;
+	public void setDownloadStatus(int downloadStatus) {
+		DownloadStatus = downloadStatus;
+	}
+	public long getDownloadTime() {
+		 return (downloadTime == 0)? t[0].getDownloadTime() + t[1].getDownloadTime() : downloadTime;
+	}
+	public long getDownloadedSize() {
+		return t[0].getDownloadedSize() + t[1].getDownloadedSize();
+	}
+	public long getFileSize() {
+		return t[0].getFileSize() + t[1].getFileSize();
 	}
 
 	public boolean checkFile(String type, String checksum) {
@@ -105,6 +123,30 @@ public class YTVideo {
 	    }
 
 	    return result;
+	}
+	
+	public void merge() {
+		long previousTimeLine = System.currentTimeMillis();
+		DownloadStatus = Values.MERGING;
+		File desF = new File(t[0].getSaveDirectory() + File.separator + FileName);
+		if(desF.exists() && desF.length() != 0) {
+			int index = FileName.lastIndexOf(".");
+			String saveName = (index != -1)? FileName.substring(0, index):FileName;
+			String FileType = (index != -1)? FileName.substring(index):".mkv";
+			int i = 1;
+			while(desF.exists()) {
+				FileName = saveName + "(" + Integer.toString(i) + ")" + FileType;
+				desF = new File(t[0].getSaveDirectory() + File.separator + FileName);
+				i += 1;
+			}
+		}
+
+		int result = DownloadManager.getInstance().mergeFile(t[0].getFilePath(), t[1].getFilePath(), t[0].getSaveDirectory() + File.separator + FileName);
+		setDownloadStatus(result);
+		
+		t[0].cleanUp();
+		t[1].cleanUp();
+		downloadTime = t[0].getDownloadTime() + t[1].getDownloadTime() + System.currentTimeMillis() - previousTimeLine;
 	}
 
 }

@@ -209,6 +209,7 @@ public class view_Task_DownLoad extends JFrame {
 		if(second > 3600) {		// > 1 giờ
 			hour = second/3600;
 			minute = (second%3600)/60;
+			second = second - hour*3600 - minute*60;
 		} else if(second > 60) {// > 1 phút
 			minute = second/60;
 			second = second%60;

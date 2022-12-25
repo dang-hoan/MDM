@@ -68,8 +68,8 @@ public class DownloadManager {
 
 
 		
-		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, saveName, 0);
-		addTask(v);
+		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, saveName);
+		addVideo(v);
 
 		if(now) {
 			downloadTask.startTask();
@@ -89,8 +89,8 @@ public class DownloadManager {
 		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER, videoItem.getUrl_Video(), saveDirectory, FileName, size1, videoItem.getLen1(),jProgressBars,speedDownload, true);
 		DownloadTask downloadTask2 = new DownloadTask(Values.Task_ID_COUNTER++, videoItem.getUrl_Audio(), saveDirectory, FileName, size2, videoItem.getLen2(),jProgressBars2,speedDownload2, true);
 		
-		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, saveName, 0);
-		addTask(v);
+		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, saveName);
+		addVideo(v);
 		videoItem.setFile_Name(saveName);
 
 		if(now) {
@@ -105,7 +105,7 @@ public class DownloadManager {
 		Tasks.put(downloadTask.getTaskID(), downloadTask);
 	}
 
-	public void addTask(YTVideo v) {
+	public void addVideo(YTVideo v) {
 		VideoTasks.put(v.getT()[0].getTaskID(), v);
 	}
 
@@ -282,10 +282,11 @@ public class DownloadManager {
 							url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, true);
 
 					String name = reader.readLine();
-					int completedFile = Integer.parseInt(reader.readLine());
+					downloadTime = Long.parseLong(reader.readLine());
+					int downloadStatus = Integer.parseInt(reader.readLine());
 
-					YTVideo v = new YTVideo(new DownloadTask[] {task, task2}, name, completedFile);
-					addTask(v);
+					YTVideo v = new YTVideo(new DownloadTask[] {task, task2}, name, downloadTime, downloadStatus);
+					addVideo(v);
 				}
 			}
 			reader.close();
@@ -357,7 +358,8 @@ public class DownloadManager {
 					 t[1].getCreateDate() + newLine +
 					 t[1].getDownloadTime() + newLine +
 					 v.getFileName() + newLine +
-					 v.getCompletedFile() + newLine;
+					 v.getDownloadTime() + newLine +
+					 v.getDownloadStatus() + newLine;
 			}
 			writer.write(s);
 			writer.close();
@@ -424,5 +426,35 @@ public class DownloadManager {
 	public int mergeFile(String path1, String path2, String fileName) {
 		return new FFmpeg(Arrays.asList(path1, path2), fileName).convert();
 	}
-
+	
+	public void doNext(String request, int TaskID) {
+		if(request.equals("setStatus")) {
+			YTVideo v = getVideo(TaskID);
+			if(v != null) {
+				int state1 = v.getT()[0].getDownloadStatus();
+				int state2 = v.getT()[1].getDownloadStatus();
+//				System.out.println("state1: " + Values.State(state1) + ", state2: " + Values.State(state2));
+				switch(state1) {
+					case Values.READY, Values.DOWNLOADING, Values.PAUSED, Values.CANCELED, Values.DELETED:{
+						v.setDownloadStatus(state1);
+						break;
+					}
+					case Values.ASSEMBLING:{
+						if(state2 == Values.FINISHED) v.setDownloadStatus(state1);
+						break;
+					}
+					case Values.FINISHED:{
+						if(state2 == Values.ASSEMBLING || state2 == Values.FINISHED) v.setDownloadStatus(state2);
+						break;
+					}
+				}
+			}
+		}
+		else if(request.equals("merge")) {
+			YTVideo v = getVideo(TaskID);
+			if(v != null && v.getDownloadStatus() == Values.FINISHED) {
+				v.merge();
+			}
+		}
+	}
 }
