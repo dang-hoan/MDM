@@ -280,7 +280,12 @@ public class DownloadTask {
 			}
 			else
 				for (DownloadRunnable runnable : ListRunnable) {
-					if(!runnable.isFinished() || FileSize < 0) runnable.start();
+					if(!runnable.isFinished() || FileSize < 0) 
+						{
+							runnable.setSpeed_Download(speed_Download);
+							runnable.setjProgressBar(jProgressBars[runnable.getThreadID()-1]);
+							runnable.start();
+						}
 					else jProgressBars[runnable.getThreadID()-1].setValue(100);
 				}
 //			SpeedTimer.scheduleAtFixedRate(SpeedMonitor, 0, 1000);

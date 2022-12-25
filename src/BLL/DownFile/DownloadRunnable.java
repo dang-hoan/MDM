@@ -77,6 +77,7 @@ public class DownloadRunnable implements Runnable {
 		t.start();
 	}
 
+
 	public void pause() {
 		if(t != null) t.interrupt();
 	}
@@ -214,5 +215,22 @@ public class DownloadRunnable implements Runnable {
 	public String getSaveFile() {
 		return SaveFileName;
 	}
+
+	public JProgressBar getjProgressBar() {
+		return jProgressBar;
+	}
+
+	public void setjProgressBar(JProgressBar jProgressBar) {
+		this.jProgressBar = jProgressBar;
+	}
+
+	public speed_Download getSpeed_Download() {
+		return speed_Download;
+	}
+
+	public void setSpeed_Download(speed_Download speed_Download) {
+		this.speed_Download = speed_Download;
+	}
+	
 
 }

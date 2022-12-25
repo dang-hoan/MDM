@@ -3,40 +3,43 @@ package View;
 import java.awt.Desktop;
 import java.awt.HeadlessException;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 
-import javax.imageio.ImageIO;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+import javax.swing.ListModel;
 import javax.swing.border.EmptyBorder;
 
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
+
+import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingUtilities;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 @SuppressWarnings("serial")
 public class Main_View extends JFrame {
@@ -45,6 +48,8 @@ public class Main_View extends JFrame {
 	JScrollPane scrollPaneListView = new JScrollPane();
 	JList<CompactTask> listView = new JList<>();
 	JPopupMenu jPopupMenu;
+	DownloadTask task;
+	
 	private static Main_View _Main_View;
 
 	public static Main_View getInstance() {
@@ -53,14 +58,13 @@ public class Main_View extends JFrame {
 		}
 		return _Main_View;
 	}
-
 	private Main_View() {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				try {
 					DownloadManager.getInstance().shutdown();
-
+					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -70,80 +74,78 @@ public class Main_View extends JFrame {
 				try {
 					new TrayClass().show();
 					DownloadManager.getInstance().resumeTasks();
-//					new view_Task_DownLoad_Video(0, Main_View.this).setVisible(true);; //test video
-					ReloadView();
+					ReloadView();					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
 		setTitle("PBL4_MAX_SPEED_DOWNLOAD");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(700, 400);
 		setLocationRelativeTo(null);
 		//icon
 		try {
 			this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/View/icon/app.png")));
-
+			
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-
+		
 		JMenu mnNewMenu = new JMenu("File");
 		menuBar.add(mnNewMenu);
-
+		
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("New Download");
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView("");
+					newDownloadView("");					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
-				}
+				} 
 			}
 		});
 		mntmNewMenuItem_1.setMnemonic(KeyEvent.VK_N);
 		mnNewMenu.add(mntmNewMenuItem_1);
-
+		
 		JMenuItem mntmNewMenuItem = new JMenuItem("Delete Download");
 		mnNewMenu.add(mntmNewMenuItem);
-
+		
 		JMenu mnNewMenu_1 = new JMenu("Document");
 		menuBar.add(mnNewMenu_1);
-
+		
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("All");
 		mnNewMenu_1.add(mntmNewMenuItem_2);
-
+		
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Video");
 		mnNewMenu_1.add(mntmNewMenuItem_3);
-
+		
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Music");
 		mnNewMenu_1.add(mntmNewMenuItem_4);
-
+		
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Picture");
 		mnNewMenu_1.add(mntmNewMenuItem_5);
-
+		
 		JMenu mnNewMenu_2 = new JMenu("Download");
 		menuBar.add(mnNewMenu_2);
-
+		
 		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Downloading");
 		mnNewMenu_2.add(mntmNewMenuItem_6);
-
+		
 		JMenuItem mntmNewMenuItem_7 = new JMenuItem("Downloaded");
 		mnNewMenu_2.add(mntmNewMenuItem_7);
-
+		
 		JMenu mnNewMenu_3 = new JMenu("Tools");
 		menuBar.add(mnNewMenu_3);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-
+		
 		JPanel under_panel = new JPanel();
-
+		
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -160,18 +162,17 @@ public class Main_View extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(under_panel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE))
 		);
-
+	
 		scrollPaneListView.setViewportView(listView);
-
+		
 		under_panel.setLayout(null);
-
+		
 		JButton bNewDownload = new JButton("");
 		bNewDownload.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					newDownloadView("");
-
+					newDownloadView("");		
+					
 				} catch (HeadlessException e1) {
 					e1.printStackTrace();
 				}
@@ -180,14 +181,13 @@ public class Main_View extends JFrame {
 		bNewDownload.setBounds(0, 0, 62, 65);
 		under_panel.add(bNewDownload);
 		bNewDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/plus.png")));
-
+		
 		JButton bCancelDownload = new JButton("");
 		bCancelDownload.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					DownloadManager.getInstance().cancelTask(Values.Task_ID_COUNTER-1);
-
+					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -196,16 +196,15 @@ public class Main_View extends JFrame {
 		bCancelDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/x.png")));
 		bCancelDownload.setBounds(72, 0, 62, 65);
 		under_panel.add(bCancelDownload);
-
+		
 		JButton bPauseDownload = new JButton("");
 		bPauseDownload.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
 				if (task.getDownloadStatus() == Values.DOWNLOADING) {
 					try {
 						task.pause();
-
+						
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -215,10 +214,9 @@ public class Main_View extends JFrame {
 		bPauseDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/pause.png")));
 		bPauseDownload.setBounds(144, 0, 62, 65);
 		under_panel.add(bPauseDownload);
-
+		
 		JButton bStartDownload = new JButton("");
 		bStartDownload.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
 				if(task.getDownloadStatus()==Values.FINISHED)
@@ -236,7 +234,7 @@ public class Main_View extends JFrame {
 		bStartDownload.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/play.png")));
 		bStartDownload.setBounds(216, 0, 62, 65);
 		under_panel.add(bStartDownload);
-
+		
 		JButton bSettings = new JButton("");
 		bSettings.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/gear.png")));
 		bSettings.setBounds(288, 0, 62, 65);
@@ -251,7 +249,7 @@ public class Main_View extends JFrame {
 		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
 		{
 			try {
-				DownloadTask task = DownloadManager.getInstance().getTask(i);
+				task = DownloadManager.getInstance().getTask(i);				
 				if (task != null)
 				{
 					int id = task.getTaskID();
@@ -273,7 +271,7 @@ public class Main_View extends JFrame {
 						downloadedSize /= 1024;
 						download++;
 					}
-//
+//				
 //				String donvi = "B";
 //				if (totalSize/1024 > 1)
 //				{
@@ -293,8 +291,8 @@ public class Main_View extends JFrame {
 //					downloadedSize /= 1024;
 //					donvi = "GB";
 //				}
-
-
+				
+					
 				switch (task.getDownloadStatus()) {
 				case Values.READY:
 					str_size = "";
@@ -305,7 +303,7 @@ public class Main_View extends JFrame {
 					str_size = "";
 					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 					break;
-				case Values.PAUSED:
+				case Values.PAUSED: 
 					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 							donvi[total]);
 					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
@@ -320,8 +318,9 @@ public class Main_View extends JFrame {
 					break;
 				}
 
-				String str_date = Values.dateFormat.format(task.getCreateDate());
-				model.addElement(new CompactTask(id, str_name, urlicon, str_status, str_size, str_date));
+				long date = task.getCreateDate();
+				String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
+				model.addElement(new CompactTask(id, str_name, urlicon, str_status, str_size,totalSize,date,type,task.getFileSize()));
 				// i vừa là index cũng vừa là id của task
 				// vì ở trên ta đã getTask(i) rồi, nên chắc chắn i == task.getId
 				// nên ko cần tạo biến id = task.getId, bởi vì i chính là ID
@@ -370,12 +369,56 @@ public class Main_View extends JFrame {
 	}
 
 	public void create_Jpopupmenu() {
+		JMenu sort = new JMenu("Sort by");
+		JMenuItem sort_By_Name = new JMenuItem("Name");
+		sort_By_Name.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				sort_By_Name();
+			}
+		});
+		JMenuItem sort_By_Date = new JMenuItem("Date modified");
+		sort_By_Date.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				sort_By_Date();
+			}
+		});
+		JMenuItem sort_By_Size = new JMenuItem("Size");
+		sort_By_Size.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+				sort_By_Size();
+			}
+		});
+		JMenuItem sort_By_Type = new JMenuItem("Type item");
+		sort_By_Type.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				sort_By_Type();
+			}
+		});
+		sort.add(sort_By_Name);
+		sort.add(sort_By_Date);
+		sort.add(sort_By_Size);
+		sort.add(sort_By_Type);
+		jPopupMenu.add(sort);
 		JMenuItem open = new JMenuItem("Open");
 		open.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				CompactTask tmp = listView.getSelectedValue();
+				task = DownloadManager.getInstance().getTask(tmp.getId());
 				open_File(task.getSaveDirectory(), task.getSaveName());
 			}
 		});
@@ -384,7 +427,8 @@ public class Main_View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				CompactTask tmp = listView.getSelectedValue();
+				task = DownloadManager.getInstance().getTask(tmp.getId());
 				open_Folder(task.getSaveDirectory());
 			}
 		});
@@ -393,13 +437,16 @@ public class Main_View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
-				if (task.getDownloadStatus() == Values.DOWNLOADING ||
-					task.getDownloadStatus() == Values.ASSEMBLING) {
+				// TODO Auto-generated method stub
+				CompactTask tmp = listView.getSelectedValue();
+				task = DownloadManager.getInstance().getTask(tmp.getId());
+				if (task.getDownloadStatus() == Values.DOWNLOADING) {
 					try {
 						task.pause();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-					catch (IOException e1) { e1.printStackTrace(); }
 				}
 
 			}
@@ -409,16 +456,18 @@ public class Main_View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+				CompactTask tmp = listView.getSelectedValue();
+				task = DownloadManager.getInstance().getTask(tmp.getId());
 				if(task.getDownloadStatus()==Values.FINISHED)
 				{
-					System.out.println("Đã tải thành công");
+					System.out.println("ĐÃ tải thành công");
 				}
 				else
 				{
-					view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(listView.getSelectedValue().getId(), getthis());
+					view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(tmp.getId(), getthis());
 					viewTaskDownload.setVisible(true);
 				}
+
 			}
 		});
 		JMenuItem delete = new JMenuItem("Delete Download");
@@ -426,25 +475,27 @@ public class Main_View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					DownloadManager.getInstance().deleteTask(listView.getSelectedValue().getId());
-				}
-				catch (IOException e1) { e1.printStackTrace(); }
+				CompactTask tmp = listView.getSelectedValue();
+				task = DownloadManager.getInstance().getTask(tmp.getId());
+				task.set_Status(Values.DELETED);
+				// listView.remove(listView.getSelectedIndex());
 				ReloadView();
+
 			}
 		});
 		JMenuItem properties = new JMenuItem("Properties");
 		properties.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				CompactTask tmp = listView.getSelectedValue();
+				task = DownloadManager.getInstance().getTask(tmp.getId());
 				String Message = "File Name : " + task.getSaveName();
 				Message += "\nLocaiton : " + task.getSaveDirectory();
-				Message += "\nSize : "+convert_Size(task);
-				JOptionPane.showMessageDialog(getthis(), Message, "Properties",
-												JOptionPane.INFORMATION_MESSAGE);
+				Message += "\nSize : "+convert_Size(task.getFileSize());
+				JOptionPane.showMessageDialog(getthis(), Message, "Properties", JOptionPane.INFORMATION_MESSAGE);
+
 			}
 		});
 		jPopupMenu.add(open);
@@ -502,12 +553,12 @@ public class Main_View extends JFrame {
 		File directory = new File(save_Directory);
 		try {
 			Desktop.getDesktop().open(directory);
-		}
+		} 
 		catch (IOException e) { e.printStackTrace(); }
 	}
-	public String convert_Size(DownloadTask task)
+	public String convert_Size(long size)
 	{
-		double totalSize = task.getFileSize();
+		double totalSize =size;
 		if (totalSize == -1)
 			totalSize = task.getCurrentSize();
 		double downloadedSize = task.getCurrentSize();
@@ -525,6 +576,100 @@ public class Main_View extends JFrame {
 		String str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 				donvi[total]);
 		return str_size;
-
+		
 	}
+	public void sort_By_Size()
+	{
+		ListModel<CompactTask> model = listView.getModel();
+		int n = model.getSize();
+		CompactTask[] data = new CompactTask[n];
+		for(int i = 0 ; i < n ; i++)
+		{
+			data[i] = (CompactTask) model.getElementAt(i);
+		}
+		bubbleSort_for_Size(data, n);
+		listView.setListData(data);
+		
+	}
+	  void bubbleSort_for_Size(CompactTask arr[], int n) {
+	        int i, j;
+	        CompactTask temp;
+	        boolean swapped;
+	        for (i = 0; i < n - 1; i++) {
+	            swapped = false;
+	            for (j = 0; j < n - i - 1; j++) {
+	                if (arr[j].getTotal_size() > arr[j+1].getTotal_size()) {
+	                    // swap arr[j] và arr[j+1]
+	                    temp = arr[j];
+	                    arr[j] = arr[j + 1];
+	                    arr[j + 1] = temp;
+	                    swapped = true;
+	                }
+	            }
+
+	            // Nếu không có phần tử nào để hoán đổi
+	            // bên trong vòng lặp thì Break
+	            if (swapped == false)
+	                break;
+	        }
+	    }
+	  public void sort_By_Name()
+	  {
+		  ListModel<CompactTask> model = listView.getModel();
+			int n = model.getSize();
+			CompactTask[] data = new CompactTask[n];
+			for(int i = 0 ; i < n ; i++)
+			{
+				data[i] = (CompactTask) model.getElementAt(i);
+			}
+			Arrays.sort(data,(a,b)->a.getName().compareTo(b.getName()));
+			listView.setListData(data);
+	  }
+	  public void sort_By_Date()
+	  {
+		  ListModel<CompactTask> model = listView.getModel();
+			int n = model.getSize();
+			CompactTask[] data = new CompactTask[n];
+			for(int i = 0 ; i < n ; i++)
+			{
+				data[i] = (CompactTask) model.getElementAt(i);
+			}
+			bubbleSort_for_Day(data, n);
+			listView.setListData(data);
+	  }
+	  void bubbleSort_for_Day(CompactTask arr[], int n) {
+	        int i, j;
+	        CompactTask temp;
+	        boolean swapped;
+	        for (i = 0; i < n - 1; i++) {
+	            swapped = false;
+	            for (j = 0; j < n - i - 1; j++) {
+	                if (arr[j].getDate() > arr[j+1].getDate()) {
+	                    // swap arr[j] và arr[j+1]
+	                    temp = arr[j];
+	                    arr[j] = arr[j + 1];
+	                    arr[j + 1] = temp;
+	                    swapped = true;
+	                }
+	            }
+
+	            // Nếu không có phần tử nào để hoán đổi
+	            // bên trong vòng lặp thì Break
+	            if (swapped == false)
+	                break;
+	        }
+	    }
+	  public void sort_By_Type()
+	  {
+		  ListModel<CompactTask> model = listView.getModel();
+			int n = model.getSize();
+			CompactTask[] data = new CompactTask[n];
+			for(int i = 0 ; i < n ; i++)
+			{
+				data[i] = (CompactTask) model.getElementAt(i);
+			}
+			Arrays.sort(data,(a,b)->a.getType_File().compareTo(b.getType_File()));
+			listView.setListData(data);
+	  }
+
 }
