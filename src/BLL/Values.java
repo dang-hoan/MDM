@@ -1,5 +1,6 @@
 package BLL;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -22,6 +23,7 @@ public class Values {
 			5.0 };
 	
 	public static final int WINDOWS = 10, MAC = 20, LINUX = 30;
+	public static final String datadir = System.getProperty("user.home") + File.separator + ".mdm";
 	
 	public static String State(int i)
 	{

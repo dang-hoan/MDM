@@ -250,7 +250,7 @@ public class Main_View extends JFrame {
 		{
 			try {
 				task = DownloadManager.getInstance().getTask(i);				
-				if (task != null)
+				if (task != null && task.getDownloadStatus() != Values.DELETED)
 				{
 					int id = task.getTaskID();
 					String str_name = task.getSaveName();
@@ -477,9 +477,36 @@ public class Main_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				CompactTask tmp = listView.getSelectedValue();
 				task = DownloadManager.getInstance().getTask(tmp.getId());
-				task.set_Status(Values.DELETED);
-				// listView.remove(listView.getSelectedIndex());
-				ReloadView();
+				int result = JOptionPane.showConfirmDialog(getthis(), "Bạn có muốn xóa trên ổ đĩa không ", "Xác nhận",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if (result == JOptionPane.YES_OPTION) {
+					try {
+						if (task.getDownloadStatus() == Values.FINISHED) {
+							
+							File file = new File(task.getSaveDirectory() + File.separator + task.getSaveName());
+							if (file.delete()) {
+								System.out.println(file.getName() + " is deleted!");
+							} else {
+								System.out.println("Delete operation is failed.");
+							}
+							System.out.println(tmp.getId());
+							task.set_Status(Values.DELETED);
+							ReloadView();
+						} else {
+							String tam =Values.datadir+File.separator+task.getProgressFolder();
+							System.out.println(tam);
+							delete_Folder(Values.datadir+File.separator+task.getProgressFolder());
+							task.set_Status(Values.DELETED);
+							ReloadView();
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				} else if (result == JOptionPane.NO_OPTION) {
+					System.out.println(tmp.getId());
+					task.set_Status(Values.DELETED);
+					ReloadView();
+				}
 
 			}
 		});
@@ -671,5 +698,29 @@ public class Main_View extends JFrame {
 			Arrays.sort(data,(a,b)->a.getType_File().compareTo(b.getType_File()));
 			listView.setListData(data);
 	  }
-
+		public void delete_Folder(String path)
+		{
+			File file_Source = new File(path);
+			if(!file_Source.exists())
+			{
+				System.out.println("flase");
+			}
+			else if (file_Source.isDirectory())
+			{
+				File[] list_File = file_Source.listFiles();
+				for(File file : list_File)
+				{
+					if(file.isFile())
+					{
+						file.delete();
+					}
+					else
+					{
+						delete_Folder(file.getAbsolutePath());
+						file.delete();
+				
+					}
+				}
+			}
+		}
 }

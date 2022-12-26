@@ -705,7 +705,7 @@ public class DownloadTask {
 
 	public void set_Status(int status)
 	{
-		if(status<1&&status>7)
+		if(status<1&&status>8)
 		{
 			return;
 		}
