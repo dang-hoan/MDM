@@ -22,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 import BLL.Values;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
+import BLL.DownFile.YTVideo;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -200,14 +201,11 @@ public class Main_View extends JFrame {
 		JButton bPauseDownload = new JButton("");
 		bPauseDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
-				if (task.getDownloadStatus() == Values.DOWNLOADING) {
-					try {
-						task.pause();
-						
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+				try {
+					DownloadManager.getInstance().pauseTask(listView.getSelectedValue().getId());
+				
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
 			}
 		});
@@ -218,15 +216,14 @@ public class Main_View extends JFrame {
 		JButton bStartDownload = new JButton("");
 		bStartDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
-				if(task.getDownloadStatus()==Values.FINISHED)
-				{
-					System.out.println("Đã tải thành công");
+				int id = listView.getSelectedValue().getId();
+				if(DownloadManager.getInstance().isTaskExist(id)) {
+					view_Task_DownLoad view = new view_Task_DownLoad(id, getthis());
+					view.setVisible(true);
 				}
-				else
-				{
-					view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(listView.getSelectedValue().getId(), getthis());
-					viewTaskDownload.setVisible(true);
+				else if(DownloadManager.getInstance().isVideoExist(id)){
+					view_Task_DownLoad_Video view = new view_Task_DownLoad_Video(id, getthis());
+					view.setVisible(true);
 				}
 
 			}
@@ -243,6 +240,98 @@ public class Main_View extends JFrame {
 		jPopupMenu = new JPopupMenu();
 		create_Jpopupmenu();
 	}
+//	public synchronized void ReloadView()
+//	{
+//		DefaultListModel<CompactTask> model = new DefaultListModel<>();
+//		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
+//		{
+//			try {
+//				task = DownloadManager.getInstance().getTask(i);				
+//				if (task != null)
+//				{
+//					int id = task.getTaskID();
+//					String folder = task.getSaveDirectory();
+//					String str_name = task.getSaveName();
+//					URL urlicon = null;
+//					String str_status = Values.State(task.getDownloadStatus());
+//					String str_size = new String();
+//					double totalSize = task.getFileSize();
+//					if (totalSize == -1) totalSize = task.getCurrentSize();
+//					double downloadedSize = task.getCurrentSize();
+//
+//					String[] donvi = { "B", "KB", "MB", "GB", "TB" };
+//					int total = 0, download = 0;
+//					while (totalSize / 1024 > 1 && total < donvi.length) {
+//						totalSize /= 1024;
+//						total++;
+//					}
+//					while (downloadedSize / 1024 > 1 && download < donvi.length) {
+//						downloadedSize /= 1024;
+//						download++;
+//					}
+////				
+////				String donvi = "B";
+////				if (totalSize/1024 > 1)
+////				{
+////					totalSize /= 1024;
+////					downloadedSize /= 1024;
+////					donvi = "KB";
+////				}
+////				if (totalSize/1024 > 1)
+////				{
+////					totalSize /= 1024;
+////					downloadedSize /= 1024;
+////					donvi = "MB";
+////				}
+////				if (totalSize/1024 > 1)
+////				{
+////					totalSize %= 1024;
+////					downloadedSize /= 1024;
+////					donvi = "GB";
+////				}
+//				
+//					
+//				switch (task.getDownloadStatus()) {
+//				case Values.READY:
+//					str_size = "";
+//					urlicon = Main_View.class.getResource("/View/icon/ready.png");
+//					break;
+//				case Values.DOWNLOADING:
+//				case Values.ASSEMBLING:
+//					str_size = "";
+//					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+//					break;
+//				case Values.PAUSED: 
+//					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
+//							donvi[total]);
+//					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+//					break;
+//				case Values.FINISHED:
+//					str_size = String.format("%.2f %s", totalSize, donvi[total]);
+//					urlicon = Main_View.class.getResource("/View/icon/completed.png");
+//					break;
+//				case Values.CANCELED:
+//					str_size = "";
+//					urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+//					break;
+//				}
+//
+//				long date = task.getCreateDate();
+//				String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
+//				model.addElement(new CompactTask(id, folder, str_name, urlicon, str_status, str_size,totalSize,date,type,task.getFileSize()));
+//				// i vừa là index cũng vừa là id của task
+//				// vì ở trên ta đã getTask(i) rồi, nên chắc chắn i == task.getId
+//				// nên ko cần tạo biến id = task.getId, bởi vì i chính là ID
+//				}
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		listView.setModel(model);
+//		listView.setCellRenderer(new TaskRenderer());
+//		add_Even_Mouse_JList();
+//	}
+	
 	public synchronized void ReloadView()
 	{
 		DefaultListModel<CompactTask> model = new DefaultListModel<>();
@@ -253,12 +342,14 @@ public class Main_View extends JFrame {
 				if (task != null && task.getDownloadStatus() != Values.DELETED)
 				{
 					int id = task.getTaskID();
+					String folder = task.getSaveDirectory();
 					String str_name = task.getSaveName();
 					URL urlicon = null;
 					String str_status = Values.State(task.getDownloadStatus());
 					String str_size = new String();
 					double totalSize = task.getFileSize();
 					if (totalSize == -1) totalSize = task.getCurrentSize();
+					long s = (long)totalSize;
 					double downloadedSize = task.getCurrentSize();
 
 					String[] donvi = { "B", "KB", "MB", "GB", "TB" };
@@ -270,28 +361,7 @@ public class Main_View extends JFrame {
 					while (downloadedSize / 1024 > 1 && download < donvi.length) {
 						downloadedSize /= 1024;
 						download++;
-					}
-//				
-//				String donvi = "B";
-//				if (totalSize/1024 > 1)
-//				{
-//					totalSize /= 1024;
-//					downloadedSize /= 1024;
-//					donvi = "KB";
-//				}
-//				if (totalSize/1024 > 1)
-//				{
-//					totalSize /= 1024;
-//					downloadedSize /= 1024;
-//					donvi = "MB";
-//				}
-//				if (totalSize/1024 > 1)
-//				{
-//					totalSize %= 1024;
-//					downloadedSize /= 1024;
-//					donvi = "GB";
-//				}
-				
+					}				
 					
 				switch (task.getDownloadStatus()) {
 				case Values.READY:
@@ -320,11 +390,67 @@ public class Main_View extends JFrame {
 
 				long date = task.getCreateDate();
 				String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
-				model.addElement(new CompactTask(id, str_name, urlicon, str_status, str_size,totalSize,date,type,task.getFileSize()));
+				model.addElement(new CompactTask(id, folder, str_name, urlicon, str_status, str_size,totalSize,date,type,s));
 				// i vừa là index cũng vừa là id của task
 				// vì ở trên ta đã getTask(i) rồi, nên chắc chắn i == task.getId
 				// nên ko cần tạo biến id = task.getId, bởi vì i chính là ID
 				}
+				else {
+					YTVideo v = DownloadManager.getInstance().getVideo(i);
+					if(v != null && v.getDownloadStatus() != Values.DELETED) {
+						int id = v.getT()[0].getTaskID();
+						String folder = v.getT()[0].getSaveDirectory();
+						String str_name = v.getFileName();
+						URL urlicon = null;
+						String str_status = Values.State(v.getDownloadStatus());
+						String str_size = new String();
+						double totalSize = v.getFileSize();
+						System.out.println(v.getFileSize() + ", " + v.getCurrentSize());
+						if (totalSize == -2) totalSize = v.getCurrentSize();
+						long s = (long)totalSize;
+						double downloadedSize = v.getCurrentSize();
+
+						String[] donvi = { "B", "KB", "MB", "GB", "TB" };
+						int total = 0, download = 0;
+						while (totalSize / 1024 > 1 && total < donvi.length) {
+							totalSize /= 1024;
+							total++;
+						}
+						while (downloadedSize / 1024 > 1 && download < donvi.length) {
+							downloadedSize /= 1024;
+							download++;
+						}				
+						
+					switch (v.getDownloadStatus()) {
+					case Values.READY:
+						str_size = "";
+						urlicon = Main_View.class.getResource("/View/icon/ready.png");
+						break;
+					case Values.DOWNLOADING:
+					case Values.ASSEMBLING:
+						str_size = "";
+						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+						break;
+					case Values.PAUSED: 
+						str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
+								donvi[total]);
+						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+						break;
+					case Values.FINISHED:
+						str_size = String.format("%.2f %s", totalSize, donvi[total]);
+						urlicon = Main_View.class.getResource("/View/icon/completed.png");
+						break;
+					case Values.CANCELED:
+						str_size = "";
+						urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+						break;
+					}
+
+					long date = v.getT()[0].getCreateDate();
+					String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
+					model.addElement(new CompactTask(id, folder, str_name, urlicon, str_status, str_size,totalSize,date,type,s));
+					}
+					}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -333,6 +459,7 @@ public class Main_View extends JFrame {
 		listView.setCellRenderer(new TaskRenderer());
 		add_Even_Mouse_JList();
 	}
+	
 	public void newDownloadView(String url, long length)
 	{
 		try {
@@ -375,7 +502,6 @@ public class Main_View extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				sort_By_Name();
 			}
 		});
@@ -384,7 +510,6 @@ public class Main_View extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				sort_By_Date();
 			}
 		});
@@ -392,9 +517,7 @@ public class Main_View extends JFrame {
 		sort_By_Size.addActionListener(new ActionListener() {
 			
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				
+			public void actionPerformed(ActionEvent e) {				
 				sort_By_Size();
 			}
 		});
@@ -403,7 +526,6 @@ public class Main_View extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				sort_By_Type();
 			}
 		});
@@ -418,8 +540,8 @@ public class Main_View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CompactTask tmp = listView.getSelectedValue();
-				task = DownloadManager.getInstance().getTask(tmp.getId());
-				open_File(task.getSaveDirectory(), task.getSaveName());
+				if(tmp.getStatus().equals("FINISHED")) open_File(tmp.getFolder(), tmp.getName());
+				else JOptionPane.showMessageDialog(getthis(), "File download not completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);				
 			}
 		});
 		JMenuItem openfolder = new JMenuItem("Open Folder");
@@ -428,8 +550,7 @@ public class Main_View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CompactTask tmp = listView.getSelectedValue();
-				task = DownloadManager.getInstance().getTask(tmp.getId());
-				open_Folder(task.getSaveDirectory());
+				open_Folder(tmp.getFolder());
 			}
 		});
 		JMenuItem pause = new JMenuItem("Pause");
@@ -437,16 +558,11 @@ public class Main_View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				CompactTask tmp = listView.getSelectedValue();
-				task = DownloadManager.getInstance().getTask(tmp.getId());
-				if (task.getDownloadStatus() == Values.DOWNLOADING) {
-					try {
-						task.pause();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+				try {
+					DownloadManager.getInstance().pauseTask(listView.getSelectedValue().getId());
+				
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
 
 			}
@@ -456,16 +572,14 @@ public class Main_View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CompactTask tmp = listView.getSelectedValue();
-				task = DownloadManager.getInstance().getTask(tmp.getId());
-				if(task.getDownloadStatus()==Values.FINISHED)
-				{
-					System.out.println("ĐÃ tải thành công");
+				int id = listView.getSelectedValue().getId();
+				if(DownloadManager.getInstance().isTaskExist(id)) {
+					view_Task_DownLoad view = new view_Task_DownLoad(id, getthis());
+					view.setVisible(true);
 				}
-				else
-				{
-					view_Task_DownLoad viewTaskDownload = new view_Task_DownLoad(tmp.getId(), getthis());
-					viewTaskDownload.setVisible(true);
+				else if(DownloadManager.getInstance().isVideoExist(id)){
+					view_Task_DownLoad_Video view = new view_Task_DownLoad_Video(id, getthis());
+					view.setVisible(true);
 				}
 
 			}
@@ -476,27 +590,23 @@ public class Main_View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CompactTask tmp = listView.getSelectedValue();
-				task = DownloadManager.getInstance().getTask(tmp.getId());
+
 				int result = JOptionPane.showConfirmDialog(getthis(), "Bạn có muốn xóa trên ổ đĩa không ", "Xác nhận",
 						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (result == JOptionPane.YES_OPTION) {
 					try {
-						if (task.getDownloadStatus() == Values.FINISHED) {
-							
-							File file = new File(task.getSaveDirectory() + File.separator + task.getSaveName());
+						if (tmp.getStatus().equals("FINISHED")) {
+							File file = new File(tmp.getFolder() + File.separator + tmp.getName());
 							if (file.delete()) {
 								System.out.println(file.getName() + " is deleted!");
 							} else {
 								System.out.println("Delete operation is failed.");
 							}
 							System.out.println(tmp.getId());
-							task.set_Status(Values.DELETED);
+							DownloadManager.getInstance().setStatus(tmp.getId(), Values.DELETED);
 							ReloadView();
 						} else {
-							String tam =Values.datadir+File.separator+task.getProgressFolder();
-							System.out.println(tam);
-							delete_Folder(Values.datadir+File.separator+task.getProgressFolder());
-							task.set_Status(Values.DELETED);
+							DownloadManager.getInstance().delete(tmp.getId());
 							ReloadView();
 						}
 					} catch (Exception ex) {
@@ -504,10 +614,11 @@ public class Main_View extends JFrame {
 					}
 				} else if (result == JOptionPane.NO_OPTION) {
 					System.out.println(tmp.getId());
-					task.set_Status(Values.DELETED);
+					DownloadManager.getInstance().setStatus(tmp.getId(), Values.DELETED);
+					//listView remove hop ly hon
+					//listView.remove(listView.getSelectedIndex());
 					ReloadView();
 				}
-
 			}
 		});
 		JMenuItem properties = new JMenuItem("Properties");
@@ -515,12 +626,10 @@ public class Main_View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				CompactTask tmp = listView.getSelectedValue();
-				task = DownloadManager.getInstance().getTask(tmp.getId());
-				String Message = "File Name : " + task.getSaveName();
-				Message += "\nLocaiton : " + task.getSaveDirectory();
-				Message += "\nSize : "+convert_Size(task.getFileSize());
+				String Message = "File Name : " + tmp.getName();
+				Message += "\nLocation : " + tmp.getFolder();
+				Message += "\nSize : "+tmp.getSize();
 				JOptionPane.showMessageDialog(getthis(), Message, "Properties", JOptionPane.INFORMATION_MESSAGE);
 
 			}
@@ -582,28 +691,6 @@ public class Main_View extends JFrame {
 			Desktop.getDesktop().open(directory);
 		} 
 		catch (IOException e) { e.printStackTrace(); }
-	}
-	public String convert_Size(long size)
-	{
-		double totalSize =size;
-		if (totalSize == -1)
-			totalSize = task.getCurrentSize();
-		double downloadedSize = task.getCurrentSize();
-
-		String[] donvi = { "B", "KB", "MB", "GB", "TB" };
-		int total = 0, download = 0;
-		while (totalSize / 1024 > 1 && total < donvi.length) {
-			totalSize /= 1024;
-			total++;
-		}
-		while (downloadedSize / 1024 > 1 && download < donvi.length) {
-			downloadedSize /= 1024;
-			download++;
-		}
-		String str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
-				donvi[total]);
-		return str_size;
-		
 	}
 	public void sort_By_Size()
 	{
@@ -698,29 +785,32 @@ public class Main_View extends JFrame {
 			Arrays.sort(data,(a,b)->a.getType_File().compareTo(b.getType_File()));
 			listView.setListData(data);
 	  }
-		public void delete_Folder(String path)
+
+	  
+	public void delete_Folder(String path)
+	{
+		File file_Source = new File(path);
+		if(!file_Source.exists())
 		{
-			File file_Source = new File(path);
-			if(!file_Source.exists())
+			System.out.println("non exist");
+		}
+		else if (file_Source.isDirectory())
+		{
+			File[] list_File = file_Source.listFiles();
+			for(File file : list_File)
 			{
-				System.out.println("flase");
-			}
-			else if (file_Source.isDirectory())
-			{
-				File[] list_File = file_Source.listFiles();
-				for(File file : list_File)
+				if(file.isFile())
 				{
-					if(file.isFile())
-					{
-						file.delete();
-					}
-					else
-					{
-						delete_Folder(file.getAbsolutePath());
-						file.delete();
-				
-					}
+					file.delete();
+				}
+				else
+				{
+					delete_Folder(file.getAbsolutePath());
+					file.delete();
+
 				}
 			}
 		}
+	}
+
 }

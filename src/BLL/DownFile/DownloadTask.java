@@ -377,6 +377,18 @@ public class DownloadTask {
 			//Cập nhật tên file nếu tên đã tồn tại trong thư mục đích
 			File desF = new File(SaveDirectory + File.separator + SaveFile);
 			if(desF.exists() && desF.length() == 0) desF.delete();
+			else {
+				if(desF.length() != 0) {
+					int index = SaveFile.lastIndexOf(".");
+					String saveName = (index != -1)?SaveFile.substring(0, index):SaveFile;
+					int i = 1;
+					while(desF.exists()) {
+						SaveFile = saveName + "(" + Integer.toString(i) + ")" + FileType;
+						desF = new File(SaveDirectory + File.separator + SaveFile);
+						i += 1;
+					}
+				}
+			}
 
 			this.speed_Download.set_Check(Values.FINISHED);
 			TaskStatus = Values.FINISHED;

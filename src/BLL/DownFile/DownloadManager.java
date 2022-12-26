@@ -131,6 +131,14 @@ public class DownloadManager {
 		else return v[1];
 
 	}
+	
+	public boolean isTaskExist(int TaskID) {
+		return Tasks.containsKey(TaskID);
+	}
+	
+	public boolean isVideoExist(int VideoID) {
+		return VideoTasks.containsKey(VideoID);
+	}
 
 	public void startTask(int TaskID) {
 		for (DownloadTask task : Tasks.values()) {
@@ -215,6 +223,17 @@ public class DownloadManager {
 	}
 	public void shutdownRudely() throws IOException {
 		pauseAllTasks();
+	}
+	
+	public void setStatus(int TaskID, int status) {
+		DownloadTask t = getTask(TaskID);
+		if(t != null) t.set_Status(status);
+		else {
+			YTVideo v = getVideo(TaskID);
+			if(v != null) {
+				v.set_Status(status);
+			}
+		}
 	}
 
 	public void resumeTasks() throws IOException {   				//Khôi phục thông tin các task (file)
@@ -405,6 +424,28 @@ public class DownloadManager {
 
 	public String getDataDir() {
 		return DataDir;
+	}
+
+	public void delete(int id){
+		try{
+			DownloadTask t = Tasks.get(id);
+			if(t != null){
+				t.deleteAllFile();
+				t.set_Status(Values.DELETED);
+			}
+			else{
+				YTVideo v = VideoTasks.get(id);
+				if(v != null){
+					v.getT()[0].deleteAllFile();
+					v.getT()[1].deleteAllFile();
+					v.set_Status(Values.DELETED);
+				}
+			}
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		
 	}
 
 	public int getTotalDownloadedSize() {

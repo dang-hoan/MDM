@@ -45,6 +45,11 @@ public class YTVideo {
 	public void setDownloadStatus(int downloadStatus) {
 		DownloadStatus = downloadStatus;
 	}
+	public void set_Status(int status) {
+		DownloadStatus = status;
+		t[0].set_Status(status);
+		t[1].set_Status(status);
+	}
 	public long getDownloadTime() {
 		 return (downloadTime == 0)? t[0].getDownloadTime() + t[1].getDownloadTime() : downloadTime;
 	}
@@ -53,6 +58,9 @@ public class YTVideo {
 	}
 	public long getFileSize() {
 		return t[0].getFileSize() + t[1].getFileSize();
+	}
+	public long getCurrentSize() {
+		return t[0].getCurrentSize() + t[1].getCurrentSize();
 	}
 
 	public boolean checkFile(String type, String checksum) {

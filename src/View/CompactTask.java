@@ -4,6 +4,7 @@ import java.net.URL;
 
 public class CompactTask {
 	private int id;
+	private String folder;
 	private String name;
 	private URL icon;
 	private String status;
@@ -16,8 +17,9 @@ public class CompactTask {
 
 	
 
-	public CompactTask(int id, String name, URL icon, String status, String size, double size_file, long date,
+	public CompactTask(int id, String folder, String name, URL icon, String status, String size, double size_file, long date,
 			String type_File, long total_Size) {
+		this.folder = folder;
 		this.name = name;
 		this.icon = icon;
 		this.status = status;
@@ -106,5 +108,13 @@ public class CompactTask {
 
 	public void setMunber_id(int munber_id) {
 		this.munber_id = munber_id;
+	}
+
+	public String getFolder() {
+		return folder;
+	}
+
+	public void setFolder(String folder) {
+		this.folder = folder;
 	}
 }
