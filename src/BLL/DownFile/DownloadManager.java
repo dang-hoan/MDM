@@ -485,7 +485,7 @@ public class DownloadManager {
 						break;
 					}
 					case Values.FINISHED:{
-						if(state2 == Values.ASSEMBLING || state2 == Values.FINISHED) v.setDownloadStatus(state2);
+						v.setDownloadStatus(state2);
 						break;
 					}
 				}

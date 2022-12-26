@@ -122,6 +122,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 		try {
 			downloadManager.startTask(v.getT()[0].getTaskID());
 			get_Speed();
+			_Main_View.ReloadView();
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, e.getStackTrace(), "Thông báo lỗi", JOptionPane.ERROR_MESSAGE);
@@ -196,10 +197,12 @@ public class view_Task_DownLoad_Video extends JFrame {
 
 						speed_Download.set_Size_Download();
 						speed_Download2.set_Size_Download();
+						_Main_View.ReloadView();
 						Thread.sleep(1000);
 					}
 					if(v.getDownloadStatus() == Values.ASSEMBLING) {
 						jlb_Speed.setText("Đang ghép file...");
+						_Main_View.ReloadView();
 					}
 					if(v.getDownloadStatus() == Values.PAUSED) {
 						jlb_Speed.setText("Đã dừng");
@@ -208,13 +211,15 @@ public class view_Task_DownLoad_Video extends JFrame {
 							array_JProgressBar[0].setIndeterminate(false);
 							array_JProgressBar[0].setString("Đã dừng");
 						}
+						break;
 					}
 					if(v.getDownloadStatus() == Values.CANCELED) {
-						return;
+						break;
 					}
 					if(v.getDownloadStatus() == Values.MERGING) {
 //						System.out.println("merge...............");
 						jlb_Speed.setText("Đang ghép âm thanh vào video...");
+						_Main_View.ReloadView();
 					}
 						
 					switch(v.getDownloadStatus()) {
@@ -225,6 +230,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
+							_Main_View.ReloadView();
 							return;
 						}
 						case FFmpeg.FF_LAUNCH_ERROR:{
@@ -234,6 +240,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
+							_Main_View.ReloadView();
 							return;
 						}
 						case FFmpeg.FF_SUCCESS:{
@@ -257,6 +264,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
+							_Main_View.ReloadView();
 							return;
 						}
 						}
@@ -370,6 +378,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 				try {
 					downloadManager.pauseTask(v.getT()[0].getTaskID());
 					_Main_View.ReloadView();
+					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -394,8 +403,8 @@ public class view_Task_DownLoad_Video extends JFrame {
 		});
 		btn_Huy.setIcon(new ImageIcon(view_Task_DownLoad_Video.class.getResource("/View/icon/x.png")));
 
-		JButton btn_Play_1 = new JButton("Verify File");
-		btn_Play_1.addActionListener(new ActionListener() {
+		JButton btnVerify = new JButton("Verify File");
+		btnVerify.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(v.getT()[0].getDownloadStatus() != Values.FINISHED) {
@@ -404,17 +413,17 @@ public class view_Task_DownLoad_Video extends JFrame {
 				}
 				else {
 					labNotice.setText("");
-					new VerifyFile(v.getT()[0].getTaskID()).setVisible(true); //cần truyền file đã ghép vào
+					new VerifyFile(v.getT()[0].getTaskID()).setVisible(true);
 				}
 			}
 		});
-		btn_Play_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnVerify.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GroupLayout gl_panel_2_1 = new GroupLayout(panel_2_1);
 		gl_panel_2_1.setHorizontalGroup(
 			gl_panel_2_1.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2_1.createSequentialGroup()
 					.addGap(67)
-					.addComponent(btn_Play_1, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
+					.addComponent(btnVerify, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btn_Play, GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
@@ -428,7 +437,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 				.addGroup(gl_panel_2_1.createSequentialGroup()
 					.addContainerGap(19, Short.MAX_VALUE)
 					.addGroup(gl_panel_2_1.createParallelGroup(Alignment.LEADING)
-						.addComponent(btn_Play_1, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnVerify, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
 						.addGroup(gl_panel_2_1.createParallelGroup(Alignment.LEADING, false)
 							.addComponent(btn_Huy, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 							.addComponent(btn_Play, GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)

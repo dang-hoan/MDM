@@ -520,16 +520,22 @@ public class DownloadTask {
 	}
 
 	public long getCurrentSize() {
-		if(TaskStatus == Values.DOWNLOADING) return Math.min(getDownloadedSize(), FileSize);
-		if(TaskStatus == Values.ASSEMBLING) return FileSize;
+		if(TaskStatus == Values.DOWNLOADING || TaskStatus == Values.ASSEMBLING) {
+			return (FileSize != -1)? Math.min(getDownloadedSize(), FileSize) : getDownloadedSize();
+		}
 		if(TaskStatus == Values.FINISHED){	// chỉ cần lấy kích thước file đã tải xong
 			File file = new File(SaveDirectory + File.separator +  SaveFile);
 			if(file.exists()) return file.length();
+			else {
+				file = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
+				if(file.exists()) return file.length();
+			}
 		}
 		if(TaskStatus == Values.PAUSED) {
 			//Đã bật app và bắt đầu tải r
-			if(ListRunnable.size() != 0) return Math.min(getDownloadedSize(), FileSize);
-			//Mới bật app
+			if(ListRunnable.size() != 0) return (FileSize != -1) ? Math.min(getDownloadedSize(), FileSize) : getDownloadedSize();
+			
+			//Mới bật app (chưa tạo download runnable)
 			File dir = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder);
 
 			// Đối với file không lấy được chiều dài khi kết nối tới server -> lấy kích thước file đang tải
@@ -580,10 +586,11 @@ public class DownloadTask {
 //				e.printStackTrace();
 //			}
 		}
+
 		if(this.speed_Download != null) {
 			this.speed_Download.set_Check(Values.PAUSED);
-			DownloadManager.getInstance().doNext("setStatus", TaskID);
 		}
+		DownloadManager.getInstance().doNext("setStatus", TaskID);
 		finished = false;
 		downloadTime += System.currentTimeMillis() - previousTimeLine;
 	}

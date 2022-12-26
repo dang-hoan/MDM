@@ -37,6 +37,10 @@ public class Values {
 			case 6: return "CANCELED";
 			case 7: return "DELETED";
 			case 8: return "MERGING";
+			case 31: return "FF_NOT_FOUND";
+			case 32: return "FF_LAUNCH_ERROR";
+			case 33: return "FF_CONVERSION_FAILED";
+			case 34: return "FINISHED";
 		}
 		return ("");
 	}

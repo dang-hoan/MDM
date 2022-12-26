@@ -23,6 +23,7 @@ import BLL.Values;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
 import BLL.DownFile.YTVideo;
+import BLL.VideoConversion.FFmpeg;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -75,7 +76,8 @@ public class Main_View extends JFrame {
 				try {
 					new TrayClass().show();
 					DownloadManager.getInstance().resumeTasks();
-					ReloadView();					
+					ReloadView();
+					sort_By_Date();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -240,105 +242,14 @@ public class Main_View extends JFrame {
 		jPopupMenu = new JPopupMenu();
 		create_Jpopupmenu();
 	}
-//	public synchronized void ReloadView()
-//	{
-//		DefaultListModel<CompactTask> model = new DefaultListModel<>();
-//		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
-//		{
-//			try {
-//				task = DownloadManager.getInstance().getTask(i);				
-//				if (task != null)
-//				{
-//					int id = task.getTaskID();
-//					String folder = task.getSaveDirectory();
-//					String str_name = task.getSaveName();
-//					URL urlicon = null;
-//					String str_status = Values.State(task.getDownloadStatus());
-//					String str_size = new String();
-//					double totalSize = task.getFileSize();
-//					if (totalSize == -1) totalSize = task.getCurrentSize();
-//					double downloadedSize = task.getCurrentSize();
-//
-//					String[] donvi = { "B", "KB", "MB", "GB", "TB" };
-//					int total = 0, download = 0;
-//					while (totalSize / 1024 > 1 && total < donvi.length) {
-//						totalSize /= 1024;
-//						total++;
-//					}
-//					while (downloadedSize / 1024 > 1 && download < donvi.length) {
-//						downloadedSize /= 1024;
-//						download++;
-//					}
-////				
-////				String donvi = "B";
-////				if (totalSize/1024 > 1)
-////				{
-////					totalSize /= 1024;
-////					downloadedSize /= 1024;
-////					donvi = "KB";
-////				}
-////				if (totalSize/1024 > 1)
-////				{
-////					totalSize /= 1024;
-////					downloadedSize /= 1024;
-////					donvi = "MB";
-////				}
-////				if (totalSize/1024 > 1)
-////				{
-////					totalSize %= 1024;
-////					downloadedSize /= 1024;
-////					donvi = "GB";
-////				}
-//				
-//					
-//				switch (task.getDownloadStatus()) {
-//				case Values.READY:
-//					str_size = "";
-//					urlicon = Main_View.class.getResource("/View/icon/ready.png");
-//					break;
-//				case Values.DOWNLOADING:
-//				case Values.ASSEMBLING:
-//					str_size = "";
-//					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-//					break;
-//				case Values.PAUSED: 
-//					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
-//							donvi[total]);
-//					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-//					break;
-//				case Values.FINISHED:
-//					str_size = String.format("%.2f %s", totalSize, donvi[total]);
-//					urlicon = Main_View.class.getResource("/View/icon/completed.png");
-//					break;
-//				case Values.CANCELED:
-//					str_size = "";
-//					urlicon = Main_View.class.getResource("/View/icon/canceled.png");
-//					break;
-//				}
-//
-//				long date = task.getCreateDate();
-//				String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
-//				model.addElement(new CompactTask(id, folder, str_name, urlicon, str_status, str_size,totalSize,date,type,task.getFileSize()));
-//				// i vừa là index cũng vừa là id của task
-//				// vì ở trên ta đã getTask(i) rồi, nên chắc chắn i == task.getId
-//				// nên ko cần tạo biến id = task.getId, bởi vì i chính là ID
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		listView.setModel(model);
-//		listView.setCellRenderer(new TaskRenderer());
-//		add_Even_Mouse_JList();
-//	}
-	
+
 	public synchronized void ReloadView()
 	{
 		DefaultListModel<CompactTask> model = new DefaultListModel<>();
 		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
 		{
 			try {
-				task = DownloadManager.getInstance().getTask(i);				
+				task = DownloadManager.getInstance().getTask(i);	
 				if (task != null && task.getDownloadStatus() != Values.DELETED)
 				{
 					int id = task.getTaskID();
@@ -405,7 +316,6 @@ public class Main_View extends JFrame {
 						String str_status = Values.State(v.getDownloadStatus());
 						String str_size = new String();
 						double totalSize = v.getFileSize();
-						System.out.println(v.getFileSize() + ", " + v.getCurrentSize());
 						if (totalSize == -2) totalSize = v.getCurrentSize();
 						long s = (long)totalSize;
 						double downloadedSize = v.getCurrentSize();
@@ -444,6 +354,16 @@ public class Main_View extends JFrame {
 						str_size = "";
 						urlicon = Main_View.class.getResource("/View/icon/canceled.png");
 						break;
+					case FFmpeg.FF_CONVERSION_FAILED:
+					case FFmpeg.FF_LAUNCH_ERROR:
+					case FFmpeg.FF_NOT_FOUND:
+						str_size = "";
+						urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+						break;
+					case FFmpeg.FF_SUCCESS:
+						str_size = String.format("%.2f %s", totalSize, donvi[total]);
+						urlicon = Main_View.class.getResource("/View/icon/completed.png");
+						break;
 					}
 
 					long date = v.getT()[0].getCreateDate();
@@ -455,8 +375,10 @@ public class Main_View extends JFrame {
 				e.printStackTrace();
 			}
 		}
-		listView.setModel(model);
-		listView.setCellRenderer(new TaskRenderer());
+		if(model != null) {
+			listView.setModel(model);
+			listView.setCellRenderer(new TaskRenderer());
+		}
 		add_Even_Mouse_JList();
 	}
 	
@@ -615,8 +537,6 @@ public class Main_View extends JFrame {
 				} else if (result == JOptionPane.NO_OPTION) {
 					System.out.println(tmp.getId());
 					DownloadManager.getInstance().setStatus(tmp.getId(), Values.DELETED);
-					//listView remove hop ly hon
-					//listView.remove(listView.getSelectedIndex());
 					ReloadView();
 				}
 			}

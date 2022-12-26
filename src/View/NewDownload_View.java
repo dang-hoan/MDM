@@ -116,7 +116,9 @@ public class NewDownload_View extends JFrame {
         	            	if(!txt.equals("") && !txtFileName.getText().equals("")) labNotice.setText("");
 
         	            	if(length == -2) size=Utils.getFileLength(txt); //chưa kết nối tới server lần nào
+//        	            	if(length == -2) size = Utils.getLengthSocket(txt);
         	            	else size = length;
+        	            	System.out.println("size: " + size + ", length: " + length);
                     	}
         			}
         		});
@@ -193,11 +195,20 @@ public class NewDownload_View extends JFrame {
 		
 		JButton btnDownloadLater = new JButton("DOWNLOAD LATER");
 		btnDownloadLater.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DownloadTask task = new DownloadTask(Values.Task_ID_COUNTER++, txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), size, null, null, false);
-				DownloadManager.getInstance().addTask(task);
-				dispose();
-				_Main_View.ReloadView();
+			public void actionPerformed(ActionEvent e) {				
+				if(check()) {
+					try {
+						if(isURLExist()) {
+							DownloadTask task = new DownloadTask(Values.Task_ID_COUNTER++, txtURL.getText(), folder, txtFileName.getText(), Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())), size, null, null, false);
+							DownloadManager.getInstance().addTask(task);
+							dispose();
+							_Main_View.ReloadView();
+						}
+
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		btnDownloadLater.setFont(new Font("Times New Roman", Font.BOLD, 12));

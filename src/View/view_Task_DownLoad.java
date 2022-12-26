@@ -104,6 +104,7 @@ public class view_Task_DownLoad extends JFrame {
 		try {
 			downloadManager.startTask(task.getTaskID());
 			get_Speed();
+			_Main_View.ReloadView();
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, e.getStackTrace(), "Thông báo lỗi", JOptionPane.ERROR_MESSAGE);
@@ -168,12 +169,15 @@ public class view_Task_DownLoad extends JFrame {
 						jlb_Speed.setText(s+"/s" + remainTime);
 
 						speed_Download.set_Size_Download();
-						Thread.sleep(1000);
+						_Main_View.ReloadView();
+						Thread.sleep(1000);						
 					}
 					if(speed_Download.get_Check() == Values.ASSEMBLING) {
 						jlb_Speed.setText("Đang ghép file...");
+						_Main_View.ReloadView();
 					}
 					if(speed_Download.get_Check() == Values.FINISHED) {
+						System.out.println("finish");
 						String time = calculateTime(task.getDownloadTime()/1000);
 						if(time.equals("")) time = "gần 1 giây";
 						jlb_Speed.setText("Hoàn thành, " + "tổng thời gian tải: " + time);
@@ -190,6 +194,10 @@ public class view_Task_DownLoad extends JFrame {
 					}
 					if(speed_Download.get_Check() == Values.PAUSED) {
 						jlb_Speed.setText("Đã dừng");
+						break;
+					}
+					if(speed_Download.get_Check() == Values.CANCELED) {
+						break;
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -289,7 +297,7 @@ public class view_Task_DownLoad extends JFrame {
 		btn_Play.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				downloadManager.startTask(task.getTaskID());
+				start_Download();
 				if(task.getFileSize() == -1)
 				{
 					array_JProgressBar[0].setIndeterminate(true);
