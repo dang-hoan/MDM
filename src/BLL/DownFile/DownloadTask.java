@@ -555,7 +555,7 @@ public class DownloadTask {
 				return sum;
 			}
 		}
-		return -1;
+		return 0;
 	}
 
 	public long getDownloadTime() {

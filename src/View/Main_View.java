@@ -279,11 +279,11 @@ public class Main_View extends JFrame {
 					str_size = "";
 					urlicon = Main_View.class.getResource("/View/icon/ready.png");
 					break;
-				case Values.DOWNLOADING:
 				case Values.ASSEMBLING:
 					str_size = "";
 					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 					break;
+				case Values.DOWNLOADING:
 				case Values.PAUSED: 
 					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 							donvi[total]);
@@ -336,11 +336,11 @@ public class Main_View extends JFrame {
 						str_size = "";
 						urlicon = Main_View.class.getResource("/View/icon/ready.png");
 						break;
-					case Values.DOWNLOADING:
 					case Values.ASSEMBLING:
 						str_size = "";
 						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 						break;
+					case Values.DOWNLOADING:
 					case Values.PAUSED: 
 						str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 								donvi[total]);
@@ -549,7 +549,14 @@ public class Main_View extends JFrame {
 				CompactTask tmp = listView.getSelectedValue();
 				String Message = "File Name : " + tmp.getName();
 				Message += "\nLocation : " + tmp.getFolder();
-				Message += "\nSize : "+tmp.getSize();
+				String s = tmp.getSize();
+				Message += "\nSize : ";
+				if(s  == "") Message += "0B";
+				else {
+					int index = s.indexOf("/");
+					if(index != -1) Message += s.substring(0, index);
+					else Message += s;
+				}
 				JOptionPane.showMessageDialog(getthis(), Message, "Properties", JOptionPane.INFORMATION_MESSAGE);
 
 			}

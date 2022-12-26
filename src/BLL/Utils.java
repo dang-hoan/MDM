@@ -7,21 +7,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
-import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import BLL.Monitoring.HeaderCollection;
-import BLL.Monitoring.HttpContext;
 
 public class Utils {
 	private Utils() {
@@ -66,10 +62,10 @@ public class Utils {
 	public static long getLengthSocket(String txtUrl) {
 		try {
 			URL fileUrl = new URL(txtUrl);
-			Socket socket = new Socket();
-			socket.connect(new InetSocketAddress(fileUrl.getHost(), (fileUrl.getPort() < 0)?fileUrl.getDefaultPort():fileUrl.getPort()));
-//			Socket socket = createSocket(fileUrl.getHost(), (fileUrl.getPort() < 0)?fileUrl.getDefaultPort():fileUrl.getPort());
-			OutputStream sockOut = socket.getOutputStream();
+			String host = fileUrl.getHost();
+			int port = fileUrl.getPort();
+			if(port < 0) port = fileUrl.getDefaultPort();
+			Socket socket = SSLSocketFactory.getDefault().createSocket(host, port);
 			BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 			String s = fileUrl.getPath();
@@ -80,95 +76,60 @@ public class Utils {
 			if (!(s2 == null || s2.trim().length() < 1)) {
 				s += "?" + s2;
 			}
-			String reqLine = "GET /videoplayback?expire=1672066604&ei=zGGpY4q0EsTi7gPwh4XQAQ&ip=45.133.193.85&id=o-AKlfo07TOjqW3YV37qAdWoCw84aUmiaGpDEPP91utPyO&itag=18&source=youtube&requiressl=yes&spc=zIddbBjpqfuAOX9tGHslrpPhW-i11nc&vprv=1&mime=video%2Fmp4&ns=e2ZcgNQAyH7csxNisqA9lY8K&cnr=14&ratebypass=yes&dur=3656.097&lmt=1635835741043135&fexp=24001373,24007246&c=WEB&txp=6218224&n=O749K1KxWoi7Jg&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cspc%2Cvprv%2Cmime%2Cns%2Ccnr%2Cratebypass%2Cdur%2Clmt&sig=AOq0QJ8wRQIgO7COy33dsWX2HNqkbh86YzJdYZurl4tq90NM5xTXExUCIQCavtbmugetXYSBQP_MLYXjghgord-C8rFI3seVvwZS7Q%3D%3D&rm=sn-45gpjx-3x4e7e,sn-npodz7z&req_id=230d1c87382f36e2&cm2rm=sn-5hnel67s&redirect_counter=3&cms_redirect=yes&cmsv=e&ipbypass=yes&mh=Yd&mip=183.80.212.88&mm=34&mn=sn-npoe7nsr&ms=ltu&mt=1672060613&mv=m&mvi=4&pl=24&lsparams=ipbypass,mh,mip,mm,mn,ms,mv,mvi,pl&lsig=AG3C_xAwRAIgX1Ez9jdcAcLH5yF3HPimEaM6Xvjm2HuCQkDgA0yFLQsCIH7THzzNgYtPP9QQIkuSbfjQWZYDQnYZybOkvp04XPnr HTTP/1.1\r\n"
-					+ "Cookie: \r\n"
-					+ "Range: bytes=0-\r\n"
-					+ "host: rr4---sn-npoe7nsr.googlevideo.com";
-//			String reqLine = "GET " + s + " HTTP/1.1";
-//			reqLine = reqLine + "\r\n";
-////			reqLine += "Range: bytes=0-\r\n";
-//			reqLine += "host: " + fileUrl.getHost() + "\r\n";
-//			StringBuffer reqBuf = new StringBuffer();
-//			reqBuf.append(reqLine);
-//			
-//			System.out.println(reqLine);
-//			sockOut.write(reqBuf.toString().getBytes());
+			
+			 
+			
+			String reqLine = "GET " + s + " HTTP/1.1\r\n";
+			String portStr = (port == 80 || port == 443) ? "" : ":" + port;
+			reqLine += "host: " + fileUrl.getHost() + portStr + "\r\n\r\n";
+			
+//			PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+//			out.print(reqLine);
+//			out.flush(); 
+			
+			OutputStream sockOut = socket.getOutputStream();
 			sockOut.write(reqLine.getBytes());
 			sockOut.flush();
 			
-			String statusLine = re(socket.getInputStream());
+			String statusLine = sockIn.readLine();
 			System.out.println("Status:" + statusLine);
 			
-			HeaderCollection responseHeaders = new HeaderCollection();
-			responseHeaders.loadFromStream(socket.getInputStream());
-			long length = Utils.getContentLength(responseHeaders);
-			System.out.println(length);
-//			int h = 1;
-//			while(true) {
-//				System.out.println(h++);
-////				String ln = sockIn.readLine();
-////				if (ln == null)
-////					break;
-//				String ln = Utils.readLine(socket.getInputStream());
-//				System.out.println(ln);
-//				if (ln.length() < 1)
-//					break;
-//				if(ln.contains("Content-Length")) {
-//					int index = ln.indexOf(":");
-//					String value = ln.substring(index + 1).trim();
-//					if(index > 0) {
-//						return Long.parseLong(value);
-//					}
-//					System.out.println("hello");
-//					break;
-//				}
-//				if(ln.contains("content-range")) {
-//					int index = ln.indexOf(":");
-//					String value = ln.substring(index + 1).trim();
-//					if(index > 0) {
-//						String str = value.split(" ")[1];
-//						str = str.split("/")[0];
-//						String arr[] = str.split("-");
-//						return Long.parseLong(arr[1]) - Long.parseLong(arr[0]) + 1;
-//					}		
-//					System.out.println("bye");
-//					break;
-//				}
-//				
-//			}
+			String[] arr = statusLine.split(" ");
+			int statusCode = Integer.parseInt(arr[1].trim());
+			
+			while(true) {
+				String ln = sockIn.readLine();
+				
+				if (ln == null)
+					break;
+				
+				if(ln.contains("Content-Length")) {
+					int index = ln.indexOf(":");
+					String value = ln.substring(index + 1).trim();
+					if(index > 0) {
+						return Long.parseLong(value);
+					}
+					break;
+				}
+				
+				if(ln.contains("content-range")) {
+					int index = ln.indexOf(":");
+					String value = ln.substring(index + 1).trim();
+					if(index > 0) {
+						String str = value.split(" ")[1];
+						str = str.split("/")[0];
+						arr = str.split("-");
+						return Long.parseLong(arr[1]) - Long.parseLong(arr[0]) + 1;
+					}		
+					break;
+				}
+				
+			}
 			return -1;
 			
 		} catch (IOException e) {
 			return -1;
 		}
-	}
-	
-	private static Socket createSocket(String host, int port) {
-		try {
-			Socket socket = new Socket();
-			socket.setTcpNoDelay(true);
-			// socket.setReceiveBufferSize(tcpBufSize);
-			socket.setSoLinger(false, 0);
-			socket.connect(new InetSocketAddress(host, port));
-			socket = wrapSSL(socket, host, port);
-			return socket;
-		}
-		catch(Exception e) {
-			return null;
-		}
-	}
-	
-	
-	public static SSLSocket wrapSSL(Socket socket, String host, int port) {
-		try {
-			SSLSocket sock2 = (SSLSocket) (HttpContext.getInstance().getSSLContext().getSocketFactory())
-					.createSocket(socket, host, port, true);
-			sock2.startHandshake();
-			return sock2;
-		} catch (IOException e) {
-//			throw new NetworkException("Https connection failed: " + host + ":" + port);
-		}
-		return null;
 	}
 
 	public static boolean validateURL(String url) {
@@ -248,7 +209,7 @@ public class Utils {
 		}
 		return builder.toString();
 	}
-
+	
 	public static String readLine(InputStream in) throws IOException {
 		String result = "";
 		while (true) {
@@ -260,20 +221,6 @@ public class Utils {
 				return result;
 			if (x != '\r')
 				result += (char) x;
-		}
-	}
-	
-	public static String re(InputStream in) throws IOException {
-		StringBuffer buf = new StringBuffer();
-		while (true) {
-			int x = in.read();
-			if (x == -1)
-				throw new IOException(
-						"Unexpected EOF while reading header line");
-			if (x == '\n')
-				return buf.toString();
-			if (x != '\r')
-				buf.append((char) x);
 		}
 	}
 

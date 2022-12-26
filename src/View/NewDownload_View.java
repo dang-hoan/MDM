@@ -115,8 +115,8 @@ public class NewDownload_View extends JFrame {
                     	if(check()) {
         	            	if(!txt.equals("") && !txtFileName.getText().equals("")) labNotice.setText("");
 
-        	            	if(length == -2) size=Utils.getFileLength(txt); //chưa kết nối tới server lần nào
-//        	            	if(length == -2) size = Utils.getLengthSocket(txt);
+//        	            	if(length == -2) size=Utils.getFileLength(txt); //chưa kết nối tới server lần nào
+        	            	if(length == -2) size = Utils.getLengthSocket(txt);
         	            	else size = length;
         	            	System.out.println("size: " + size + ", length: " + length);
                     	}
