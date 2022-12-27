@@ -19,8 +19,15 @@ public class Values {
 	public static final int CANCELED = 6;
 	public static final int DELETED=7;
 	public static final int MERGING=8;
-	public static final double[] ZOOM_LEVEL_VALUES = { -1, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5,
-			5.0 };
+	public static final double[] ZOOM_LEVEL_VALUES = { -1, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
+	
+	//Phân loại kiểu file
+	public static final String[] video = {".mp4", ".mkv", ".avi", ".wmv", ".vob", ".flv", ".flvx"};
+	public static final String[] music = {".mp3", ".wma", ".wav", ".m4a", ".alac", ".flac", ".aac", ".ogg", ".aiff"};
+	public static final String[] picture = {".jpeg", ".jpg", ".png", ".gif", ".psd", ".raw"};
+	public static final String[] program = {".iso", ".exe"};
+	public static final String[] compressed = {".rar", ".rar4", ".zip"};
+	//document con lai
 	
 	public static final int WINDOWS = 10, MAC = 20, LINUX = 30;
 	public static final String datadir = System.getProperty("user.home") + File.separator + ".mdm";

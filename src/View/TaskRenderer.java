@@ -13,7 +13,7 @@ import BLL.Values;
 public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask>
 {
 	private static final long serialVersionUID = 1L;
-	JLabel lbicon;
+	JLabel lbitem;
 	JLabel lbname;
 	JLabel lbstate;
 	JLabel lbsize;
@@ -27,9 +27,9 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 		lbstate = new JLabel();
 		lbsize = new JLabel();
 		lbdate = new JLabel();
-		lbicon = new JLabel();
+		lbitem = new JLabel();
 		pnicon = new JPanel(new FlowLayout());
-		pnicon.add(lbicon);
+		pnicon.add(lbitem);
 		pnicon.setBorder(new EmptyBorder(5,5,0,0));
 		add(pnicon, BorderLayout.WEST);
 		pnInfor = new JPanel(new GridLayout());
@@ -42,14 +42,14 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 	public Component getListCellRendererComponent(JList<? extends CompactTask> list,
 			CompactTask value, int index, boolean isSelected, boolean cellHasFocus) 
 	{
-		Icon img = load(value.getIcon(), 40, 40);
-		lbicon.setIcon(img);
+		Icon img = load(value.getTypeitem(), 40, 40);
+		lbitem.setIcon(img);
 		lbname.setText(value.getName());
 		lbstate.setText(value.getStatus());
 		lbsize.setText(value.getSize());
 		lbdate.setText(Values.dateFormat.format(value.getDate()));
 		
-		lbicon.setOpaque(true);
+		lbitem.setOpaque(true);
 		pnicon.setOpaque(true);
 		lbname.setOpaque(true);
 		lbstate.setOpaque(true);
@@ -58,7 +58,7 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 		
 		if (isSelected)
 		{
-			lbicon.setBackground(list.getSelectionBackground());
+			lbitem.setBackground(list.getSelectionBackground());
 			pnicon.setBackground(list.getSelectionBackground());
 			lbname.setBackground(list.getSelectionBackground());
 			lbstate.setBackground(list.getSelectionBackground());
@@ -68,7 +68,7 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 		}
 		else
 		{
-			lbicon.setBackground(list.getBackground());
+			lbitem.setBackground(list.getBackground());
 			pnicon.setBackground(list.getBackground());
 			lbname.setBackground(list.getBackground());
 			lbstate.setBackground(list.getBackground());

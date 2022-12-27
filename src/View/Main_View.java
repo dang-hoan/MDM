@@ -530,8 +530,8 @@ public class Main_View extends JFrame {
 						break;
 					}
 					long date = task.getCreateDate();
-					String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
-					cpTask = new CompactTask(id, folder, str_name, urlicon, str_status, str_size,totalSize,date,type,s);
+					String type = task.getType();
+					cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
 					modelAll.addElement(cpTask);
 					if (task.getDownloadStatus() == Values.FINISHED)
 						modelCompl.addElement(cpTask);
@@ -598,8 +598,8 @@ public class Main_View extends JFrame {
 						break;
 					}
 					long date = v.getT()[0].getCreateDate();
-					String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
-					cpTask = new CompactTask(id, folder, str_name, urlicon, str_status, str_size,totalSize,date,type,s);
+					String type = task.getType();
+					cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
 					modelAll.addElement(cpTask);
 					if (task.getDownloadStatus() == Values.FINISHED)
 						modelCompl.addElement(cpTask);

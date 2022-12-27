@@ -1,12 +1,15 @@
 package View;
 
 import java.net.URL;
+import java.util.Arrays;
+
+import BLL.Values;
 
 public class CompactTask {
 	private int id;
 	private String folder;
 	private String name;
-	private URL icon;
+	private URL typeitem;
 	private String status;
 	private String size;
 	private double size_file;
@@ -17,11 +20,25 @@ public class CompactTask {
 
 	
 
-	public CompactTask(int id, String folder, String name, URL icon, String status, String size, double size_file, long date,
+	public CompactTask(int id, String folder, String name, String status, String size, double size_file, long date,
 			String type_File, long total_Size) {
 		this.folder = folder;
 		this.name = name;
-		this.icon = icon;
+
+		if (type_File.equals("")) 
+			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemUnk.png");
+		else if (Arrays.stream(Values.video).anyMatch(type_File::equals))
+			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemVd.png");
+		else if (Arrays.stream(Values.music).anyMatch(type_File::equals))
+			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemMsc.png");
+		else if (Arrays.stream(Values.picture).anyMatch(type_File::equals))
+			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemPic.png");
+		else if (Arrays.stream(Values.program).anyMatch(type_File::equals))
+			typeitem = Main_View.class.getResource("/View/icon/file_icon/itemprgr.png");
+		else if (Arrays.stream(Values.compressed).anyMatch(type_File::equals))
+			typeitem = Main_View.class.getResource("/View/icon/file_icon/itemzip.png");
+		else typeitem = Main_View.class.getResource("/View/icon/file_icon/itemDoc.png");
+		
 		this.status = status;
 		this.size = size;
 		this.id = id;
@@ -55,12 +72,12 @@ public class CompactTask {
 		this.name = name;
 	}
 
-	public URL getIcon() {
-		return icon;
+	public URL getTypeitem() {
+		return typeitem;
 	}
 
-	public void setIcon(URL icon) {
-		this.icon = icon;
+	public void setTypeitem(URL typeitem) {
+		this.typeitem = typeitem;
 	}
 
 	public String getStatus() {
