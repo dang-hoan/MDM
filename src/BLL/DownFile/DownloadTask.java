@@ -67,13 +67,14 @@ public class DownloadTask {
 	}
 
 	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName
-			, String progressFile, String progressFolder, long FileSize, int ThreadCount
+			, String FileType, String progressFile, String progressFolder, long FileSize, int ThreadCount
 			, int DownloadStatus, long createDate, long downloadTime, boolean fileNeedMerge) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
 		this.SaveDirectory = saveDirectory;
 		this.SaveFile = saveName;
+		this.FileType = FileType;
 		this.ProgressFile = progressFile;
 		this.ProgressFolder = progressFolder;
 		this.FileSize = FileSize;
@@ -593,6 +594,7 @@ public class DownloadTask {
 		DownloadManager.getInstance().doNext("setStatus", TaskID);
 		finished = false;
 		downloadTime += System.currentTimeMillis() - previousTimeLine;
+		System.out.println("pause " + completedThread);
 	}
 
 	public void pauseAllThread() {
@@ -658,6 +660,7 @@ public class DownloadTask {
 			createDate = System.currentTimeMillis();
 			writer.write(createDate + newLine);
 			writer.close();
+//			System.out.println(s);
 		} catch (Exception e) {
 			try {
 				if (writer != null)
@@ -680,7 +683,6 @@ public class DownloadTask {
 	public void cleanUp() {
 		deleteOldFile();
 		ListRunnable.clear();
-//		System.out.println("size runnable " + ListRunnable.size());
 	}
 
 	public void deleteOldFile() {
@@ -807,6 +809,10 @@ public class DownloadTask {
 	    }
 
 	    return result;
+	}
+	
+	public String getType() {
+		return FileType;
 	}
 }
 

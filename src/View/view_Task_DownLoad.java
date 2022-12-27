@@ -189,7 +189,9 @@ public class view_Task_DownLoad extends JFrame {
 							array_JProgressBar[0].setIndeterminate(false);
 							array_JProgressBar[0].setString("Hoàn Thành");
 						}
-						JOptionPane.showMessageDialog(view_Task_DownLoad.this, "File \"" + task.getSaveName() + "\" download completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);
+						ImageIcon icon = new ImageIcon(Main_View.class.getResource("/View/icon/check.png"));
+						icon = new ImageIcon(icon.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH));
+						JOptionPane.showMessageDialog(view_Task_DownLoad.this, "File \"" + task.getSaveName() + "\" download completed!", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
 						_Main_View.ReloadView();
 						break;
 					}

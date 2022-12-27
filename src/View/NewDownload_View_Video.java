@@ -121,6 +121,12 @@ public class NewDownload_View_Video extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(check()) {
 					try {
+						String url1 = videoItem.getUrl_Video();
+						String url2 = videoItem.getUrl_Audio();
+						if(!Utils.isURLExist(url1) || !Utils.isURLExist(url2)) {
+							labNotice.setText("URL is not exist or expire!");
+							return;
+						}
 						new view_Task_DownLoad_Video(videoItem, folder, Integer.parseInt(String.valueOf(cbNumber.getSelectedItem())),_Main_View);
 						NewDownload_View_Video.this.dispose();
 						_Main_View.ReloadView();

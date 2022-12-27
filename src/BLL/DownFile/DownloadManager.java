@@ -250,6 +250,7 @@ public class DownloadManager {
 			for (int i = 0; i < count; i++) {
 				String url = reader.readLine();
 				String SaveName = reader.readLine();
+				String FileType = reader.readLine();
 				String SaveDirectory = reader.readLine();
 				String ProgressFile = reader.readLine();
 				String ProgressFolder = reader.readLine();
@@ -262,7 +263,7 @@ public class DownloadManager {
 
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
-						url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, fileNeedMerge);
+						url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, fileNeedMerge);
 				addTask(task);
 			}
 			
@@ -273,6 +274,7 @@ public class DownloadManager {
 				for (int i = 0; i < count; i++) {
 					String url = reader.readLine();
 					String SaveName = reader.readLine();
+					String FileType = reader.readLine();
 					String SaveDirectory = reader.readLine();
 					String ProgressFile = reader.readLine();
 					String ProgressFolder = reader.readLine();
@@ -284,10 +286,11 @@ public class DownloadManager {
 
 					DownloadTask task = new DownloadTask(
 							Values.Task_ID_COUNTER,
-							url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, true);
+							url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, true);
 
 					url = reader.readLine();
 					SaveName = reader.readLine();
+					FileType = reader.readLine();
 					ProgressFile = reader.readLine();
 					ProgressFolder = reader.readLine();
 					FileSize = Integer.parseInt(reader.readLine());
@@ -298,7 +301,7 @@ public class DownloadManager {
 
 					DownloadTask task2 = new DownloadTask(
 							Values.Task_ID_COUNTER++,
-							url, SaveDirectory, SaveName, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, true);
+							url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, true);
 
 					String name = reader.readLine();
 					downloadTime = Long.parseLong(reader.readLine());
@@ -338,6 +341,7 @@ public class DownloadManager {
 			{
 				s += t.getUrl() + newLine +
 					 t.getSaveName() + newLine +
+					 t.getType() + newLine +
 					 t.getSaveDirectory() + newLine +
 					 t.getProgressFile() + newLine +
 					 t.getProgressFolder() + newLine +
@@ -359,6 +363,7 @@ public class DownloadManager {
 				DownloadTask[] t = v.getT();
 				s += t[0].getUrl() + newLine +
 					 t[0].getSaveName() + newLine +
+					 t[0].getType() + newLine +
 					 t[0].getSaveDirectory() + newLine +
 					 t[0].getProgressFile() + newLine +
 					 t[0].getProgressFolder() + newLine +
@@ -369,6 +374,7 @@ public class DownloadManager {
 					 t[0].getDownloadTime() + newLine +
 					 t[1].getUrl() + newLine +
 					 t[1].getSaveName() + newLine +
+					 t[1].getType() + newLine +
 					 t[1].getProgressFile() + newLine +
 					 t[1].getProgressFolder() + newLine +
 					 t[1].getFileSize() + newLine +

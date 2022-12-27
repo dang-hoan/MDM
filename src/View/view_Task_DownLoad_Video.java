@@ -231,7 +231,9 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
-							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE);
+							ImageIcon icon = new ImageIcon(Main_View.class.getResource("/View/icon/error.png"));
+							icon = new ImageIcon(icon.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH));
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
 							_Main_View.ReloadView();
 							return;
 						}
@@ -242,7 +244,9 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
-							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE);
+							ImageIcon icon = new ImageIcon(Main_View.class.getResource("/View/icon/error.png"));
+							icon = new ImageIcon(icon.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH));
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
 							_Main_View.ReloadView();
 							return;
 						}
@@ -257,7 +261,9 @@ public class view_Task_DownLoad_Video extends JFrame {
 							}
 							jlb_NameFile.setText(v.getFileName());
 							labNotice.setText("");
-							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);
+							ImageIcon icon = new ImageIcon(Main_View.class.getResource("/View/icon/check.png"));
+							icon = new ImageIcon(icon.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH));
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download completed!", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
 							_Main_View.ReloadView();
 							return;
 						}
@@ -268,7 +274,9 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
-							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE);
+							ImageIcon icon = new ImageIcon(Main_View.class.getResource("/View/icon/error.png"));
+							icon = new ImageIcon(icon.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH));
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
 							_Main_View.ReloadView();
 							return;
 						}
@@ -382,11 +390,20 @@ public class view_Task_DownLoad_Video extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.pauseTask(v.getT()[0].getTaskID());
+//					System.out.println(v.getDownloadedSize());
+//					System.out.println(v.getCurrentSize());
+//					Thread.sleep(2000);
 					_Main_View.ReloadView();
+//					System.out.println(v.getDownloadedSize());
+//					System.out.println(v.getCurrentSize());
 					
 				} catch (IOException e1) {
 					e1.printStackTrace();
-				}
+				} 
+//					catch (InterruptedException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 			}
 		});
 		btn_Pause.setIcon(new ImageIcon(view_Task_DownLoad_Video.class.getResource("/View/icon/pause.png")));

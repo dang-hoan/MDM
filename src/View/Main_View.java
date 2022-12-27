@@ -16,6 +16,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.ListModel;
 import javax.swing.border.EmptyBorder;
 
@@ -561,7 +562,24 @@ public class Main_View extends JFrame {
 					if(index != -1) Message += s.substring(0, index);
 					else Message += s;
 				}
-				JOptionPane.showMessageDialog(getthis(), Message, "Properties", JOptionPane.INFORMATION_MESSAGE);
+				DownloadTask t = DownloadManager.getInstance().getTask(tmp.getId());
+				if(t != null) {
+					Message += "\nThread Count: " + t.getTaskThreadCount();
+					Message += "\nUrl: " + t.getUrl();
+				}
+				else {
+					YTVideo v = DownloadManager.getInstance().getVideo(tmp.getId());
+					Message += "\nThread Count: " + (v.getT()[0].getTaskThreadCount() + v.getT()[1].getTaskThreadCount());
+					Message += "\nUrl1: " + v.getT()[0].getUrl();
+					Message += "\n\n\nUrl2: " + v.getT()[1].getUrl();
+				}
+				JTextArea area = new JTextArea(20, 50);
+				area.setText(Message);
+				area.setWrapStyleWord(true);
+				area.setLineWrap(true);
+				area.setCaretPosition(0);
+				area.setEditable(false);
+				JOptionPane.showMessageDialog(getthis(), new JScrollPane(area), "Properties", JOptionPane.INFORMATION_MESSAGE);
 
 			}
 		});

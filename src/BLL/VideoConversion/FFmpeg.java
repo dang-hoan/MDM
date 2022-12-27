@@ -42,7 +42,7 @@ public class FFmpeg {
 			}
 			else
 				System.out.println("merge audio and video fail");
-
+			
 			return ffExitCode == 0 ? FF_SUCCESS : FF_CONVERSION_FAILED;
 		} catch (RuntimeException | InterruptedException | IOException e) {
 			return FF_LAUNCH_ERROR;

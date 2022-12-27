@@ -151,7 +151,7 @@ public class YTVideo {
 
 		int result = DownloadManager.getInstance().mergeFile(t[0].getFilePath(), t[1].getFilePath(), t[0].getSaveDirectory() + File.separator + FileName);
 		setDownloadStatus(result);
-		
+
 		t[0].cleanUp();
 		t[1].cleanUp();
 		downloadTime = t[0].getDownloadTime() + t[1].getDownloadTime() + System.currentTimeMillis() - previousTimeLine;
