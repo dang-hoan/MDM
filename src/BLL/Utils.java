@@ -6,13 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.util.Base64;
 import java.util.Locale;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -48,6 +51,18 @@ public class Utils {
 			URI uri = new URI(fileUrl);
 			if(uri.isAbsolute()) {
 				URL url = uri.toURL();
+				String userInfo = uri.getRawUserInfo();
+				if(userInfo != null && userInfo.length() > 0) {
+					String userName = userInfo.split(":")[0];
+					String passWord = userInfo.split(":")[1];
+				    userInfo = Base64.getEncoder().encodeToString(userInfo.getBytes());
+				    Authenticator.setDefault(new Authenticator() {
+				        @Override
+				        protected PasswordAuthentication getPasswordAuthentication() {          
+				            return new PasswordAuthentication(userName, passWord.toCharArray());
+				        }
+				    });
+			    }
 				URLConnection connection = url.openConnection();
 				connection.setRequestProperty("Accept-Encoding", "identity");
 				return connection.getContentLengthLong();
@@ -55,6 +70,7 @@ public class Utils {
 			else return -1;
 
 		}catch(IOException | URISyntaxException e) {
+			System.out.println("end");
 			return -1;
 		}
 	}

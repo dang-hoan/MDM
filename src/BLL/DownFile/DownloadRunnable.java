@@ -5,6 +5,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -117,8 +119,17 @@ public class DownloadRunnable implements Runnable {
 		try {
 			URI uri = new URI(FileUrl);
 			String userInfo = uri.getRawUserInfo();
-			if(userInfo != null && userInfo.length() > 0)
+			if(userInfo != null && userInfo.length() > 0) {
+				String userName = userInfo.split(":")[0];
+				String passWord = userInfo.split(":")[1];
 			    userInfo = Base64.getEncoder().encodeToString(userInfo.getBytes());
+			    Authenticator.setDefault(new Authenticator() {
+			        @Override
+			        protected PasswordAuthentication getPasswordAuthentication() {          
+			            return new PasswordAuthentication(userName, passWord.toCharArray());
+			        }
+			    });
+			}
 
 			URL url = uri.toURL();
 			urlConnection = url.openConnection();
@@ -126,8 +137,10 @@ public class DownloadRunnable implements Runnable {
 
 			if(EndPosition != -1) urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
 			
-			if(userInfo != null && userInfo.length() > 0)
-				urlConnection.setRequestProperty("Authorization", "Basic " + userInfo);
+			if(userInfo != null && userInfo.length() > 0) {
+//				urlConnection.setRequestProperty("Authorization", "Basic " + userInfo);
+			}
+				
 
 			BufferedInputStream is = new BufferedInputStream(urlConnection.getInputStream());
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile, true));
@@ -168,13 +181,17 @@ public class DownloadRunnable implements Runnable {
 			System.out.println("reset connection");
 		}
 		catch(SocketException e) {
-			run();
+			run(); 
 			System.out.println("server reset");
 		}
 		catch (IOException | URISyntaxException e) {
-			e.printStackTrace();
-//			run();
-			System.out.println("co loi xay ra???????????????????????");
+			try {
+				Thread.sleep(2000);
+				
+			} catch (InterruptedException e1) {
+			}
+			run();
+			System.out.println("reset because server overload");
 		}
 
 	}
