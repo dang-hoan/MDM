@@ -24,7 +24,6 @@ public class CompactTask {
 			String type_File, long total_Size) {
 		this.folder = folder;
 		this.name = name;
-
 		if (type_File.equals("")) 
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemUnk.png");
 		else if (Arrays.stream(Values.video).anyMatch(type_File::equals))
@@ -38,7 +37,6 @@ public class CompactTask {
 		else if (Arrays.stream(Values.compressed).anyMatch(type_File::equals))
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/itemzip.png");
 		else typeitem = Main_View.class.getResource("/View/icon/file_icon/itemDoc.png");
-		
 		this.status = status;
 		this.size = size;
 		this.id = id;

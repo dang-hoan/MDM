@@ -4,6 +4,8 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import BLL.VideoConversion.FFmpeg;
+
 public class Values {
 	public static int Task_ID_COUNTER = 0;
 	public static int DEFAULT_THREAD_COUNT = 8;  //Number thread default
@@ -19,7 +21,8 @@ public class Values {
 	public static final int CANCELED = 6;
 	public static final int DELETED=7;
 	public static final int MERGING=8;
-	public static final double[] ZOOM_LEVEL_VALUES = { -1, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 };
+	public static final double[] ZOOM_LEVEL_VALUES = { -1, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5,
+			5.0 };
 	
 	//Phân loại kiểu file
 	public static final String[] video = {".mp4", ".mkv", ".avi", ".wmv", ".vob", ".flv", ".flvx"};
@@ -44,10 +47,10 @@ public class Values {
 			case 6: return "CANCELED";
 			case 7: return "DELETED";
 			case 8: return "MERGING";
-			case 31: return "FF_NOT_FOUND";
-			case 32: return "FF_LAUNCH_ERROR";
-			case 33: return "FF_CONVERSION_FAILED";
-			case 34: return "FINISHED";
+			case FFmpeg.FF_NOT_FOUND: return "FF_NOT_FOUND";
+			case FFmpeg.FF_LAUNCH_ERROR: return "FF_LAUNCH_ERROR";
+			case FFmpeg.FF_CONVERSION_FAILED: return "FF_CONVERSION_FAILED";
+			case FFmpeg.FF_SUCCESS: return "FINISHED";
 		}
 		return ("");
 	}

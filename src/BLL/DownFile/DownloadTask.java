@@ -264,7 +264,7 @@ public class DownloadTask {
 			TaskStatus = Values.DOWNLOADING;
 			this.speed_Download.set_Check(Values.DOWNLOADING);
 			DownloadManager.getInstance().doNext("setStatus", TaskID);
-
+			
 			if(ListRunnable.size() == 0 || finished) {
 				downloadTime = 0;
 				if (!resumeProgress()) {
@@ -591,10 +591,9 @@ public class DownloadTask {
 		if(this.speed_Download != null) {
 			this.speed_Download.set_Check(Values.PAUSED);
 		}
-		DownloadManager.getInstance().doNext("setStatus", TaskID);
+		if(TaskStatus != Values.FINISHED) DownloadManager.getInstance().doNext("setStatus", TaskID);
 		finished = false;
 		downloadTime += System.currentTimeMillis() - previousTimeLine;
-		System.out.println("pause " + completedThread);
 	}
 
 	public void pauseAllThread() {
@@ -603,13 +602,13 @@ public class DownloadTask {
 		}
 
 		//Đợi cho các luồng thực hiện xong r đã làm chuyện khác
-//		for (DownloadRunnable element : ListRunnable)
-//			try {
-//				element.join();
-//
-//			} catch (InterruptedException e) {
-//				continue;
-//			}
+		for (DownloadRunnable element : ListRunnable)
+			try {
+				element.join();
+
+			} catch (InterruptedException e) {
+				continue;
+			}
 	}
 
 	public void shutdown() throws IOException {
@@ -813,6 +812,12 @@ public class DownloadTask {
 	
 	public String getType() {
 		return FileType;
+	}
+	
+	public void setFinished() {
+		for (int i = 0; i < jProgressBars.length; i++) {
+			jProgressBars[i].setValue(100);
+		}
 	}
 }
 

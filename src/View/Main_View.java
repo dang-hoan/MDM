@@ -9,15 +9,17 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.ListModel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -25,6 +27,7 @@ import BLL.Values;
 import BLL.DownFile.DownloadManager;
 import BLL.DownFile.DownloadTask;
 import BLL.DownFile.YTVideo;
+import BLL.VideoConversion.FFmpeg;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -35,6 +38,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingUtilities;
@@ -47,18 +51,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
 import java.awt.Color;
-import java.awt.FlowLayout;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
-import javax.swing.BoxLayout;
-import javax.swing.SpringLayout;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import javax.swing.JComboBox;
 
 @SuppressWarnings("serial")
 public class Main_View extends JFrame {
@@ -74,6 +72,7 @@ public class Main_View extends JFrame {
 	private JList<CompactTask> listViewQueue;
 	private JTextField txtSearch;
 	private JComboBox<String> cbbSort;
+	
 	private static Main_View _Main_View;
 
 	public static Main_View getInstance() {
@@ -98,7 +97,8 @@ public class Main_View extends JFrame {
 				try {
 					new TrayClass().show();
 					DownloadManager.getInstance().resumeTasks();
-					ReloadView();					
+					ReloadView();
+					sort_By_Date();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -168,7 +168,6 @@ public class Main_View extends JFrame {
 		setContentPane(contentPane);
 		
 		JPanel under_panel = new JPanel();
-		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
@@ -178,62 +177,62 @@ public class Main_View extends JFrame {
 					.addContainerGap()
 					.addComponent(under_panel, GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE)
 					.addContainerGap())
-				.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
+					.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+				.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(under_panel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE))
 		);
-		
+	
 		JScrollPane scrollPaneListView_0 = new JScrollPane();
 		tabbedPane.addTab("All", null, scrollPaneListView_0, null);
-		
+
 		listViewAll = new JList<CompactTask>();
 		scrollPaneListView_0.setViewportView(listViewAll);
-		
+
 		JScrollPane scrollPaneListView_1 = new JScrollPane();
 		tabbedPane.addTab("Complete", null, scrollPaneListView_1, null);
-		
+
 		listViewCompl = new JList<CompactTask>();
 		scrollPaneListView_1.setViewportView(listViewCompl);
-		
+
 		JScrollPane scrollPaneListView_2 = new JScrollPane();
 		tabbedPane.addTab("Incomplete", null, scrollPaneListView_2, null);
-		
+
 		listViewIncom = new JList<CompactTask>();
 		scrollPaneListView_2.setViewportView(listViewIncom);
-		
+
 		JScrollPane scrollPaneListView_3 = new JScrollPane();
 		tabbedPane.addTab("Queue", null, scrollPaneListView_3, null);
-		
+
 		listViewQueue = new JList<CompactTask>();
 		scrollPaneListView_3.setViewportView(listViewQueue);
 		
 		under_panel.setLayout(null);
 		
 		listView = listViewAll; //listView ban đầu = listViewAll
-		
+
 		JPanel PanelGrid = new JPanel();
 		PanelGrid.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(192, 192, 192)));
-		
+
 		scrollPaneListView_0.setColumnHeaderView(PanelGrid);
-		
+
 		PanelGrid.setLayout(new GridLayout(0, 3, 0, 0));
-		
+
 		JPanel panel1 = new JPanel();
 		PanelGrid.add(panel1);
-		
+
 		JPanel panel2_Sort = new JPanel();
 		PanelGrid.add(panel2_Sort);
 		panel2_Sort.setLayout(new GridLayout(0, 2, 0, 0));
-		
+
 		JLabel lbl1 = new JLabel("Sort by:    ");
 		lbl1.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel2_Sort.add(lbl1);
-		
+
 		cbbSort = new JComboBox<>();
 		cbbSort.addItem("");
 		cbbSort.addItem("Name");
@@ -250,11 +249,11 @@ public class Main_View extends JFrame {
             }
         });
 		panel2_Sort.add(cbbSort);
-		
+
 		JPanel panel3_Search = new JPanel();
 		PanelGrid.add(panel3_Search);
 		panel3_Search.setLayout(new BorderLayout(0, 0));
-		
+
 		txtSearch = new JTextField();
 		panel3_Search.add(txtSearch, BorderLayout.CENTER);
 		txtSearch.setColumns(10);
@@ -263,7 +262,7 @@ public class Main_View extends JFrame {
 				ReloadView();
 			}
 		});
-		
+
 		JButton btSearch = new JButton("");
 		btSearch.setIcon(new ImageIcon(Main_View.class.getResource("/View/icon/search.png")));
 		btSearch.addActionListener(new ActionListener() {
@@ -272,7 +271,7 @@ public class Main_View extends JFrame {
 			}
 		});
 		panel3_Search.add(btSearch, BorderLayout.EAST);
-		
+
 		//sự kiện thay đổi tab
 		tabbedPane.addChangeListener(new ChangeListener() 
 		{	@Override
@@ -377,98 +376,7 @@ public class Main_View extends JFrame {
 		listViewIncom.addMouseListener(mouseListenerListView);
 		listViewQueue.addMouseListener(mouseListenerListView);
 	}
-//	public synchronized void ReloadView()
-//	{
-//		DefaultListModel<CompactTask> model = new DefaultListModel<>();
-//		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
-//		{
-//			try {
-//				task = DownloadManager.getInstance().getTask(i);				
-//				if (task != null)
-//				{
-//					int id = task.getTaskID();
-//					String folder = task.getSaveDirectory();
-//					String str_name = task.getSaveName();
-//					URL urlicon = null;
-//					String str_status = Values.State(task.getDownloadStatus());
-//					String str_size = new String();
-//					double totalSize = task.getFileSize();
-//					if (totalSize == -1) totalSize = task.getCurrentSize();
-//					double downloadedSize = task.getCurrentSize();
-//
-//					String[] donvi = { "B", "KB", "MB", "GB", "TB" };
-//					int total = 0, download = 0;
-//					while (totalSize / 1024 > 1 && total < donvi.length) {
-//						totalSize /= 1024;
-//						total++;
-//					}
-//					while (downloadedSize / 1024 > 1 && download < donvi.length) {
-//						downloadedSize /= 1024;
-//						download++;
-//					}
-////				
-////				String donvi = "B";
-////				if (totalSize/1024 > 1)
-////				{
-////					totalSize /= 1024;
-////					downloadedSize /= 1024;
-////					donvi = "KB";
-////				}
-////				if (totalSize/1024 > 1)
-////				{
-////					totalSize /= 1024;
-////					downloadedSize /= 1024;
-////					donvi = "MB";
-////				}
-////				if (totalSize/1024 > 1)
-////				{
-////					totalSize %= 1024;
-////					downloadedSize /= 1024;
-////					donvi = "GB";
-////				}
-//				
-//					
-//				switch (task.getDownloadStatus()) {
-//				case Values.READY:
-//					str_size = "";
-//					urlicon = Main_View.class.getResource("/View/icon/ready.png");
-//					break;
-//				case Values.DOWNLOADING:
-//				case Values.ASSEMBLING:
-//					str_size = "";
-//					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-//					break;
-//				case Values.PAUSED: 
-//					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
-//							donvi[total]);
-//					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-//					break;
-//				case Values.FINISHED:
-//					str_size = String.format("%.2f %s", totalSize, donvi[total]);
-//					urlicon = Main_View.class.getResource("/View/icon/completed.png");
-//					break;
-//				case Values.CANCELED:
-//					str_size = "";
-//					urlicon = Main_View.class.getResource("/View/icon/canceled.png");
-//					break;
-//				}
-//
-//				long date = task.getCreateDate();
-//				String type = str_name.substring(str_name.lastIndexOf('.') + 1).trim();
-//				model.addElement(new CompactTask(id, folder, str_name, urlicon, str_status, str_size,totalSize,date,type,task.getFileSize()));
-//				// i vừa là index cũng vừa là id của task
-//				// vì ở trên ta đã getTask(i) rồi, nên chắc chắn i == task.getId
-//				// nên ko cần tạo biến id = task.getId, bởi vì i chính là ID
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		listView.setModel(model);
-//		listView.setCellRenderer(new TaskRenderer());
-//		add_Even_Mouse_JList();
-//	}
-	
+
 	public synchronized void ReloadView()
 	{
 		DefaultListModel<CompactTask> modelIncom = new DefaultListModel<>();
@@ -476,167 +384,190 @@ public class Main_View extends JFrame {
 		DefaultListModel<CompactTask> modelQueue = new DefaultListModel<>();
 		DefaultListModel<CompactTask> modelAll = new DefaultListModel<>();
 		for(int i = 0; i < Values.Task_ID_COUNTER; i++)
-		{try {
-			task = DownloadManager.getInstance().getTask(i);
-			CompactTask cpTask;
-			if (task != null && task.getDownloadStatus() != Values.DELETED)
-			{
-				String name = task.getSaveName();
-				if (txtSearch.getText().equals("") || name.contains(txtSearch.getText()))
+		{
+			try {
+				task = DownloadManager.getInstance().getTask(i);	
+				CompactTask cpTask;
+				if (task != null && task.getDownloadStatus() != Values.DELETED)
 				{
-					int id = task.getTaskID();
-					String folder = task.getSaveDirectory();
-					String str_name = task.getSaveName();
-					URL urlicon = null;
-					String str_status = Values.State(task.getDownloadStatus());
-					String str_size = new String();
-					double totalSize = task.getFileSize();
-					if (totalSize == -1) totalSize = task.getCurrentSize();
-					long s = (long)totalSize;
-					double downloadedSize = task.getCurrentSize();
-
-					String[] donvi = { "B", "KB", "MB", "GB", "TB" };
-					int total = 0, download = 0;
-					while (totalSize / 1024 > 1 && total < donvi.length) {
-						totalSize /= 1024;
-						total++;
-					}
-					while (downloadedSize / 1024 > 1 && download < donvi.length) {
-						downloadedSize /= 1024;
-						download++;
-					}	
-					switch (task.getDownloadStatus()) {
-					case Values.READY:
-						str_size = "";
-						urlicon = Main_View.class.getResource("/View/icon/ready.png");
-						break;
-					case Values.DOWNLOADING:
-					case Values.ASSEMBLING:
-						str_size = "";
-						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-						break;
-					case Values.PAUSED: 
-						str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
-								donvi[total]);
-						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-						break;
-					case Values.FINISHED:
-						str_size = String.format("%.2f %s", totalSize, donvi[total]);
-						urlicon = Main_View.class.getResource("/View/icon/completed.png");
-						break;
-					case Values.CANCELED:
-						str_size = "";
-						urlicon = Main_View.class.getResource("/View/icon/canceled.png");
-						break;
-					}
-					long date = task.getCreateDate();
-					String type = task.getType();
-					cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
-					modelAll.addElement(cpTask);
-					if (task.getDownloadStatus() == Values.FINISHED)
-						modelCompl.addElement(cpTask);
-					else if (task.getDownloadStatus() == Values.DOWNLOADING 
-							|| task.getDownloadStatus() == Values.ASSEMBLING
-							|| task.getDownloadStatus() == Values.PAUSED)
-						modelIncom.addElement(cpTask);
-					else if (task.getDownloadStatus() == Values.READY)
-						modelQueue.addElement(cpTask);
-				}	
-			}
-			else {
-				YTVideo v = DownloadManager.getInstance().getVideo(i);
-				if(v != null && v.getDownloadStatus() != Values.DELETED)
-				{	
 					String name = task.getSaveName();
 					if (txtSearch.getText().equals("") || name.contains(txtSearch.getText()))
 					{
-					int id = v.getT()[0].getTaskID();
-					String folder = v.getT()[0].getSaveDirectory();
-					String str_name = v.getFileName();
-					URL urlicon = null;
-					String str_status = Values.State(v.getDownloadStatus());
-					String str_size = new String();
-					double totalSize = v.getFileSize();
-					System.out.println(v.getFileSize() + ", " + v.getCurrentSize());
-					if (totalSize == -2) totalSize = v.getCurrentSize();
-					long s = (long)totalSize;
-					double downloadedSize = v.getCurrentSize();
+						int id = task.getTaskID();
+						String folder = task.getSaveDirectory();
+						String str_name = task.getSaveName();
+						URL urlicon = null;
+						String str_status = Values.State(task.getDownloadStatus());
+						String str_size = new String();
+						double totalSize = task.getFileSize();
+						if (totalSize == -1) totalSize = task.getCurrentSize();
+						long s = (long)totalSize;
+						double downloadedSize = task.getCurrentSize();
 
-					String[] donvi = { "B", "KB", "MB", "GB", "TB" };
-					int total = 0, download = 0;
-					while (totalSize / 1024 > 1 && total < donvi.length) {
-						totalSize /= 1024;
-						total++;
-					}
-					while (downloadedSize / 1024 > 1 && download < donvi.length) {
-						downloadedSize /= 1024;
-						download++;
-					}				
+						String[] donvi = { "B", "KB", "MB", "GB", "TB" };
+						int total = 0, download = 0;
+						while (totalSize / 1024 > 1 && total < donvi.length) {
+							totalSize /= 1024;
+							total++;
+						}
+						while (downloadedSize / 1024 > 1 && download < donvi.length) {
+							downloadedSize /= 1024;
+							download++;
+						}				
 					
-					switch (v.getDownloadStatus()) {
-					case Values.READY:
-						str_size = "";
-						urlicon = Main_View.class.getResource("/View/icon/ready.png");
-						break;
-					case Values.DOWNLOADING:
-					case Values.ASSEMBLING:
-						str_size = "";
-						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-						break;
-					case Values.PAUSED: 
-						str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
-								donvi[total]);
-						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
-						break;
-					case Values.FINISHED:
-						str_size = String.format("%.2f %s", totalSize, donvi[total]);
-						urlicon = Main_View.class.getResource("/View/icon/completed.png");
-						break;
-					case Values.CANCELED:
-						str_size = "";
-						urlicon = Main_View.class.getResource("/View/icon/canceled.png");
-						break;
+						switch (task.getDownloadStatus()) {
+						case Values.READY:
+							str_size = "";
+							urlicon = Main_View.class.getResource("/View/icon/ready.png");
+							break;
+						case Values.DOWNLOADING:
+						case Values.ASSEMBLING:
+							str_size = "";
+							urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+							break;
+						case Values.PAUSED: 
+							str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
+									donvi[total]);
+							urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+							break;
+						case Values.FINISHED:
+							str_size = String.format("%.2f %s", totalSize, donvi[total]);
+							urlicon = Main_View.class.getResource("/View/icon/completed.png");
+							break;
+						case Values.CANCELED:
+							str_size = "";
+							urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+							break;
+						}
+
+						long date = task.getCreateDate();
+						String type = task.getType();
+						cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
+						modelAll.addElement(cpTask);
+						if (task.getDownloadStatus() == Values.FINISHED)
+							modelCompl.addElement(cpTask);
+						else if (task.getDownloadStatus() == Values.DOWNLOADING 
+								|| task.getDownloadStatus() == Values.ASSEMBLING
+								|| task.getDownloadStatus() == Values.PAUSED)
+							modelIncom.addElement(cpTask);
+						else if (task.getDownloadStatus() == Values.READY)
+							modelQueue.addElement(cpTask);
+					}	
+				}
+				else {
+					YTVideo v = DownloadManager.getInstance().getVideo(i);
+					if(v != null && v.getDownloadStatus() != Values.DELETED) {
+						String name = task.getSaveName();
+						if (txtSearch.getText().equals("") || name.contains(txtSearch.getText()))
+						{
+							int id = v.getT()[0].getTaskID();
+							String folder = v.getT()[0].getSaveDirectory();
+							String str_name = v.getFileName();
+							URL urlicon = null;
+							String str_status = Values.State(v.getDownloadStatus());
+							String str_size = new String();
+							double totalSize = v.getFileSize();
+							if (totalSize == -2) totalSize = v.getCurrentSize();
+							long s = (long)totalSize;
+							double downloadedSize = v.getCurrentSize();
+
+							String[] donvi = { "B", "KB", "MB", "GB", "TB" };
+							int total = 0, download = 0;
+							while (totalSize / 1024 > 1 && total < donvi.length) {
+								totalSize /= 1024;
+								total++;
+							}
+							while (downloadedSize / 1024 > 1 && download < donvi.length) {
+								downloadedSize /= 1024;
+								download++;
+							}				
+						
+							switch (v.getDownloadStatus()) {
+							case Values.READY:
+								str_size = "";
+								urlicon = Main_View.class.getResource("/View/icon/ready.png");
+								break;
+							case Values.DOWNLOADING:
+							case Values.ASSEMBLING:
+								str_size = "";
+								urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+								break;
+							case Values.PAUSED: 
+								str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
+										donvi[total]);
+								urlicon = Main_View.class.getResource("/View/icon/dloading.png");
+								break;
+							case Values.FINISHED:
+								str_size = String.format("%.2f %s", totalSize, donvi[total]);
+								urlicon = Main_View.class.getResource("/View/icon/completed.png");
+								break;
+							case Values.CANCELED:
+								str_size = "";
+								urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+								break;				
+							case Values.MERGING:
+								str_size = "";
+								urlicon = Main_View.class.getResource("/View/icon/merge.png");
+								break;
+							case FFmpeg.FF_CONVERSION_FAILED:
+							case FFmpeg.FF_LAUNCH_ERROR:
+							case FFmpeg.FF_NOT_FOUND:
+								str_size = "";
+								urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+								break;
+							case FFmpeg.FF_SUCCESS:
+								str_size = String.format("%.2f %s", totalSize, donvi[total]);
+								urlicon = Main_View.class.getResource("/View/icon/completed.png");
+								break;
+							}
+
+							long date = v.getT()[0].getCreateDate();
+							String type = task.getType();
+							cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
+							modelAll.addElement(cpTask);
+							if (v.getDownloadStatus() == FFmpeg.FF_SUCCESS)
+								modelCompl.addElement(cpTask);
+							else if (v.getDownloadStatus() == Values.DOWNLOADING 
+									|| v.getDownloadStatus() == Values.ASSEMBLING
+									|| v.getDownloadStatus() == Values.PAUSED
+									|| v.getDownloadStatus() == FFmpeg.FF_CONVERSION_FAILED
+									|| v.getDownloadStatus() == FFmpeg.FF_LAUNCH_ERROR
+									|| v.getDownloadStatus() == FFmpeg.FF_NOT_FOUND
+									)
+								modelIncom.addElement(cpTask);
+							else if (v.getDownloadStatus() == Values.READY)
+								modelQueue.addElement(cpTask);
+						}
 					}
-					long date = v.getT()[0].getCreateDate();
-					String type = task.getType();
-					cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
-					modelAll.addElement(cpTask);
-					if (task.getDownloadStatus() == Values.FINISHED)
-						modelCompl.addElement(cpTask);
-					else if (task.getDownloadStatus() == Values.DOWNLOADING 
-							|| task.getDownloadStatus() == Values.ASSEMBLING
-							|| task.getDownloadStatus() == Values.PAUSED)
-						modelIncom.addElement(cpTask);
-					else if (task.getDownloadStatus() == Values.READY)
-						modelQueue.addElement(cpTask);
-				}}		
+				}
+			}catch (Exception e) { 
+				e.printStackTrace(); 
 			}
-		} 
-		catch (Exception e) { e.printStackTrace(); }
+
+			switch (tabbedPane.getSelectedIndex())
+			{
+			case 0:
+				listView.setModel(modelAll);
+				listView.setCellRenderer(new TaskRenderer());
+				break;
+			case 1:
+				listViewCompl.setModel(modelCompl);
+				listViewCompl.setCellRenderer(new TaskRenderer());
+				break;
+			case 2:
+				listViewIncom.setModel(modelIncom);
+				listViewIncom.setCellRenderer(new TaskRenderer());
+				break;
+			case 3:
+				listViewQueue.setModel(modelQueue);
+				listViewQueue.setCellRenderer(new TaskRenderer());
+				break;
+			}
+			if (cbbSort.getSelectedItem().equals("Name")) sort_By_Name();
+			else if (cbbSort.getSelectedItem().equals("Date Motified")) sort_By_Date();
+			else if (cbbSort.getSelectedItem().equals("Size")) sort_By_Size();
+			else if (cbbSort.getSelectedItem().equals("Type Item")) sort_By_Type();
 		}
-		switch (tabbedPane.getSelectedIndex())
-		{
-		case 0:
-			listView.setModel(modelAll);
-			listView.setCellRenderer(new TaskRenderer());
-			break;
-		case 1:
-			listViewCompl.setModel(modelCompl);
-			listViewCompl.setCellRenderer(new TaskRenderer());
-			break;
-		case 2:
-			listViewIncom.setModel(modelIncom);
-			listViewIncom.setCellRenderer(new TaskRenderer());
-			break;
-		case 3:
-			listViewQueue.setModel(modelQueue);
-			listViewQueue.setCellRenderer(new TaskRenderer());
-			break;
-		}
-		if (cbbSort.getSelectedItem().equals("Name")) sort_By_Name();
-        else if (cbbSort.getSelectedItem().equals("Date Motified")) sort_By_Date();
-        else if (cbbSort.getSelectedItem().equals("Size")) sort_By_Size();
-        else if (cbbSort.getSelectedItem().equals("Type Item")) sort_By_Type();
 	}
 	
 	public void newDownloadView(String url, long length)
@@ -802,6 +733,49 @@ public class Main_View extends JFrame {
 				}
 			}
 		});
+		JMenuItem changeThreadCount = new JMenuItem("Change thread count");
+		changeThreadCount.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CompactTask tmp = listView.getSelectedValue();
+				switch(tmp.getStatus()) {
+				case "READY":
+				case "FINISHED":
+				case "CANCELED":
+				case "FF_CONVERSION_FAILED":
+					List<String> item = new ArrayList<>();
+					int min;
+					if(DownloadManager.getInstance().isVideoExist(tmp.getId())) {
+						min = 2;
+					}
+					else {
+						min = Values.MIN_THREAD_COUNT;					
+					}
+					for(int i = min; i <= Values.MAX_THREAD_COUNT; i++)
+						item.add(Integer.toString(i));	
+					
+					JComboBox<?> threadNumber = new JComboBox<>(item.toArray());					
+					threadNumber.setSelectedIndex(DownloadManager.getInstance().getThreadCount(tmp.getId())-min);
+					int result = JOptionPane.showConfirmDialog(getthis(), threadNumber, "Change thread count", JOptionPane.OK_CANCEL_OPTION);
+					if(result == JOptionPane.OK_OPTION) {
+						boolean res = DownloadManager.getInstance().setThreadCount(tmp.getId(), threadNumber.getSelectedIndex() + min);
+						if(res) {
+							JOptionPane.showMessageDialog(getthis(), "Change thread count success!", "Notification", JOptionPane.INFORMATION_MESSAGE);
+						}
+						else {
+							JOptionPane.showMessageDialog(getthis(), "Change thread count fail!", "Notification", JOptionPane.INFORMATION_MESSAGE);
+						}
+					}
+					break;
+					default:{
+						JOptionPane.showMessageDialog(getthis(), "You can only change the number of threads when the file is ready, finished, canceled or conversion failed", "Notification", JOptionPane.INFORMATION_MESSAGE);
+						break;
+					}
+				}
+					ReloadView();
+			}
+		});
 		JMenuItem properties = new JMenuItem("Properties");
 		properties.addActionListener(new ActionListener() {
 
@@ -810,8 +784,32 @@ public class Main_View extends JFrame {
 				CompactTask tmp = listView.getSelectedValue();
 				String Message = "File Name : " + tmp.getName();
 				Message += "\nLocation : " + tmp.getFolder();
-				Message += "\nSize : "+tmp.getSize();
-				JOptionPane.showMessageDialog(getthis(), Message, "Properties", JOptionPane.INFORMATION_MESSAGE);
+				String s = tmp.getSize();
+				Message += "\nSize : ";
+				if(s  == "") Message += "0B";
+				else {
+					int index = s.indexOf("/");
+					if(index != -1) Message += s.substring(0, index);
+					else Message += s;
+				}
+				DownloadTask t = DownloadManager.getInstance().getTask(tmp.getId());
+				if(t != null) {
+					Message += "\nThread Count: " + t.getTaskThreadCount();
+					Message += "\nUrl: " + t.getUrl();
+				}
+				else {
+					YTVideo v = DownloadManager.getInstance().getVideo(tmp.getId());
+					Message += "\nThread Count: " + (v.getT()[0].getTaskThreadCount() + v.getT()[1].getTaskThreadCount());
+					Message += "\nUrl1: " + v.getT()[0].getUrl();
+					Message += "\n\n\nUrl2: " + v.getT()[1].getUrl();
+				}
+				JTextArea area = new JTextArea(20, 50);
+				area.setText(Message);
+				area.setWrapStyleWord(true);
+				area.setLineWrap(true);
+				area.setCaretPosition(0);
+				area.setEditable(false);
+				JOptionPane.showMessageDialog(getthis(), new JScrollPane(area), "Properties", JOptionPane.INFORMATION_MESSAGE);
 
 			}
 		});
@@ -821,36 +819,44 @@ public class Main_View extends JFrame {
 		jPopupMenu.add(pause);
 		jPopupMenu.add(resume);
 		jPopupMenu.add(delete);
+		jPopupMenu.add(changeThreadCount);
 		jPopupMenu.add(properties);
 	}
-	
+
 	MouseListener mouseListenerListView = new MouseListener(){
 
 		@Override
-		public void mouseReleased(MouseEvent e) {
+		public void mouseReleased(MouseEvent e) {			
+				if (e.isPopupTrigger()) {
+					int tmp = listView.locationToIndex(e.getPoint());
+					listView.setSelectedIndex(tmp);
+					show_Popup_Jlist(e);
+				}
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					if (e.getClickCount() == 2) {
+						DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
+						if (task.getDownloadStatus() == Values.FINISHED) {
+							open_File(task.getSaveDirectory(), task.getSaveName());
+						}
+					}
 
-			if (e.isPopupTrigger()) {
-				int tmp = listView.locationToIndex(e.getPoint());
-				listView.setSelectedIndex(tmp);
-				show_Popup_Jlist(e);
-			}
-			if (SwingUtilities.isLeftMouseButton(e)) {
-				if (e.getClickCount() == 2) {
-					DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
-					if (task.getDownloadStatus() == Values.FINISHED) {
-						open_File(task.getSaveDirectory(), task.getSaveName());
-			}	}	}
+				}
+
 		}
+
 		@Override
 		public void mousePressed(MouseEvent e) { }
+
 		@Override
 		public void mouseExited(MouseEvent e) { }
+
 		@Override
 		public void mouseEntered(MouseEvent e) { }
+
 		@Override
 		public void mouseClicked(MouseEvent e) { }
 	};
-		
+
 	public void show_Popup_Jlist(MouseEvent e) {
 
 		jPopupMenu.show(listView, e.getX(), e.getY());
@@ -883,15 +889,15 @@ public class Main_View extends JFrame {
 	        for (i = 0; i < n - 1; i++) {
 	            swapped = false;
 	            for (j = 0; j < n - i - 1; j++) {
-	                if (arr[j].getTotal_size() > arr[j+1].getTotal_size())
-	                {
+	                if (arr[j].getTotal_size() > arr[j+1].getTotal_size()) {
 	                    temp = arr[j];
 	                    arr[j] = arr[j + 1];
 	                    arr[j + 1] = temp;
 	                    swapped = true;
 	                }
 	            }
-	            if (swapped == false) break;
+	            if (swapped == false)
+	                break;
 	        }
 	    }
 	  public void sort_By_Name()
@@ -933,7 +939,8 @@ public class Main_View extends JFrame {
 	                    swapped = true;
 	                }
 	            }
-	            if (swapped == false) break;
+	            if (swapped == false)
+	                break;
 	        }
 	    }
 	  public void sort_By_Type()
@@ -975,4 +982,5 @@ public class Main_View extends JFrame {
 			}
 		}
 	}
+
 }

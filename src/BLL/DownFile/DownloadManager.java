@@ -36,8 +36,41 @@ public class DownloadManager {
 	}
 
 	public void setMaxThreadCount(int MaxCount) {
-		if (MaxCount > 0)
+		if (MaxCount >= Values.MIN_THREAD_COUNT)
 			Values.MAX_THREAD_COUNT = MaxCount;
+	}
+	
+	public int getThreadCount(int TaskID) {
+		DownloadTask t = getTask(TaskID);
+		if(t != null) {
+			return t.getTaskThreadCount();
+		}
+		else {
+			YTVideo v = getVideo(TaskID);
+			if(v != null) {
+				return v.getT()[0].getTaskThreadCount() + v.getT()[1].getTaskThreadCount();
+			}
+		}
+		return Values.DEFAULT_THREAD_COUNT;
+	}
+	
+	public boolean setThreadCount(int TaskID, int ThreadCount) {
+		DownloadTask t = getTask(TaskID);
+		if(t != null) {
+			t.setTaskThreadCount(ThreadCount);
+			return true;
+		}
+		else {
+			YTVideo v = getVideo(TaskID);
+			if(v != null) {
+				int size1 = ThreadCount/2;
+				int size2 = ThreadCount - size1;
+				v.getT()[0].setTaskThreadCount(size1);
+				v.getT()[1].setTaskThreadCount(size2);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//length = -1
@@ -149,8 +182,26 @@ public class DownloadManager {
 		}
 		for(YTVideo v : VideoTasks.values()) {
 			if(v.getT()[0].getTaskID() == TaskID) {
-				v.getT()[0].startTask();
-				v.getT()[1].startTask();
+				if(v.getDownloadStatus() == Values.FINISHED || v.getDownloadStatus() == Values.MERGING ||
+						v.getDownloadStatus() == FFmpeg.FF_NOT_FOUND || v.getDownloadStatus() == FFmpeg.FF_LAUNCH_ERROR) v.merge();
+				else {
+					if(v.getDownloadStatus() == FFmpeg.FF_SUCCESS || v.getDownloadStatus() == FFmpeg.FF_CONVERSION_FAILED) {
+						v.setDownloadStatus(Values.DOWNLOADING);
+						v.getT()[0].startTask();
+						v.getT()[1].startTask();
+					}
+					else {
+						v.setDownloadStatus(Values.DOWNLOADING);
+						int st1 = v.getT()[0].getDownloadStatus();
+						int st2 = v.getT()[1].getDownloadStatus();
+						if(st1 != Values.FINISHED) v.getT()[0].startTask();
+						else v.getT()[0].setFinished();
+						if(st2 != Values.FINISHED) v.getT()[1].startTask();
+						else v.getT()[1].setFinished();
+					}
+					
+				}
+				
 				break;
 			}
 		}
