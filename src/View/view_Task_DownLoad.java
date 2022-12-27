@@ -124,12 +124,13 @@ public class view_Task_DownLoad extends JFrame {
 		}
 		else
 		{
+			boolean str = (ThreadCount > 24)? false : true; //số luồng nhiều thì không vẽ phần trăm để đỡ rối mắt
 			for(int i= 0;i<array_JProgressBar.length;i++)
 			{
 
 				array_JProgressBar[i] = new JProgressBar();
 				array_JProgressBar[i].setBounds(tmp*i+5, 100, tmp, 20);
-				array_JProgressBar[i].setStringPainted(true);
+				array_JProgressBar[i].setStringPainted(str);
 				getContentPane().add(this.array_JProgressBar[i]);
 			}
 		}
@@ -177,7 +178,6 @@ public class view_Task_DownLoad extends JFrame {
 						_Main_View.ReloadView();
 					}
 					if(speed_Download.get_Check() == Values.FINISHED) {
-						System.out.println("finish");
 						String time = calculateTime(task.getDownloadTime()/1000);
 						if(time.equals("")) time = "gần 1 giây";
 						jlb_Speed.setText("Hoàn thành, " + "tổng thời gian tải: " + time);
@@ -189,6 +189,7 @@ public class view_Task_DownLoad extends JFrame {
 							array_JProgressBar[0].setIndeterminate(false);
 							array_JProgressBar[0].setString("Hoàn Thành");
 						}
+						JOptionPane.showMessageDialog(view_Task_DownLoad.this, "File \"" + task.getSaveName() + "\" download completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);
 						_Main_View.ReloadView();
 						break;
 					}

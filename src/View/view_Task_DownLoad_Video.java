@@ -144,11 +144,12 @@ public class view_Task_DownLoad_Video extends JFrame {
 		}
 		else
 		{
+			boolean str = (ThreadCount > 24)? false : true; //số luồng nhiều thì không vẽ phần trăm để đỡ rối mắt
 			for(int i= 0;i<array_JProgressBar.length;i++)
 			{
 				array_JProgressBar[i] = new JProgressBar();
 				array_JProgressBar[i].setBounds(tmp*i+5, 100, tmp, 20);
-				array_JProgressBar[i].setStringPainted(true);
+				array_JProgressBar[i].setStringPainted(str);
 				getContentPane().add(this.array_JProgressBar[i]);
 			}
 			int j = 0;
@@ -156,7 +157,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 			{
 				array_JProgressBar2[j] = new JProgressBar();
 				array_JProgressBar2[j].setBounds(tmp*i+5, 100, tmp, 20);
-				array_JProgressBar2[j].setStringPainted(true);
+				array_JProgressBar2[j].setStringPainted(str);
 				getContentPane().add(this.array_JProgressBar2[j++]);
 			}
 		}
@@ -230,6 +231,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE);
 							_Main_View.ReloadView();
 							return;
 						}
@@ -240,6 +242,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE);
 							_Main_View.ReloadView();
 							return;
 						}
@@ -254,6 +257,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 							}
 							jlb_NameFile.setText(v.getFileName());
 							labNotice.setText("");
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);
 							_Main_View.ReloadView();
 							return;
 						}
@@ -264,6 +268,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Lỗi khi ghép file");
 							}
+							JOptionPane.showMessageDialog(view_Task_DownLoad_Video.this, "File \"" + v.getFileName() + "\" download fail!", "Notification", JOptionPane.INFORMATION_MESSAGE);
 							_Main_View.ReloadView();
 							return;
 						}

@@ -680,6 +680,7 @@ public class DownloadTask {
 	public void cleanUp() {
 		deleteOldFile();
 		ListRunnable.clear();
+//		System.out.println("size runnable " + ListRunnable.size());
 	}
 
 	public void deleteOldFile() {

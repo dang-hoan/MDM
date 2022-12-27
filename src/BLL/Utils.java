@@ -360,8 +360,8 @@ public class Utils {
 
 	public static File getJarFile() {
 		try {
-			System.out.println("path jar: " + MDM.class.getProtectionDomain().getCodeSource()
-					.getLocation().toURI().getPath());
+//			System.out.println("path jar: " + MDM.class.getProtectionDomain().getCodeSource()
+//					.getLocation().toURI().getPath());
 			return new File(MDM.class.getProtectionDomain().getCodeSource()
 					.getLocation().toURI().getPath());
 		} catch (URISyntaxException e) {
