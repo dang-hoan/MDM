@@ -197,7 +197,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 
 						speed_Download.set_Size_Download();
 						speed_Download2.set_Size_Download();
-						_Main_View.ReloadView();
+//						_Main_View.ReloadView();
 						Thread.sleep(1000);
 					}
 					if(v.getDownloadStatus() == Values.ASSEMBLING) {

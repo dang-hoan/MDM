@@ -279,11 +279,11 @@ public class Main_View extends JFrame {
 					str_size = "";
 					urlicon = Main_View.class.getResource("/View/icon/ready.png");
 					break;
+				case Values.DOWNLOADING:
 				case Values.ASSEMBLING:
 					str_size = "";
 					urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 					break;
-				case Values.DOWNLOADING:
 				case Values.PAUSED: 
 					str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 							donvi[total]);
@@ -336,11 +336,11 @@ public class Main_View extends JFrame {
 						str_size = "";
 						urlicon = Main_View.class.getResource("/View/icon/ready.png");
 						break;
+					case Values.DOWNLOADING:
 					case Values.ASSEMBLING:
 						str_size = "";
 						urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 						break;
-					case Values.DOWNLOADING:
 					case Values.PAUSED: 
 						str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 								donvi[total]);
@@ -353,6 +353,10 @@ public class Main_View extends JFrame {
 					case Values.CANCELED:
 						str_size = "";
 						urlicon = Main_View.class.getResource("/View/icon/canceled.png");
+						break;
+					case Values.MERGING:
+						str_size = "";
+						urlicon = Main_View.class.getResource("/View/icon/merge.png");
 						break;
 					case FFmpeg.FF_CONVERSION_FAILED:
 					case FFmpeg.FF_LAUNCH_ERROR:

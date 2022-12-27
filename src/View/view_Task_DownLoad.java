@@ -169,7 +169,7 @@ public class view_Task_DownLoad extends JFrame {
 						jlb_Speed.setText(s+"/s" + remainTime);
 
 						speed_Download.set_Size_Download();
-						_Main_View.ReloadView();
+//						_Main_View.ReloadView();
 						Thread.sleep(1000);						
 					}
 					if(speed_Download.get_Check() == Values.ASSEMBLING) {

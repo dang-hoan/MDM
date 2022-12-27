@@ -5,10 +5,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Base64;
 
 import javax.swing.JProgressBar;
 
@@ -110,18 +113,21 @@ public class DownloadRunnable implements Runnable {
 				+ EndPosition);
 
 		byte[] buf = new byte[BUFFER_SIZE];
+		URLConnection urlConnection;
 		try {
 			URI uri = new URI(FileUrl);
-//			String userInfo = uri.getRawUserInfo();
-//			if(userInfo != null && userInfo.length() > 0)
-//			    userInfo = Base64.getEncoder().encodeToString(userInfo.getBytes());
+			String userInfo = uri.getRawUserInfo();
+			if(userInfo != null && userInfo.length() > 0)
+			    userInfo = Base64.getEncoder().encodeToString(userInfo.getBytes());
 
 			URL url = uri.toURL();
-			URLConnection urlConnection = url.openConnection();
+			urlConnection = url.openConnection();
+			urlConnection.setReadTimeout(6000);
 
 			if(EndPosition != -1) urlConnection.setRequestProperty("Range", "bytes=" + CurrentPosition + "-" + EndPosition);
-//			if(userInfo != null && userInfo.length() > 0)
-//				urlConnection.setRequestProperty("Authorization", "Basic " + userInfo);
+			
+			if(userInfo != null && userInfo.length() > 0)
+				urlConnection.setRequestProperty("Authorization", "Basic " + userInfo);
 
 			BufferedInputStream is = new BufferedInputStream(urlConnection.getInputStream());
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile, true));
@@ -157,8 +163,18 @@ public class DownloadRunnable implements Runnable {
 			this.jProgressBar.setValue(jProgressBar.getMaximum());
 			DownloadManager.getInstance().getTask(TaskID, speed_Download).notify(ThreadID);
 		}
+		catch(SocketTimeoutException e) {
+			run();
+			System.out.println("reset connection");
+		}
+		catch(SocketException e) {
+			run();
+			System.out.println("server reset");
+		}
 		catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
+//			run();
+			System.out.println("co loi xay ra???????????????????????");
 		}
 
 	}
