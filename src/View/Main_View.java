@@ -389,8 +389,8 @@ public class Main_View extends JFrame {
 				CompactTask cpTask;
 				if (task != null && task.getDownloadStatus() != Values.DELETED)
 				{
-					String name = task.getSaveName();
-					if (txtSearch.getText().equals("") || name.contains(txtSearch.getText()))
+					String name = task.getSaveName().toLowerCase();
+					if (txtSearch.getText().toLowerCase().equals("") || name.contains(txtSearch.getText()))
 					{
 						int id = task.getTaskID();
 						String folder = task.getSaveDirectory();
