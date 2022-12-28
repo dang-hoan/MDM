@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import BLL.Values;
+import BLL.VideoConversion.FFmpeg;
 
 public class YTVideo {
 	private DownloadTask[] t;
@@ -57,10 +58,17 @@ public class YTVideo {
 		return t[0].getDownloadedSize() + t[1].getDownloadedSize();
 	}
 	public long getFileSize() {
+		if(DownloadStatus == FFmpeg.FF_SUCCESS) {
+			File file = new File(t[0].getSaveDirectory() + File.separator +  FileName);
+			if(file.exists()) return file.length();
+		}
 		return t[0].getFileSize() + t[1].getFileSize();
 	}
 	public long getCurrentSize() {
 		return t[0].getCurrentSize() + t[1].getCurrentSize();
+	}
+	public long getDownloaded() {
+		return t[0].getDownloaded() + t[1].getDownloaded();
 	}
 
 	public boolean checkFile(String type, String checksum) {

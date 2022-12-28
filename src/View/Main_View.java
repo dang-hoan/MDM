@@ -400,9 +400,9 @@ public class Main_View extends JFrame {
 						String str_status = Values.State(task.getDownloadStatus());
 						String str_size = new String();
 						double totalSize = task.getFileSize();
-						if (totalSize == -1) totalSize = task.getCurrentSize();
+						if (totalSize == -1) totalSize = task.getDownloaded();
 						long s = (long)totalSize;
-						double downloadedSize = task.getCurrentSize();
+						double downloadedSize = task.getDownloaded();
 
 						String[] donvi = { "B", "KB", "MB", "GB", "TB" };
 						int total = 0, download = 0;
@@ -448,7 +448,8 @@ public class Main_View extends JFrame {
 							modelCompl.addElement(cpTask);
 						else if (task.getDownloadStatus() == Values.DOWNLOADING 
 								|| task.getDownloadStatus() == Values.ASSEMBLING
-								|| task.getDownloadStatus() == Values.PAUSED)
+								|| task.getDownloadStatus() == Values.PAUSED
+								|| task.getDownloadStatus() == Values.CANCELED)
 							modelIncom.addElement(cpTask);
 						else if (task.getDownloadStatus() == Values.READY)
 							modelQueue.addElement(cpTask);
@@ -467,9 +468,9 @@ public class Main_View extends JFrame {
 							String str_status = Values.State(v.getDownloadStatus());
 							String str_size = new String();
 							double totalSize = v.getFileSize();
-							if (totalSize == -2) totalSize = v.getCurrentSize();
+							if (totalSize == -2) totalSize = v.getFileSize();
 							long s = (long)totalSize;
-							double downloadedSize = v.getCurrentSize();
+							double downloadedSize = v.getDownloaded();
 
 							String[] donvi = { "B", "KB", "MB", "GB", "TB" };
 							int total = 0, download = 0;
@@ -531,6 +532,9 @@ public class Main_View extends JFrame {
 							else if (v.getDownloadStatus() == Values.DOWNLOADING 
 									|| v.getDownloadStatus() == Values.ASSEMBLING
 									|| v.getDownloadStatus() == Values.PAUSED
+									|| v.getDownloadStatus() == Values.CANCELED
+									|| v.getDownloadStatus() == Values.MERGING
+									|| v.getDownloadStatus() == Values.FINISHED
 									|| v.getDownloadStatus() == FFmpeg.FF_CONVERSION_FAILED
 									|| v.getDownloadStatus() == FFmpeg.FF_LAUNCH_ERROR
 									|| v.getDownloadStatus() == FFmpeg.FF_NOT_FOUND

@@ -390,20 +390,11 @@ public class view_Task_DownLoad_Video extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					downloadManager.pauseTask(v.getT()[0].getTaskID());
-//					System.out.println(v.getDownloadedSize());
-//					System.out.println(v.getCurrentSize());
-//					Thread.sleep(2000);
 					_Main_View.ReloadView();
-//					System.out.println(v.getDownloadedSize());
-//					System.out.println(v.getCurrentSize());
 					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				} 
-//					catch (InterruptedException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
 			}
 		});
 		btn_Pause.setIcon(new ImageIcon(view_Task_DownLoad_Video.class.getResource("/View/icon/pause.png")));

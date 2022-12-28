@@ -308,13 +308,14 @@ public class DownloadManager {
 				long FileSize = Integer.parseInt(reader.readLine());
 				int ThreadCount = Integer.parseInt(reader.readLine());
 				int DownloadStatus = Integer.parseInt(reader.readLine());
+				Long downloaded = Long.parseLong(reader.readLine());
 				Long createDate = Long.parseLong(reader.readLine());
 				Long downloadTime = Long.parseLong(reader.readLine());
 				boolean fileNeedMerge = Boolean.parseBoolean(reader.readLine());
 
 				DownloadTask task = new DownloadTask(
 						Values.Task_ID_COUNTER++,
-						url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, fileNeedMerge);
+						url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, downloaded, createDate, downloadTime, fileNeedMerge);
 				addTask(task);
 			}
 			
@@ -332,12 +333,13 @@ public class DownloadManager {
 					long FileSize = Integer.parseInt(reader.readLine());
 					int ThreadCount = Integer.parseInt(reader.readLine());
 					int DownloadStatus = Integer.parseInt(reader.readLine());
+					Long downloaded = Long.parseLong(reader.readLine());
 					Long createDate = Long.parseLong(reader.readLine());
 					Long downloadTime = Long.parseLong(reader.readLine());
 
 					DownloadTask task = new DownloadTask(
 							Values.Task_ID_COUNTER,
-							url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, true);
+							url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, downloaded, createDate, downloadTime, true);
 
 					url = reader.readLine();
 					SaveName = reader.readLine();
@@ -347,12 +349,13 @@ public class DownloadManager {
 					FileSize = Integer.parseInt(reader.readLine());
 					ThreadCount = Integer.parseInt(reader.readLine());
 					DownloadStatus = Integer.parseInt(reader.readLine());
+					downloaded = Long.parseLong(reader.readLine());
 					createDate = Long.parseLong(reader.readLine());
 					downloadTime = Long.parseLong(reader.readLine());
 
 					DownloadTask task2 = new DownloadTask(
 							Values.Task_ID_COUNTER++,
-							url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, createDate, downloadTime, true);
+							url, SaveDirectory, SaveName, FileType, ProgressFile, ProgressFolder, FileSize, ThreadCount, DownloadStatus, downloaded, createDate, downloadTime, true);
 
 					String name = reader.readLine();
 					downloadTime = Long.parseLong(reader.readLine());
@@ -399,6 +402,7 @@ public class DownloadManager {
 					 t.getFileSize() + newLine +
 					 t.getThreadCount() + newLine +
 					 t.getDownloadStatus() + newLine +
+					 t.getDownloaded() + newLine +
 					 t.getCreateDate() + newLine +
 					 t.getDownloadTime() + newLine +
 					 t.isFileNeedMerge() + newLine;
@@ -421,6 +425,7 @@ public class DownloadManager {
 					 t[0].getFileSize() + newLine +
 					 t[0].getThreadCount() + newLine +
 					 t[0].getDownloadStatus() + newLine +
+					 t[0].getDownloaded() + newLine +
 					 t[0].getCreateDate() + newLine +
 					 t[0].getDownloadTime() + newLine +
 					 t[1].getUrl() + newLine +
@@ -431,6 +436,7 @@ public class DownloadManager {
 					 t[1].getFileSize() + newLine +
 					 t[1].getThreadCount() + newLine +
 					 t[1].getDownloadStatus() + newLine +
+					 t[1].getDownloaded() + newLine +
 					 t[1].getCreateDate() + newLine +
 					 t[1].getDownloadTime() + newLine +
 					 v.getFileName() + newLine +

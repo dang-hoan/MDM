@@ -41,6 +41,7 @@ public class DownloadTask {
 	private String FileType;
 	private int ThreadCount;
 	private int completedThread = 0;
+	private long downloaded = -1;
 
 	private ArrayList<DownloadRunnable> ListRunnable = new ArrayList<>();
 	private long indexInSubFile = 0;
@@ -68,7 +69,7 @@ public class DownloadTask {
 
 	public DownloadTask(int TaskID, String url, String saveDirectory, String saveName
 			, String FileType, String progressFile, String progressFolder, long FileSize, int ThreadCount
-			, int DownloadStatus, long createDate, long downloadTime, boolean fileNeedMerge) {
+			, int DownloadStatus, long downloaded, long createDate, long downloadTime, boolean fileNeedMerge) {
 		this.TaskID = TaskID;
 		this.Url = url;
 		this.createDate = createDate;
@@ -80,6 +81,7 @@ public class DownloadTask {
 		this.FileSize = FileSize;
 		this.ThreadCount = ThreadCount;
 		this.TaskStatus = DownloadStatus;
+		this.downloaded = downloaded;
 		this.downloadTime = downloadTime;
 		this.fileNeedMerge = fileNeedMerge;
 	}
@@ -203,6 +205,7 @@ public class DownloadTask {
 					TaskID, i+1, this.jProgressBars[i],this.speed_Download);
 			ListRunnable.add(runnable);
 		}
+		setDownloaded(0);
 	}
 
 	private void singleDownload() {
@@ -215,6 +218,7 @@ public class DownloadTask {
 				0, -1,
 				TaskID, 1, this.jProgressBars[0],this.speed_Download);
 		ListRunnable.add(runnable);
+		setDownloaded(0);
 	}
 
 	private boolean resumeProgress() throws IOException {   //Khôi phục công việc của các luồng
@@ -396,6 +400,7 @@ public class DownloadTask {
 			DownloadManager.getInstance().doNext("setStatus", TaskID);
 			downloadTime += System.currentTimeMillis() - previousTimeLine;
 			DownloadManager.getInstance().doNext("merge", TaskID);
+			setDownloaded(getCurrentSize());
 			return; //Thoát mà k move file
 		}
 		File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
@@ -445,6 +450,7 @@ public class DownloadTask {
 		deleteOldFile();
 
 		ListRunnable.clear();
+		setDownloaded(getCurrentSize());
 	}
 
 	public void addPartedTask(DownloadRunnable runnable) {
@@ -572,6 +578,8 @@ public class DownloadTask {
 	}
 
 	public void pause() throws IOException {
+		if(TaskStatus == Values.DELETED || TaskStatus == Values.READY || TaskStatus == Values.FINISHED  || TaskStatus == Values.PAUSED || TaskStatus == Values.CANCELED) return;
+		setDownloaded(getCurrentSize());
 		if(TaskStatus == Values.DOWNLOADING) {
 			TaskStatus = Values.PAUSED;
 			pauseAllThread();					// Khi các luồng con đang tải
@@ -591,7 +599,7 @@ public class DownloadTask {
 		if(this.speed_Download != null) {
 			this.speed_Download.set_Check(Values.PAUSED);
 		}
-		if(TaskStatus != Values.FINISHED) DownloadManager.getInstance().doNext("setStatus", TaskID);
+		DownloadManager.getInstance().doNext("setStatus", TaskID);
 		finished = false;
 		downloadTime += System.currentTimeMillis() - previousTimeLine;
 	}
@@ -602,13 +610,13 @@ public class DownloadTask {
 		}
 
 		//Đợi cho các luồng thực hiện xong r đã làm chuyện khác
-		for (DownloadRunnable element : ListRunnable)
-			try {
-				element.join();
-
-			} catch (InterruptedException e) {
-				continue;
-			}
+//		for (DownloadRunnable element : ListRunnable)
+//			try {
+//				element.join();
+//
+//			} catch (InterruptedException e) {
+//				continue;
+//			}
 	}
 
 	public void shutdown() throws IOException {
@@ -677,6 +685,7 @@ public class DownloadTask {
 		ListRunnable.clear();
 		deleteAllFile();
     	System.out.println("Task ID: " + TaskID + " is canceled!");
+    	setDownloaded(0);
 	}
 	
 	public void cleanUp() {
@@ -818,6 +827,14 @@ public class DownloadTask {
 		for (int i = 0; i < jProgressBars.length; i++) {
 			jProgressBars[i].setValue(100);
 		}
+	}
+
+	public long getDownloaded() {
+		return (downloaded != -1)? downloaded : getCurrentSize();
+	}
+
+	public void setDownloaded(long downloaded) {
+		this.downloaded = downloaded;
 	}
 }
 
