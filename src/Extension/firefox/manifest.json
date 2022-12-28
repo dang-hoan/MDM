@@ -1,17 +1,17 @@
 {
   "manifest_version": 2,
   "minimum_chrome_version": "18.0",
-  "name": "XDM Browser Monitor",
-  "description": "XDM integration module for Firefox Quantum",
-  "version": "2.2",
+  "name": "MDM Browser Monitor",
+  "description": "MDM integration module for Firefox Quantum",
+  "version": "1.0",
   "icons": {
-    "48": "icon.png"
+    "48": "app-48.png"
   },
   "background": {
     "page": "background.html"
   },
   "browser_action": {
-    "default_icon": "icon.png"
+    "default_icon": "app.png"
   },
   "permissions": [
     "tabs",
@@ -25,7 +25,7 @@
   ],
   "applications": {
     "gecko": {
-      "id": "browser-mon@xdman.sourceforge.net"
+      "id": "browser-mon@mdm.sourceforge.net"
     }
   },
   "commands": {

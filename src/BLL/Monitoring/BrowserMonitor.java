@@ -29,8 +29,8 @@ public class BrowserMonitor implements Runnable{
 			System.out.println("server listenning...");
 			System.out.println("host: " + serverSock.getInetAddress() + ", port: " + serverSock.getLocalPort());
 			NativeMessagingHostInstaller.installNativeMessagingHostForChrome();
-			//NativeMessagingHostInstaller.installNativeMessagingHostForFireFox();
-			NativeMessagingHostInstaller.installNativeMessagingHostForChromium();
+//			NativeMessagingHostInstaller.installNativeMessagingHostForFireFox();
+//			NativeMessagingHostInstaller.installNativeMessagingHostForChromium();
 			while (true) {
 				Socket sock = serverSock.accept();
 				Session session = new Session(sock);

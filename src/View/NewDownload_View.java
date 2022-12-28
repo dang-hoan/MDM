@@ -119,6 +119,7 @@ public class NewDownload_View extends JFrame {
        	            		if(length == -2) size = Utils.getLengthSocket(txt);
         	            	else size = length;
         	            	System.out.println("size: " + size + ", length: " + length);
+        	            	if(size == 0) size = -2;
                     	}
         			}
         		});

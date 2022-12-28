@@ -109,8 +109,8 @@ public class Session implements Runnable {
 			System.out.println("sync");
 		}
 		else {
-			throw new IOException("invalid action " + action);
-//			System.out.println("invalid action " + action);
+//			throw new IOException("invalid action " + action);
+			System.out.println("invalid action " + action);
 		}
 	}
 
@@ -129,6 +129,7 @@ public class Session implements Runnable {
 					@Override
 					public void run() {
 						MDM.mv.newDownloadView(data.getUrl(), data.getContentLength());
+						System.out.println(data.getContentLength());
 					}
 				});
 			}

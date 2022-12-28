@@ -6,10 +6,10 @@
     "MSI", "PDF", "PPT", "PPTX", "RAR", "RPM", "XLS", "XLSX", "SIT", "SITX", "TAR", "JAR", "ZIP", "XZ"];
     var vidExts = ["MP4", "M3U8", "F4M", "WEBM", "OGG", "MP3", "AAC", "FLV", "MKV", "DIVX",
     "MOV", "MPG", "MPEG", "OPUS"];
-    var isXDMUp = true;
+    var isMDMUp = true;
     var monitoring = true;
     var debug = false;
-    var xdmHost = "http://127.0.0.1:9614";
+    var MDMHost = "http://127.0.0.1:2002";
     var disabled = false;
     var lastIcon;
     var lastPopup;
@@ -33,15 +33,15 @@
             if (!file) {
                 file = getFileFromUrl(response.url);
             }
-            sendToXDM(request, response, file, false);
-            return { cancel: true };//return { redirectUrl: "http://127.0.0.1:9614/204" };
+            sendToMDM(request, response, file, false);
+            return { cancel: true };//return { redirectUrl: "http://127.0.0.1:2002/204" };
         } else {
             checkForVideo(request, response);
         }
     };
 
-    var sendToXDM = function (request, response, file, video) {
-        log("sending to xdm: " + response.url);
+    var sendToMDM = function (request, response, file, video) {
+        log("sending to MDM: " + response.url);
         var data = "url=" + response.url + "\r\n";
         if (file) {
             data += "file=" + file + "\r\n";
@@ -63,7 +63,7 @@
 
             port.postMessage({"message":(video ? "/video" : "/download")+"\r\n"+data});
             // var xhr = new XMLHttpRequest();
-            // xhr.open('POST', xdmHost + (video ? "/video" : "/download"), true);
+            // xhr.open('POST', MDMHost + (video ? "/video" : "/download"), true);
             // xhr.send(data);
         });
     };
@@ -75,7 +75,7 @@
             port.postMessage({"message":"/links"+"\r\n"+data});
 
             // var xhr = new XMLHttpRequest();
-            // xhr.open('POST', xdmHost + "/links", true);
+            // xhr.open('POST', MDMHost + "/links", true);
             // xhr.send(data);
             return;
         }
@@ -92,12 +92,12 @@
         });
     };
 
-    var sendUrlsToXDM = function (urls) {
+    var sendUrlsToMDM = function (urls) {
         sendRecUrl(urls, 0, "");
     };
 
-    var sendUrlToXDM = function (url) {
-        log("sending to xdm: " + url);
+    var sendUrlToMDM = function (url) {
+        log("sending to MDM: " + url);
         var data = "url=" + url + "\r\n";
         data += "res=realUA:" + navigator.userAgent + "\r\n";
         chrome.cookies.getAll({ "url": url }, function (cookies) {
@@ -110,12 +110,12 @@
             port.postMessage({"message":"/download"+"\r\n"+data});
 
             // var xhr = new XMLHttpRequest();
-            // xhr.open('POST', xdmHost + "/download", true);
+            // xhr.open('POST', MDMHost + "/download", true);
             // xhr.send(data);
         });
     };
 
-    var sendImageToXDM = function (info, tab) {
+    var sendImageToMDM = function (info, tab) {
         if (info.mediaType) {
             if ("image" == info.mediaType) {
                 if (info.srcUrl) {
@@ -133,10 +133,10 @@
         if (!url) {
             return;
         }
-        sendUrlToXDM(url);
+        sendUrlToMDM(url);
     };
 
-    var sendLinkToXDM = function (info, tab) {
+    var sendLinkToMDM = function (info, tab) {
         var url = info.linkUrl;
         if (!url) {
             if (info.mediaType) {
@@ -153,7 +153,7 @@
         if (!url) {
             return;
         }
-        sendUrlToXDM(url);
+        sendUrlToMDM(url);
     };
 
     var runContentScript = function (info, tab) {
@@ -241,11 +241,11 @@
                     (
                         request.tabId,
                         function (tab) {
-                            sendToXDM(request, response, tab.title, true);
+                            sendToMDM(request, response, tab.title, true);
                         }
                     );
             } else {
-                sendToXDM(request, response, null, true);
+                sendToMDM(request, response, null, true);
             }
         }
     };
@@ -309,7 +309,7 @@
         return false;
     };
 
-    // var syncXDM = function () {
+    // var syncMDM = function () {
     //     var xhr = new XMLHttpRequest();
     //     xhr.onreadystatechange = function () {
     //         if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -320,7 +320,7 @@
     //                 videoUrls = data.videoUrls;
     //                 fileExts = data.fileExts;
     //                 vidExts = data.vidExts;
-    //                 isXDMUp = true;
+    //                 isMDMUp = true;
     //                 videoList = data.vidList;
     //                 if (data.mimeList) {
     //                     mimeList = data.mimeList;
@@ -328,14 +328,14 @@
     //                 updateBrowserAction();
     //             }
     //             else {
-    //                 isXDMUp = false;
+    //                 isMDMUp = false;
     //                 monitoring = false;
     //                 updateBrowserAction();
     //             }
     //         }
     //     };
 
-    //     xhr.open('GET', xdmHost + "/sync", true);
+    //     xhr.open('GET', MDMHost + "/sync", true);
     //     xhr.send(null);
     // };
 
@@ -386,20 +386,20 @@
     };
 
     var updateBrowserAction = function () {
-        if (!isXDMUp) {
+        if (!isMDMUp) {
             setBrowserActionPopUp("fatal.html");
-            setBrowserActionIcon("icon_blocked.png");
+            setBrowserActionIcon("app-blocked.png");
             return;
         }
         if (monitoring) {
             if (disabled) {
-                setBrowserActionIcon("icon_disabled.png");
+                setBrowserActionIcon("app-disabled.png");
             } else {
-                setBrowserActionIcon("icon.png");
+                setBrowserActionIcon("app.png");
             }
             setBrowserActionPopUp("status.html");
         } else {
-            setBrowserActionIcon("icon_disabled.png");
+            setBrowserActionIcon("app-disabled.png");
             setBrowserActionPopUp("disabled.html");
         }
 
@@ -454,13 +454,13 @@
             );
 
         //This will monitor and intercept files download if 
-        //criteria matches and XDM is running
+        //criteria matches and MDM is running
         //Use request array to get request headers
         chrome.webRequest.onHeadersReceived.addListener
             (
                 function (response) {
                     var requests = removeRequest(response.requestId);
-                    if (!isXDMUp) {
+                    if (!isMDMUp) {
                         return;
                     }
 
@@ -479,7 +479,7 @@
 
                     if (requests) {
                         if (requests.length == 1) {
-                            if (!(response.url + "").startsWith(xdmHost)) {
+                            if (!(response.url + "").startsWith(MDMHost)) {
                                 //console.log("processing request " + response.url);
                                 return processRequest(requests[0], response);
                             }
@@ -490,8 +490,8 @@
                 ["blocking", "responseHeaders"]
             );
 
-        //check XDM if is running and enable monitoring
-        //setInterval(function () { syncXDM(); }, 5000);
+        //check MDM if is running and enable monitoring
+        //setInterval(function () { syncMDM(); }, 5000);
 
         chrome.runtime.onMessage.addListener(
             function (request, sender, sendResponse) {
@@ -501,7 +501,7 @@
                     /* for (var i = 0; i < arr.length; i++) {
                         console.log("link " + arr[i]);
                     } */
-                    sendUrlsToXDM(arr);
+                    sendUrlsToMDM(arr);
                     sendResponse({ done: "done" });
                 }
                 else if (request.type === "stat") {
@@ -517,36 +517,36 @@
                     port.postMessage({"message":"/item\r\n"+request.itemId});
 
                     // var xhr = new XMLHttpRequest();
-                    // xhr.open('POST', xdmHost + "/item", true);
+                    // xhr.open('POST', MDMHost + "/item", true);
                     // xhr.send(request.itemId);
                 }
                 else if (request.type === "clear") {
                     port.postMessage({"message":"/clear"});
 
                     // var xhr = new XMLHttpRequest();
-                    // xhr.open('GET', xdmHost + "/clear", true);
+                    // xhr.open('GET', MDMHost + "/clear", true);
                     // xhr.send();
                 }
             }
         );
 
         chrome.commands.onCommand.addListener(function (command) {
-            if (isXDMUp && monitoring) {
+            if (isMDMUp && monitoring) {
                 log("called")
                 disabled = !disabled;
             }
         });
 
         chrome.contextMenus.create({
-            title: "Download with XDM",
+            title: "Download with MDM",
             contexts: ["link", "video", "audio"],
-            onclick: sendLinkToXDM,
+            onclick: sendLinkToMDM,
         });
 
         chrome.contextMenus.create({
-            title: "Download Image with XDM",
+            title: "Download Image with MDM",
             contexts: ["image"],
-            onclick: sendImageToXDM,
+            onclick: sendImageToMDM,
         });
 
         chrome.contextMenus.create({
@@ -558,7 +558,7 @@
         /*
         On startup, connect to the "native" app.
         */
-        port = browser.runtime.connectNative("xdmff.native_host");
+        port = browser.runtime.connectNative("com.mdm");
 
         /*
         Listen for messages from the app.
@@ -569,7 +569,7 @@
                     videoUrls = data.videoUrls;
                     fileExts = data.fileExts;
                     vidExts = data.vidExts;
-                    isXDMUp = true;
+                    isMDMUp = true;
                     videoList = data.vidList;
                     if (data.mimeList) {
                         mimeList = data.mimeList;

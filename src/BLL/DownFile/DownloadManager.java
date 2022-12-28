@@ -118,7 +118,7 @@ public class DownloadManager {
 		String saveName = videoItem.getFile_Name();
 		if(saveName.lastIndexOf(".") == -1) saveName += ".mkv";
 		String FileName = saveName.substring(0, saveName.lastIndexOf("."));
-		
+		if(videoItem.getLen1() == 0) videoItem.setLen1(-2); if(videoItem.getLen2() == 0) videoItem.setLen2(-2);		
 		DownloadTask downloadTask = new DownloadTask(Values.Task_ID_COUNTER, videoItem.getUrl_Video(), saveDirectory, FileName, size1, videoItem.getLen1(),jProgressBars,speedDownload, true);
 		DownloadTask downloadTask2 = new DownloadTask(Values.Task_ID_COUNTER++, videoItem.getUrl_Audio(), saveDirectory, FileName, size2, videoItem.getLen2(),jProgressBars2,speedDownload2, true);
 		

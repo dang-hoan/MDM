@@ -22,7 +22,7 @@ public class NativeMessagingHostInstaller {
 			"\"chrome-extension://dholefpnmilogpgldenhknjhhbdgfcap/\"",
 			"\"chrome-extension://lnplfilkbalalfibdbcnjneeganfdagk/\"");
 
-	private static final String FIREFOX_EXTENSION_IDS = String.join(",", "\"browser-mon@xdman.sourceforge.net\"");
+	private static final String FIREFOX_EXTENSION_IDS = String.join(",", "\"browser-mon@mdm.sourceforge.net\"");
 
 	private static final String CHROME_LINUX_LOCATION = ".config/google-chrome/NativeMessagingHosts",
 			FIREFOX_LINUX_LOCATION = ".mozilla/native-messaging-hosts",
@@ -91,6 +91,7 @@ public class NativeMessagingHostInstaller {
 
 			File manifestFile = new File(DownloadManager.getInstance().getDataDir(), "mdm.native_host.json");
 			File nativeHostFile = new File(Utils.getJarFile().getParentFile() + File.separator + Utils.getNativePath(), "native.exe");
+			System.out.println("firefox");
 			createNativeManifest(manifestFile, nativeHostFile, BrowserType.Firefox);
 			try {
 				Advapi32Util.registrySetStringValue(WinReg.HKEY_CURRENT_USER,
