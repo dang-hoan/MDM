@@ -7,11 +7,15 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
+
+import BLL.MDM;
 
 public class TrayClass {
 	static TrayIcon trayIcon;
@@ -50,6 +54,14 @@ public class TrayClass {
 
 		trayIcon.setPopupMenu(menu);
 		trayIcon.setImageAutoSize(true);
+		trayIcon.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1 || e.getClickCount() == 2) {
+					MDM.mv.setVisible(true);
+				}
+			}
+		});
 		try{
 			tray.add(trayIcon);
 		}catch(Exception e) {

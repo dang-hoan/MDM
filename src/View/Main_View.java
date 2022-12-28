@@ -104,7 +104,7 @@ public class Main_View extends JFrame {
 			}
 		});
 		setTitle("PBL4_MAX_SPEED_DOWNLOAD");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setSize(700, 400);
 		setLocationRelativeTo(null);
 		//icon
@@ -451,8 +451,8 @@ public class Main_View extends JFrame {
 				else {
 					YTVideo v = DownloadManager.getInstance().getVideo(i);
 					if(v != null && v.getDownloadStatus() != Values.DELETED) {
-						String name = v.getFileName();
-						if (txtSearch.getText().equals("") || name.contains(txtSearch.getText()))
+						String name = v.getFileName().toLowerCase();
+						if (txtSearch.getText().equals("") || name.contains(txtSearch.getText().toLowerCase()))
 						{
 							int id = v.getT()[0].getTaskID();
 							String folder = v.getT()[0].getSaveDirectory();
