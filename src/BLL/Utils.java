@@ -82,6 +82,8 @@ public class Utils {
 			int port = fileUrl.getPort();
 			if(port < 0) port = fileUrl.getDefaultPort();
 			Socket socket = SSLSocketFactory.getDefault().createSocket(host, port);
+			socket.setSoTimeout(3000);
+			socket.setTcpNoDelay(true);
 			BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 			String s = fileUrl.getPath();

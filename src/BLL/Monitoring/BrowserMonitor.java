@@ -37,7 +37,7 @@ public class BrowserMonitor implements Runnable{
 				session.start();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Cổng 2002 để lắng nghe yêu cầu tiện ích đã bị chiếm!!");
 		}
 		try {
 			serverSock.close();

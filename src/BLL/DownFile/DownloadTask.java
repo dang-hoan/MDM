@@ -185,7 +185,7 @@ public class DownloadTask {
 	}
 
 	private void splitDownload(int thread_count) { 				//Split thread
-		long size = getFileLength(Url);
+		long size = (FileSize != -1)? FileSize : getFileLength(Url);
 		FileSize = size;
 		long sublen = size / thread_count;
 
@@ -260,7 +260,6 @@ public class DownloadTask {
 
 	public void startTask() {
 		try {
-
 			if(TaskStatus == Values.DOWNLOADING || TaskStatus == Values.ASSEMBLING) return;
 
 			previousTimeLine = System.currentTimeMillis();
@@ -401,6 +400,7 @@ public class DownloadTask {
 			downloadTime += System.currentTimeMillis() - previousTimeLine;
 			DownloadManager.getInstance().doNext("merge", TaskID);
 			setDownloaded(getCurrentSize());
+			if(FileSize == -1 && downloaded != 0L && downloaded != 0) FileSize = downloaded;
 			return; //Thoát mà k move file
 		}
 		File saveF = new File(DownloadManager.getInstance().getDataDir() + File.separator + ProgressFolder, SaveFile);
@@ -451,6 +451,7 @@ public class DownloadTask {
 
 		ListRunnable.clear();
 		setDownloaded(getCurrentSize());
+		if(FileSize == -1 && downloaded != 0L && downloaded != 0) FileSize = downloaded;
 	}
 
 	public void addPartedTask(DownloadRunnable runnable) {

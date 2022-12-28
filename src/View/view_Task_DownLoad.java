@@ -184,7 +184,7 @@ public class view_Task_DownLoad extends JFrame {
 						jlb_NameFile.setText(task.getSaveName());
 						labNotice.setText("");
 						disable_Button();
-						if(task.getFileSize()==-1)
+						if(array_JProgressBar[0].isIndeterminate())
 						{
 							array_JProgressBar[0].setIndeterminate(false);
 							array_JProgressBar[0].setString("Hoàn Thành");
