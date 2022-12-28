@@ -679,7 +679,7 @@ public class DownloadTask {
 	}
 
 	public void cancel() throws IOException {
-		if(TaskStatus == Values.CANCELED || TaskStatus == Values.FINISHED) return;
+		if(TaskStatus == Values.CANCELED || TaskStatus == Values.FINISHED || TaskStatus == Values.READY) return;
 		pause();
     	TaskStatus = Values.CANCELED;
     	DownloadManager.getInstance().doNext("setStatus", TaskID);
