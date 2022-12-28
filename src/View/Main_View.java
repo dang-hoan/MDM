@@ -457,7 +457,7 @@ public class Main_View extends JFrame {
 				else {
 					YTVideo v = DownloadManager.getInstance().getVideo(i);
 					if(v != null && v.getDownloadStatus() != Values.DELETED) {
-						String name = task.getSaveName();
+						String name = v.getFileName();
 						if (txtSearch.getText().equals("") || name.contains(txtSearch.getText()))
 						{
 							int id = v.getT()[0].getTaskID();
@@ -522,7 +522,8 @@ public class Main_View extends JFrame {
 							}
 
 							long date = v.getT()[0].getCreateDate();
-							String type = task.getType();
+							int index = v.getFileName().lastIndexOf(".");
+							String type = v.getFileName().substring(index+1);
 							cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
 							modelAll.addElement(cpTask);
 							if (v.getDownloadStatus() == FFmpeg.FF_SUCCESS)
@@ -543,31 +544,33 @@ public class Main_View extends JFrame {
 			}catch (Exception e) { 
 				e.printStackTrace(); 
 			}
-
-			switch (tabbedPane.getSelectedIndex())
-			{
-			case 0:
-				listView.setModel(modelAll);
-				listView.setCellRenderer(new TaskRenderer());
-				break;
-			case 1:
-				listViewCompl.setModel(modelCompl);
-				listViewCompl.setCellRenderer(new TaskRenderer());
-				break;
-			case 2:
-				listViewIncom.setModel(modelIncom);
-				listViewIncom.setCellRenderer(new TaskRenderer());
-				break;
-			case 3:
-				listViewQueue.setModel(modelQueue);
-				listViewQueue.setCellRenderer(new TaskRenderer());
-				break;
-			}
-			if (cbbSort.getSelectedItem().equals("Name")) sort_By_Name();
-			else if (cbbSort.getSelectedItem().equals("Date Motified")) sort_By_Date();
-			else if (cbbSort.getSelectedItem().equals("Size")) sort_By_Size();
-			else if (cbbSort.getSelectedItem().equals("Type Item")) sort_By_Type();
 		}
+
+		
+
+		switch (tabbedPane.getSelectedIndex())
+		{
+		case 0:
+			listView.setModel(modelAll);
+			listView.setCellRenderer(new TaskRenderer());
+			break;
+		case 1:
+			listViewCompl.setModel(modelCompl);
+			listViewCompl.setCellRenderer(new TaskRenderer());
+			break;
+		case 2:
+			listViewIncom.setModel(modelIncom);
+			listViewIncom.setCellRenderer(new TaskRenderer());
+			break;
+		case 3:
+			listViewQueue.setModel(modelQueue);
+			listViewQueue.setCellRenderer(new TaskRenderer());
+			break;
+		}
+		if (cbbSort.getSelectedItem().equals("Name")) sort_By_Name();
+		else if (cbbSort.getSelectedItem().equals("Date Motified")) sort_By_Date();
+		else if (cbbSort.getSelectedItem().equals("Size")) sort_By_Size();
+		else if (cbbSort.getSelectedItem().equals("Type Item")) sort_By_Type();
 	}
 	
 	public void newDownloadView(String url, long length)
