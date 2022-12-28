@@ -1,9 +1,11 @@
 package View;
 
-
+import java.awt.GraphicsConfiguration;
+import java.awt.Insets;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;

@@ -300,8 +300,6 @@ public class Session implements Runnable {
 								System.out.println("a1b1c1");
 							}
 						});
-//						XDMApp.getInstance().addMedia(dm, file, YtUtil.getInfoFromITAG(info.video ? info.itag : di.itag)
-//								+ (szStr == null ? "" : " " + szStr));
 						return true;
 					}
 				} else {

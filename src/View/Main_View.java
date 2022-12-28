@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -396,7 +395,6 @@ public class Main_View extends JFrame {
 						int id = task.getTaskID();
 						String folder = task.getSaveDirectory();
 						String str_name = task.getSaveName();
-						URL urlicon = null;
 						String str_status = Values.State(task.getDownloadStatus());
 						String str_size = new String();
 						double totalSize = task.getFileSize();
@@ -418,25 +416,20 @@ public class Main_View extends JFrame {
 						switch (task.getDownloadStatus()) {
 						case Values.READY:
 							str_size = "";
-							urlicon = Main_View.class.getResource("/View/icon/ready.png");
 							break;
 						case Values.DOWNLOADING:
 						case Values.ASSEMBLING:
 							str_size = "";
-							urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 							break;
 						case Values.PAUSED: 
 							str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 									donvi[total]);
-							urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 							break;
 						case Values.FINISHED:
 							str_size = String.format("%.2f %s", totalSize, donvi[total]);
-							urlicon = Main_View.class.getResource("/View/icon/completed.png");
 							break;
 						case Values.CANCELED:
 							str_size = "";
-							urlicon = Main_View.class.getResource("/View/icon/canceled.png");
 							break;
 						}
 
@@ -464,7 +457,6 @@ public class Main_View extends JFrame {
 							int id = v.getT()[0].getTaskID();
 							String folder = v.getT()[0].getSaveDirectory();
 							String str_name = v.getFileName();
-							URL urlicon = null;
 							String str_status = Values.State(v.getDownloadStatus());
 							String str_size = new String();
 							double totalSize = v.getFileSize();
@@ -486,45 +478,37 @@ public class Main_View extends JFrame {
 							switch (v.getDownloadStatus()) {
 							case Values.READY:
 								str_size = "";
-								urlicon = Main_View.class.getResource("/View/icon/ready.png");
 								break;
 							case Values.DOWNLOADING:
 							case Values.ASSEMBLING:
 								str_size = "";
-								urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 								break;
 							case Values.PAUSED: 
 								str_size = String.format("%.2f%s / %.2f%s", downloadedSize, donvi[download], totalSize,
 										donvi[total]);
-								urlicon = Main_View.class.getResource("/View/icon/dloading.png");
 								break;
 							case Values.FINISHED:
 								str_size = String.format("%.2f %s", totalSize, donvi[total]);
-								urlicon = Main_View.class.getResource("/View/icon/completed.png");
 								break;
 							case Values.CANCELED:
 								str_size = "";
-								urlicon = Main_View.class.getResource("/View/icon/canceled.png");
 								break;				
 							case Values.MERGING:
 								str_size = "";
-								urlicon = Main_View.class.getResource("/View/icon/merge.png");
 								break;
 							case FFmpeg.FF_CONVERSION_FAILED:
 							case FFmpeg.FF_LAUNCH_ERROR:
 							case FFmpeg.FF_NOT_FOUND:
 								str_size = "";
-								urlicon = Main_View.class.getResource("/View/icon/canceled.png");
 								break;
 							case FFmpeg.FF_SUCCESS:
 								str_size = String.format("%.2f %s", totalSize, donvi[total]);
-								urlicon = Main_View.class.getResource("/View/icon/completed.png");
 								break;
 							}
 
 							long date = v.getT()[0].getCreateDate();
 							int index = v.getFileName().lastIndexOf(".");
-							String type = v.getFileName().substring(index+1);
+							String type = v.getFileName().substring(index);
 							cpTask = new CompactTask(id, folder, str_name, str_status, str_size,totalSize,date,type,s);
 							modelAll.addElement(cpTask);
 							if (v.getDownloadStatus() == FFmpeg.FF_SUCCESS)
@@ -783,6 +767,20 @@ public class Main_View extends JFrame {
 					ReloadView();
 			}
 		});
+		JMenuItem checkFile = new JMenuItem("Verify file");
+		checkFile.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CompactTask tmp = listView.getSelectedValue();
+				if(tmp.getStatus().equals("FINISHED")) {
+					new VerifyFile(tmp.getId()).setVisible(true);;
+				}
+				else
+					JOptionPane.showMessageDialog(getthis(), "You can only verify file when it has been finished", "Notification", JOptionPane.INFORMATION_MESSAGE);
+
+			}
+		});
 		JMenuItem properties = new JMenuItem("Properties");
 		properties.addActionListener(new ActionListener() {
 
@@ -827,6 +825,7 @@ public class Main_View extends JFrame {
 		jPopupMenu.add(resume);
 		jPopupMenu.add(delete);
 		jPopupMenu.add(changeThreadCount);
+		jPopupMenu.add(checkFile);
 		jPopupMenu.add(properties);
 	}
 
@@ -841,11 +840,9 @@ public class Main_View extends JFrame {
 				}
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					if (e.getClickCount() == 2) {
-					
-							CompactTask tmp = listView.getSelectedValue();
-							if(tmp.getStatus().equals("FINISHED")) open_File(tmp.getFolder(), tmp.getName());
-							else JOptionPane.showMessageDialog(getthis(), "File download not completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);				
-						
+						CompactTask tmp = listView.getSelectedValue();
+						if(tmp.getStatus().equals("FINISHED")) open_File(tmp.getFolder(), tmp.getName());
+						else JOptionPane.showMessageDialog(getthis(), "File download not completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);
 					}
 
 				}

@@ -124,7 +124,6 @@ public class DownloadManager {
 		
 		YTVideo v = new YTVideo(new DownloadTask[] {downloadTask, downloadTask2}, saveName);
 		addVideo(v);
-		videoItem.setFile_Name(saveName);
 
 		if(now) {
 			downloadTask.startTask();

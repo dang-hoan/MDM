@@ -3,7 +3,9 @@ package View;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -123,6 +125,7 @@ public class list_Video_Popup_Download extends JFrame {
 			}
 		});
 	}
+
 	public void reload(String id, long clen, String name) {
 		System.out.println("reload1");
 		ListModel<VideoPopupitem> item = list.getModel();

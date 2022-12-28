@@ -1,7 +1,10 @@
 package BLL;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import BLL.VideoConversion.FFmpeg;
@@ -25,11 +28,11 @@ public class Values {
 			5.0 };
 	
 	//Phân loại kiểu file
-	public static final String[] video = {".mp4", ".mkv", ".avi", ".wmv", ".vob", ".flv", ".flvx"};
-	public static final String[] music = {".mp3", ".wma", ".wav", ".m4a", ".alac", ".flac", ".aac", ".ogg", ".aiff"};
-	public static final String[] picture = {".jpeg", ".jpg", ".png", ".gif", ".psd", ".raw"};
-	public static final String[] program = {".iso", ".exe"};
-	public static final String[] compressed = {".rar", ".rar4", ".zip"};
+	public static final List<String> video = Arrays.asList(".mp4", ".mkv", ".avi", ".wmv", ".vob", ".flv", ".flvx");
+	public static final List<String> music = Arrays.asList(".mp3", ".mpeg", ".wma", ".wav", ".m4a", ".alac", ".flac", ".aac", ".ogg", ".aiff");
+	public static final List<String> picture = Arrays.asList(".jpeg", ".jpg", ".png", ".gif", ".psd", ".raw");
+	public static final List<String> program = Arrays.asList(".iso", ".exe");
+	public static final List<String> compressed = Arrays.asList(".rar", ".rar4", ".zip");
 	//document con lai
 	
 	public static final int WINDOWS = 10, MAC = 20, LINUX = 30;

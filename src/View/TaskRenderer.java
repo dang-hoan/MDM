@@ -42,7 +42,7 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 	public Component getListCellRendererComponent(JList<? extends CompactTask> list,
 			CompactTask value, int index, boolean isSelected, boolean cellHasFocus) 
 	{
-		Icon img = load(value.getTypeitem(), 40, 40);
+		Icon img = load(value.getTypeitem(), value.getStatusitem(), 40, 40);
 		lbitem.setIcon(img);
 		lbname.setText(value.getName());
 		lbstate.setText(value.getStatus());
@@ -80,17 +80,27 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 		return this;
 	}
 	// can chinh image
-	public Icon load(URL linkImage, int k, int m)/*linkImage là tên icon, k kích thước chiều rộng mình muốn,
+	public Icon load(URL linkImage, URL linkImage2, int k, int m)/*linkImage là tên icon, k kích thước chiều rộng mình muốn,
 													m chiều dài và hàm này trả về giá trị là 1 icon.*/
 	{  
 		try 
 		{
-	        BufferedImage image = ImageIO.read(linkImage);//đọc ảnh dùng BufferedImage
-	        
+			BufferedImage imgBG = ImageIO.read(linkImage);//đọc ảnh dùng BufferedImage
+	        BufferedImage imgFG = ImageIO.read(linkImage2);//đọc ảnh dùng BufferedImage
+	        // For simplicity we will presume the images are of identical size
+	       
+	        final BufferedImage combinedImage = new BufferedImage( 
+	                imgBG.getWidth(), 
+	                imgBG.getHeight(), 
+	                BufferedImage.TYPE_INT_ARGB );
+	        Graphics2D g = (Graphics2D) combinedImage.getGraphics();
+	        g.drawImage(imgBG,0,0,null);
+	        g.drawImage(imgFG,0,260,null);
+	        g.dispose();
 	        int x = k;
 	        int y = m;
-	        int ix = image.getWidth();
-	        int iy = image.getHeight();
+	        int ix = combinedImage.getWidth();
+	        int iy = combinedImage.getHeight();
 	        int dx = 0, dy = 0;
 	 
 	        if (x / y > ix / iy) {
@@ -100,8 +110,9 @@ public class TaskRenderer extends JPanel implements ListCellRenderer<CompactTask
 	            dx = x;
 	            dy = dx * iy / ix;
 	        }
-	        return new ImageIcon(image.getScaledInstance(dx, dy, BufferedImage.SCALE_SMOOTH));
+	        return new ImageIcon(combinedImage.getScaledInstance(dx, dy, BufferedImage.SCALE_SMOOTH));
 	    } catch (IOException e) { e.printStackTrace(); }
 	    return null;
 	}
+	
 }

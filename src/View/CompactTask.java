@@ -1,7 +1,6 @@
 package View;
 
 import java.net.URL;
-import java.util.Arrays;
 
 import BLL.Values;
 
@@ -10,6 +9,7 @@ public class CompactTask {
 	private String folder;
 	private String name;
 	private URL typeitem;
+	private URL statusitem;
 	private String status;
 	private String size;
 	private double size_file;
@@ -24,19 +24,64 @@ public class CompactTask {
 			String type_File, long total_Size) {
 		this.folder = folder;
 		this.name = name;
+		
 		if (type_File.equals("")) 
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemUnk.png");
-		else if (Arrays.stream(Values.video).anyMatch(type_File::equals))
+		else if (Values.video.contains(type_File))
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemVd.png");
-		else if (Arrays.stream(Values.music).anyMatch(type_File::equals))
+		else if (Values.music.contains(type_File))
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemMsc.png");
-		else if (Arrays.stream(Values.picture).anyMatch(type_File::equals))
+		else if (Values.picture.contains(type_File))
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/ItemPic.png");
-		else if (Arrays.stream(Values.program).anyMatch(type_File::equals))
+		else if (Values.program.contains(type_File))
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/itemprgr.png");
-		else if (Arrays.stream(Values.compressed).anyMatch(type_File::equals))
+		else if (Values.compressed.contains(type_File))
 			typeitem = Main_View.class.getResource("/View/icon/file_icon/itemzip.png");
 		else typeitem = Main_View.class.getResource("/View/icon/file_icon/itemDoc.png");
+		
+		switch(status) {
+			case "READY":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateNon.png"));
+				break;
+			}
+			case "DOWNLOADING":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateDown.png"));
+				break;
+			}
+			case "PAUSED":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StatePause.png"));
+				break;
+			}
+			case "ASSEMBLING":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateAssembling.png"));
+				break;
+			}
+			case "FINISHED":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateDone.png"));
+				break;
+			}
+			case "CANCELED":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateX.png"));
+				break;
+			}
+			case "MERGING":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateMerge.png"));
+				break;
+			}
+			case "FF_NOT_FOUND":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateX.png"));
+				break;
+			}
+			case "FF_LAUNCH_ERROR":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateX.png"));
+				break;
+			}
+			case "FF_CONVERSION_FAILED":{
+				setStatusitem(Main_View.class.getResource("/View/icon/file_icon/StateX.png"));
+				break;
+			}
+		}		
+		
 		this.status = status;
 		this.size = size;
 		this.id = id;
@@ -131,5 +176,13 @@ public class CompactTask {
 
 	public void setFolder(String folder) {
 		this.folder = folder;
+	}
+
+	public URL getStatusitem() {
+		return statusitem;
+	}
+
+	public void setStatusitem(URL statusitem) {
+		this.statusitem = statusitem;
 	}
 }

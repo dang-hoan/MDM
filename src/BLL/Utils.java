@@ -145,8 +145,8 @@ public class Utils {
 			}
 			return -1;
 			
-		} catch (IOException e) {
-			return -1;
+		} catch (Exception e) {
+			return -2;
 		}
 	}
 

@@ -44,7 +44,8 @@ public class VideoPopupitem {
 	}
 	public void change_Name(String id ,long clen,String name)
 	{
-		if(this.url_Video.contains(id) && this.url_Video.contains(Long.toString(clen)))
+		if(this.url_Video.contains(id) && this.url_Video.contains(Long.toString(clen)) 
+		|| this.url_Audio.contains(id) && this.url_Audio.contains(Long.toString(clen)) )
 		{
 			this.file_Name=name;
 		}
