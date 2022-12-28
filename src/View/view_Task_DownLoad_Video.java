@@ -217,7 +217,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 					if(v.getDownloadStatus() == Values.CANCELED) {
 						break;
 					}
-					if(v.getDownloadStatus() == Values.MERGING) {
+					if(v.getDownloadStatus() == Values.MERGING || v.getDownloadStatus() == Values.FINISHED) {
 //						System.out.println("merge...............");
 						jlb_Speed.setText("Đang ghép âm thanh vào video...");
 						_Main_View.ReloadView();
@@ -254,7 +254,7 @@ public class view_Task_DownLoad_Video extends JFrame {
 							String time = calculateTime(v.getDownloadTime()/1000);
 							if(time.equals("")) time = "gần 1 giây";
 							jlb_Speed.setText("Hoàn thành, " + "tổng thời gian tải: " + time);
-							if(v.getT()[0].getFileSize()==-1)
+							if(array_JProgressBar[0].isIndeterminate())
 							{
 								array_JProgressBar[0].setIndeterminate(false);
 								array_JProgressBar[0].setString("Hoàn Thành");
