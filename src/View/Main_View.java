@@ -390,7 +390,7 @@ public class Main_View extends JFrame {
 				if (task != null && task.getDownloadStatus() != Values.DELETED)
 				{
 					String name = task.getSaveName().toLowerCase();
-					if (txtSearch.getText().toLowerCase().equals("") || name.contains(txtSearch.getText()))
+					if (txtSearch.getText().equals("") || name.contains(txtSearch.getText().toLowerCase()))
 					{
 						int id = task.getTaskID();
 						String folder = task.getSaveDirectory();
