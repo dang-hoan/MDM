@@ -42,6 +42,13 @@ public class VideoPopupitem {
 	public void setLen2(long len2) {
 		this.len2 = len2;
 	}
+	public void change_Name(String id ,long clen,String name)
+	{
+		if(this.url_Video.contains(id) && this.url_Video.contains(Long.toString(clen)))
+		{
+			this.file_Name=name;
+		}
+	}
 	
 	
 

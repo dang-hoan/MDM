@@ -1,9 +1,9 @@
 package View;
 
 import java.awt.GraphicsConfiguration;
-import java.awt.Insets;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -15,6 +15,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.JList;
 
@@ -60,13 +61,12 @@ public class list_Video_Popup_Download extends JFrame {
 		list = new JList<VideoPopupitem>();
 		scrollPane.setViewportView(list);
 		contentPane.setLayout(gl_contentPane);
-		GraphicsConfiguration config = this.getGraphicsConfiguration();
-		Rectangle bounds = config.getBounds();
-		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
-
-		int x = bounds.x + bounds.width - insets.right - this.getWidth();
-		int y = bounds.y + insets.top;
-		this.setLocation(x, y+40);
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+		int x = (int) rect.getMaxX() - this.getWidth();
+		int y = (int) rect.getMaxY() - this.getHeight();
+		this.setLocation(x, y - 55);
 		this.setUndecorated(true);
 		model = new DefaultListModel<VideoPopupitem>();
 		list.setModel(model);
@@ -122,5 +122,21 @@ public class list_Video_Popup_Download extends JFrame {
 				
 			}
 		});
+	}
+	public void reload(String id, long clen, String name) {
+		System.out.println("reload1");
+		ListModel<VideoPopupitem> item = list.getModel();
+		System.out.println(item.getSize());
+		int n =item.getSize();
+		VideoPopupitem[] data = new VideoPopupitem[n];
+		for(int i=0;i<n;i++)
+		{
+			data[i] = (VideoPopupitem)item.getElementAt(i);
+		}
+		for(int i=0;i<n;i++)
+		{
+			data[i].change_Name(id, clen, name);
+		}
+		list.setListData(data);
 	}
 }

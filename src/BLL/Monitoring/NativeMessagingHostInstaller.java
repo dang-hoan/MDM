@@ -20,7 +20,7 @@ public class NativeMessagingHostInstaller {
 	private static final String CHROME_EXTENSION_IDS = String.join(",",
 			"\"chrome-extension://ogcijeogilmnohjiomiiclbfblcifkim/\"",
 			"\"chrome-extension://dholefpnmilogpgldenhknjhhbdgfcap/\"",
-			"\"chrome-extension://lnplfilkbalalfibdbcnjneeganfdagk/\"");
+			"\"chrome-extension://leojcglenoangbdpenlpiepclmodemii/\"");
 
 	private static final String FIREFOX_EXTENSION_IDS = String.join(",", "\"browser-mon@mdm.sourceforge.net\"");
 

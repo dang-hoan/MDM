@@ -307,10 +307,9 @@ public class Session implements Runnable {
 				} else {
 					System.out.println("+++updating");
 					System.out.println("same");
-					// sometimes dash segments are available, but the title of the page is not
-					// properly updated yet
-					// update existing video name when ever the tab title changes
-//					XDMApp.getInstance().youtubeVideoTitleUpdated(info.url, data.getFile());
+					Video_Popup popup = Video_Popup.getInstance();
+					popup.reload(id, clen, data.getFile());
+					System.out.println("Tên name :"+data.getFile());
 				}
 				return true;
 			}

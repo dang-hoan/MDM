@@ -841,10 +841,11 @@ public class Main_View extends JFrame {
 				}
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					if (e.getClickCount() == 2) {
-						DownloadTask task = DownloadManager.getInstance().getTask(listView.getSelectedValue().getId());
-						if (task.getDownloadStatus() == Values.FINISHED) {
-							open_File(task.getSaveDirectory(), task.getSaveName());
-						}
+					
+							CompactTask tmp = listView.getSelectedValue();
+							if(tmp.getStatus().equals("FINISHED")) open_File(tmp.getFolder(), tmp.getName());
+							else JOptionPane.showMessageDialog(getthis(), "File download not completed!", "Notification", JOptionPane.INFORMATION_MESSAGE);				
+						
 					}
 
 				}

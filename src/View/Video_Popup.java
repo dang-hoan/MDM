@@ -1,9 +1,9 @@
 package View;
 
-import java.awt.GraphicsConfiguration;
-import java.awt.Insets;
+
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -32,7 +32,7 @@ public class Video_Popup extends JFrame {
 
 	public Video_Popup() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 220, 50);
+		setBounds(100, 100, 220, 35);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -65,14 +65,13 @@ public class Video_Popup extends JFrame {
 								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 				.addContainerGap(50, Short.MAX_VALUE)));
 		contentPane.setLayout(gl_contentPane);
-		GraphicsConfiguration config = this.getGraphicsConfiguration();
-		Rectangle bounds = config.getBounds();
-		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
-
-		int x = bounds.x + bounds.width - insets.right - this.getWidth();
-		int y = bounds.y + insets.top;
-		this.setLocation(x, y);
-		this.setUndecorated(true);
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+		int x = (int) rect.getMaxX() - this.getWidth();
+		int y = (int) rect.getMaxY() - this.getHeight();
+		this.setLocation(x, y - 20);
+		//this.setUndecorated(true);
 		list_Popup_Download = list_Video_Popup_Download.getInstance();
 	}
 
@@ -85,7 +84,16 @@ public class Video_Popup extends JFrame {
 		
 	}
 	public void setvisible() {
-		list_Popup_Download.setAlwaysOnTop(true);
-		list_Popup_Download.setVisible(true);
+		if (!list_Popup_Download.isVisible()) {
+			list_Popup_Download.setAlwaysOnTop(true);
+			list_Popup_Download.setVisible(true);
+		} else {
+			list_Popup_Download.dispose();
+		}
+	}
+	public void reload(String id ,long clen,String name)
+	{
+		System.out.println("reload");
+		list_Popup_Download.reload(id,clen,name);
 	}
 }
