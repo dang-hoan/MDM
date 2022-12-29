@@ -69,8 +69,8 @@ public class Video_Popup extends JFrame {
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 		int x = (int) rect.getMaxX() - this.getWidth();
 		int y = (int) rect.getMaxY() - this.getHeight();
-		this.setLocation(x, y - 20);
-		//this.setUndecorated(true);
+		this.setLocation(x-5, y - 70);
+		this.setUndecorated(true);
 		list_Popup_Download = list_Video_Popup_Download.getInstance();
 	}
 

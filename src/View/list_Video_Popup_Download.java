@@ -65,7 +65,7 @@ public class list_Video_Popup_Download extends JFrame {
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 		int x = (int) rect.getMaxX() - this.getWidth();
 		int y = (int) rect.getMaxY() - this.getHeight();
-		this.setLocation(x, y - 55);
+		this.setLocation(x-5, y - 100);
 		this.setUndecorated(true);
 		model = new DefaultListModel<VideoPopupitem>();
 		list.setModel(model);
