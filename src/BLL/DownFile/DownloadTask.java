@@ -344,7 +344,6 @@ public class DownloadTask {
 							indexInSubFile = is.getFilePointer()-s;
 							is.close();
 							os.close();
-				        	createDate = System.currentTimeMillis();
 				        	System.out.println("Stop assembling!");
 							return;
 						}
@@ -597,6 +596,7 @@ public class DownloadTask {
 //			}
 		}
 
+		createDate = System.currentTimeMillis();
 		if(this.speed_Download != null) {
 			this.speed_Download.set_Check(Values.PAUSED);
 		}
