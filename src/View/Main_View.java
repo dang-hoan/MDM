@@ -120,8 +120,8 @@ public class Main_View extends JFrame {
 		JMenu mnNewMenu = new JMenu("File");
 		menuBar.add(mnNewMenu);
 		
-		JMenuItem mntmNewMenuItem_1 = new JMenuItem("New Download");
-		mntmNewMenuItem_1.addActionListener(new ActionListener() {
+		JMenuItem mntmNewDownload = new JMenuItem("New Download");
+		mntmNewDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					newDownloadView("", -2);					
@@ -130,38 +130,21 @@ public class Main_View extends JFrame {
 				} 
 			}
 		});
-		mntmNewMenuItem_1.setMnemonic(KeyEvent.VK_N);
-		mnNewMenu.add(mntmNewMenuItem_1);
+		mntmNewDownload.setMnemonic(KeyEvent.VK_N);
+		mnNewMenu.add(mntmNewDownload);
 		
-		JMenuItem mntmNewMenuItem = new JMenuItem("Delete Download");
-		mnNewMenu.add(mntmNewMenuItem);
-		
-		JMenu mnNewMenu_1 = new JMenu("Document");
-		menuBar.add(mnNewMenu_1);
-		
-		JMenuItem mntmNewMenuItem_2 = new JMenuItem("All");
-		mnNewMenu_1.add(mntmNewMenuItem_2);
-		
-		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Video");
-		mnNewMenu_1.add(mntmNewMenuItem_3);
-		
-		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Music");
-		mnNewMenu_1.add(mntmNewMenuItem_4);
-		
-		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Picture");
-		mnNewMenu_1.add(mntmNewMenuItem_5);
-		
-		JMenu mnNewMenu_2 = new JMenu("Download");
-		menuBar.add(mnNewMenu_2);
-		
-		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Downloading");
-		mnNewMenu_2.add(mntmNewMenuItem_6);
-		
-		JMenuItem mntmNewMenuItem_7 = new JMenuItem("Downloaded");
-		mnNewMenu_2.add(mntmNewMenuItem_7);
-		
-		JMenu mnNewMenu_3 = new JMenu("Tools");
-		menuBar.add(mnNewMenu_3);
+		JMenuItem mntmExit = new JMenuItem("Exit");
+		mnNewMenu.add(mntmExit);
+		mntmExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					System.exit(0);					
+				} catch (HeadlessException e1) {
+					e1.printStackTrace();
+				} 
+			}
+		});
+
 		contentPane = new JPanel();
 
 		setContentPane(contentPane);
@@ -696,6 +679,10 @@ public class Main_View extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				CompactTask tmp = listView.getSelectedValue();
 
+				if(tmp.getStatus().equals("DOWNLOADING") || tmp.getStatus().equals("ASSEMBLING") || tmp.getStatus().equals("MERGING")) {
+					JOptionPane.showMessageDialog(getthis(), "You can't remove file when the file is downloading, assembling or merging", "Notification", JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
 				int result = JOptionPane.showConfirmDialog(getthis(), "Bạn có muốn xóa trên ổ đĩa không ", "Xác nhận",
 						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (result == JOptionPane.YES_OPTION) {

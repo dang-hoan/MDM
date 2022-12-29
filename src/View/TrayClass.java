@@ -40,7 +40,7 @@ public class TrayClass {
 		about.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "MDM v1.0 App \nTác giả: \n - Đăng Hoan\n - Bảo Quốc\n - Ngọc Tín");
+				JOptionPane.showMessageDialog(null, "MDM v1.0 App \nTác giả: \n - Đăng Hoan\n - Bảo Quốc\n - Trần Tín");
 			}
 		});
 

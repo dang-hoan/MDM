@@ -113,7 +113,7 @@ public class Utils {
 			System.out.println("Status:" + statusLine);
 			
 			String[] arr = statusLine.split(" ");
-			int statusCode = Integer.parseInt(arr[1].trim());
+//			int statusCode = Integer.parseInt(arr[1].trim());
 			
 			while(true) {
 				String ln = sockIn.readLine();

@@ -5,6 +5,11 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
+import View.Main_View;
+
 public class BrowserMonitor implements Runnable{
 	private static BrowserMonitor _this;
 
@@ -37,6 +42,10 @@ public class BrowserMonitor implements Runnable{
 				session.start();
 			}
 		} catch (Exception e) {
+			ImageIcon icon = new ImageIcon(Main_View.class.getResource("/View/icon/error.png"));
+			icon = new ImageIcon(icon.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH));
+
+			JOptionPane.showMessageDialog(null, "Cổng 2002 để lắng nghe yêu cầu tiện ích đã bị chiếm!!", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
 			System.out.println("Cổng 2002 để lắng nghe yêu cầu tiện ích đã bị chiếm!!");
 		}
 		try {

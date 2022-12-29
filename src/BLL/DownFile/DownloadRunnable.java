@@ -146,7 +146,7 @@ public class DownloadRunnable implements Runnable {
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile, true));
 
 			if(EndPosition == -1 && CurrentPosition > 0) is.skip(CurrentPosition);
-
+			
 			while (CurrentPosition <= EndPosition || EndPosition == -1) {
 				if (t.isInterrupted()) {
 					System.out.println("Download Task ID "
@@ -189,6 +189,7 @@ public class DownloadRunnable implements Runnable {
 				Thread.sleep(2000);
 				
 			} catch (InterruptedException e1) {
+				return;
 			}
 			run();
 			System.out.println("reset because server overload");
