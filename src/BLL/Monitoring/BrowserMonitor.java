@@ -45,8 +45,8 @@ public class BrowserMonitor implements Runnable{
 			ImageIcon icon = new ImageIcon(Main_View.class.getResource("/View/icon/error.png"));
 			icon = new ImageIcon(icon.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH));
 
-			JOptionPane.showMessageDialog(null, "Cổng 2002 để lắng nghe yêu cầu tiện ích đã bị chiếm!!", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
-			System.out.println("Cổng 2002 để lắng nghe yêu cầu tiện ích đã bị chiếm!!");
+			JOptionPane.showMessageDialog(null, "Cổng 2002 để lắng nghe yêu cầu tiện ích đã bị chiếm!! (Có thể do bạn đã mở 1 app MDM trước đó, hoặc do chương trình khác chiếm)", "Notification", JOptionPane.INFORMATION_MESSAGE, icon);
+			System.out.println("Cổng 2002 để lắng nghe yêu cầu tiện ích đã bị chiếm!! (Có thể do bạn đã mở 1 app MDM trước đó, hoặc do chương trình khác chiếm)");
 		}
 		try {
 			serverSock.close();
