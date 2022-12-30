@@ -494,6 +494,7 @@ public class DownloadManager {
 			if(t != null){
 				t.deleteAllFile();
 				t.set_Status(Values.DELETED);
+				System.out.println(Values.State(t.getDownloadStatus()));
 			}
 			else{
 				YTVideo v = VideoTasks.get(id);

@@ -138,8 +138,9 @@ public class Main_View extends JFrame {
 		mntmExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					DownloadManager.getInstance().shutdown();
 					System.exit(0);					
-				} catch (HeadlessException e1) {
+				} catch (HeadlessException | IOException e1) {
 					e1.printStackTrace();
 				} 
 			}
@@ -568,9 +569,18 @@ public class Main_View extends JFrame {
 		File file = new File(save_Directory + File.separator + save_File);
 		try {
 			if (file.exists()) {
-				Process pro = Runtime.getRuntime()
-						.exec("rundll32 url.dll,FileProtocolHandler " + save_Directory + File.separator + save_File);
-				pro.waitFor();
+//				Process pro = Runtime.getRuntime()
+//						.exec("rundll32 url.dll,FileProtocolHandler " + "\"" + save_Directory + File.separator + save_File+ "\"");
+//				pro.waitFor();
+				File f = new File(save_Directory + File.separator + save_File);
+//				ProcessBuilder builder = new ProcessBuilder();
+//				ArrayList<String> lst = new ArrayList<String>();
+//				lst.add("rundll32");
+//				lst.add("url.dll,FileProtocolHandler");
+//				lst.add(f.getAbsolutePath());
+//				builder.command(lst);
+//				builder.start();
+				Desktop.getDesktop().open(f);
 			} else {
 				System.out.println("file does not exist");
 			}
